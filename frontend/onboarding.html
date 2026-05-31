@@ -1,172 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BalancedBody AI | Biological Setup</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: { extend: { colors: { primary: { 500: '#2563eb', 600: '#1d4ed8' } }, fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] } } }
-        }
-    </script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <script src="https://unpkg.com/feather-icons"></script>
+
+  <script>if(localStorage.theme==="dark"||(!localStorage.theme&&window.matchMedia("(prefers-color-scheme: dark)").matches)){document.documentElement.classList.add("dark")}</script>
+    <style>
+        html { background-color: #050505 !important; }
+        html:not(.dark) { background-color: #fafafa !important; }
+    </style>
+
+
+
+
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sustainability | Biological Setup</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { colors: { primary: { 50: '#f7fee7', 100: '#ecfccb', 500: '#84cc16', 600: '#65a30d', 900: '#365314' } }, fontFamily: { sans: ['Outfit', 'system-ui', 'sans-serif'] } } }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://unpkg.com/feather-icons"></script>
 </head>
-<body class="bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-200">
+<body class="bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col ">
 
-    <nav class="border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
-                <a href="index.html" class="flex-shrink-0 flex items-center gap-2 text-gray-900 dark:text-white">
-                    <i data-feather="activity" class="text-primary-500"></i>
-                    <span class="font-bold text-xl tracking-tight">BalancedBody AI</span>
-                </a>
-                <div class="flex items-center gap-4">
-                    <button id="theme-toggle" class="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded-full">
-                        <i data-feather="moon" id="theme-icon-moon" class="w-5 h-5 hidden dark:block"></i>
-                        <i data-feather="sun" id="theme-icon-sun" class="w-5 h-5 block dark:hidden"></i>
-                    </button>
-                    <div id="nav-auth-section" class="flex items-center gap-4"></div>
-                </div>
-            </div>
+
+  <nav class="border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-950/80 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between h-16 items-center">
+        <a href="index.html" class="flex-shrink-0 flex items-center gap-2 text-gray-900 dark:text-white">
+          <i data-feather="activity" class="text-primary-500"></i>
+          <span class="font-bold text-xl tracking-tight">Sustainability</span>
+        </a>
+        <div class="flex items-center gap-4">
+          <button id="theme-toggle" class="p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white rounded-full">
+            <i data-feather="moon" id="theme-icon-moon" class="w-5 h-5 hidden dark:block"></i>
+            <i data-feather="sun" id="theme-icon-sun" class="w-5 h-5 block dark:hidden"></i>
+          </button>
+          <div id="nav-auth-section" class="flex items-center gap-4"></div>
         </div>
-    </nav>
+      </div>
+    </div>
+  </nav>
 
-    <main class="flex-grow py-12 px-4 sm:px-6 lg:px-8 flex justify-center">
-        <div class="max-w-2xl w-full">
-            
-            <div class="mb-8 border-b border-gray-200 dark:border-gray-800 pb-5">
-                <h2 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Profile Configuration</h2>
-                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Provide accurate metrics to ensure optimal algorithm results.</p>
+  <main class="flex-grow py-12 px-4 sm:px-6 lg:px-8 flex justify-center">
+    <div class="max-w-2xl w-full">
+      
+      <div class="mb-8 border-b border-gray-200 dark:border-gray-800 pb-5">
+        <h2 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">Profile Configuration</h2>
+        <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Provide accurate metrics to ensure optimal algorithm results.</p>
+      </div>
+
+      <div class="bg-white dark:bg-gray-900 shadow-sm border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
+        <form id="onboarding-form" class="p-6 sm:p-8">
+          
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-6">Biological Parameters</h3>
+          
+          <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Age</label>
+              <input type="number" id="age" required placeholder="e.g. 25" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
             </div>
-
-            <div class="bg-white dark:bg-gray-900 shadow-sm border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
-                <form id="onboarding-form" class="p-6 sm:p-8">
-                    
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-6">Biological Parameters</h3>
-                    
-                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Age</label>
-                            <input type="number" id="age" required placeholder="e.g. 25" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Gender</label>
-                            <select id="gender" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 appearance-none">
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Weight (kg)</label>
-                            <input type="number" step="0.1" id="weight" required placeholder="e.g. 70.5" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Height (cm)</label>
-                            <input type="number" step="0.1" id="height" required placeholder="e.g. 175.0" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
-                        </div>
-                    </div>
-
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mt-10 mb-6 border-t border-gray-200 dark:border-gray-800 pt-6">Lifestyle & Objectives</h3>
-                    
-                    <div class="space-y-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Baseline Activity Level</label>
-                            <select id="activity_level" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 appearance-none">
-                                <option value="sedentary">Sedentary (Little or no exercise)</option>
-                                <option value="lightly_active">Lightly Active (Exercise 1-3 days/week)</option>
-                                <option value="moderately_active">Moderately Active (Exercise 3-5 days/week)</option>
-                                <option value="very_active">Very Active (Exercise 6-7 days/week)</option>
-                                <option value="super_active">Super Active (Physical job / Athlete)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Primary Trajectory</label>
-                            <select id="goal" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 appearance-none">
-                                <option value="loss">Weight Loss (Caloric Deficit)</option>
-                                <option value="maintain">Maintenance (Base TDEE)</option>
-                                <option value="gain">Muscle Gain (Caloric Surplus)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-800">
-                        <button type="submit" id="submit-btn" class="w-full sm:w-auto sm:ml-auto flex justify-center items-center gap-2 py-3 px-8 text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 focus:outline-none transition-colors">
-                            <span>Initialize Dashboard</span>
-                        </button>
-                    </div>
-                </form>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Gender</label>
+              <select id="gender" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 appearance-none">
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
             </div>
-        </div>
-    </main>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Weight (kg)</label>
+              <input type="number" step="0.1" id="weight" required placeholder="e.g. 70.5" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Height (cm)</label>
+              <input type="number" step="0.1" id="height" required placeholder="e.g. 175.0" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
+            </div>
+          </div>
 
-    <script src="js/app.js?v=2"></script>
-    <script>
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mt-10 mb-6 border-t border-gray-200 dark:border-gray-800 pt-6">Lifestyle & Objectives</h3>
+          
+          <div class="space-y-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Baseline Activity Level</label>
+              <select id="activity_level" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 appearance-none">
+                <option value="sedentary">Sedentary (Little or no exercise)</option>
+                <option value="lightly_active">Lightly Active (Exercise 1-3 days/week)</option>
+                <option value="moderately_active">Moderately Active (Exercise 3-5 days/week)</option>
+                <option value="very_active">Very Active (Exercise 6-7 days/week)</option>
+                <option value="super_active">Super Active (Physical job / Athlete)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Primary Trajectory</label>
+              <select id="goal" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 appearance-none">
+                <option value="loss">Weight Loss (Caloric Deficit)</option>
+                <option value="maintain">Maintenance (Base TDEE)</option>
+                <option value="gain">Muscle Gain (Caloric Surplus)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-800">
+            <button type="submit" id="submit-btn" class="w-full sm:w-auto sm:ml-auto flex justify-center items-center gap-2 py-3 px-8 text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 focus:outline-none transition-colors">
+              <span>Initialize Dashboard</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/app.js?v=2"></script>
+  <script>
+    feather.replace();
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!getUserId()) {
+        window.location.href = 'auth.html';
+        return;
+      }
+
+      
+      try {
+        const res = await fetch(`${API_BASE_URL}/user/profile?user_id=${getUserId()}`);
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById('age').value = data.age;
+          document.getElementById('gender').value = data.gender;
+          document.getElementById('weight').value = data.weight;
+          document.getElementById('height').value = data.height;
+          document.getElementById('activity_level').value = data.activity_level;
+          document.getElementById('goal').value = data.goal;
+          document.getElementById('submit-btn').innerHTML = '<span>Update Configuration</span>';
+        }
+      } catch (err) {
+        console.log("No existing profile found. Continuing with empty form.");
+      }
+
+      document.getElementById('onboarding-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('submit-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<i data-feather="loader" class="animate-spin"></i> Processing...';
         feather.replace();
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            if (!getUserId()) {
-                window.location.href = 'auth.html';
-                return;
-            }
+        const payload = {
+          user_id: getUserId(),
+          age: document.getElementById('age').value,
+          gender: document.getElementById('gender').value,
+          weight: document.getElementById('weight').value,
+          height: document.getElementById('height').value,
+          activity_level: document.getElementById('activity_level').value,
+          goal: document.getElementById('goal').value
+        };
 
-            
-            try {
-                const res = await fetch(`${API_BASE_URL}/user/profile?user_id=${getUserId()}`);
-                if (res.ok) {
-                    const data = await res.json();
-                    document.getElementById('age').value = data.age;
-                    document.getElementById('gender').value = data.gender;
-                    document.getElementById('weight').value = data.weight;
-                    document.getElementById('height').value = data.height;
-                    document.getElementById('activity_level').value = data.activity_level;
-                    document.getElementById('goal').value = data.goal;
-                    document.getElementById('submit-btn').innerHTML = '<span>Update Configuration</span>';
-                }
-            } catch (err) {
-                console.log("No existing profile found. Continuing with empty form.");
-            }
+        try {
+          const res = await fetch(`${API_BASE_URL}/user/profile`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
 
-            document.getElementById('onboarding-form').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const btn = document.getElementById('submit-btn');
-                btn.disabled = true;
-                btn.innerHTML = '<i data-feather="loader" class="animate-spin"></i> Processing...';
-                feather.replace();
+          if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || 'Failed to save profile');
+          }
 
-                const payload = {
-                    user_id: getUserId(),
-                    age: document.getElementById('age').value,
-                    gender: document.getElementById('gender').value,
-                    weight: document.getElementById('weight').value,
-                    height: document.getElementById('height').value,
-                    activity_level: document.getElementById('activity_level').value,
-                    goal: document.getElementById('goal').value
-                };
-
-                try {
-                    const res = await fetch(`${API_BASE_URL}/user/profile`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!res.ok) {
-                        const err = await res.json();
-                        throw new Error(err.error || 'Failed to save profile');
-                    }
-
-                    window.location.href = 'dashboard.html';
-                } catch (err) {
-                    alert(err.message);
-                    btn.disabled = false;
-                    btn.innerHTML = '<span>Initialize Dashboard</span>';
-                }
-            });
-        });
-    </script>
+          window.location.href = 'dashboard.html';
+        } catch (err) {
+          alert(err.message);
+          btn.disabled = false;
+          btn.innerHTML = '<span>Initialize Dashboard</span>';
+        }
+      });
+    });
+  </script>
 </body>
 </html>

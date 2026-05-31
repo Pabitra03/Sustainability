@@ -1,52 +1,55 @@
 import pymysql
 import os
+import time
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=True)
 
-_connection = None
+def get_db_connection(with_db=True, retries=3, retry_delay=2):
+    """
+    Get a database connection with automatic retry logic.
+    TiDB Serverless clusters auto-pause after inactivity and need
+    a few seconds to wake up. This retry mechanism handles that
+    transparently so users never see a failed connection.
+    """
+    config = {
+        'host': os.getenv('DB_HOST', '127.0.0.1'),
+        'user': os.getenv('DB_USER', 'root'),
+        'password': os.getenv('DB_PASSWORD', ''),
+        'port': int(os.getenv('DB_PORT', 3306)),
+        'charset': 'utf8mb4',
+        'connect_timeout': 15,
+        'read_timeout': 15,
+        'write_timeout': 15,
+        'autocommit': True
+    }
 
-def get_db_connection(with_db=True):
-    global _connection
-    
-    # Try to reuse the global connection if it's healthy
-    if _connection:
+    if with_db:
+        config['cursorclass'] = pymysql.cursors.DictCursor
+
+    ssl_ca = os.getenv('DB_SSL_CA')
+    if ssl_ca:
+        config['ssl_verify_cert'] = True
+        config['ssl_verify_identity'] = True
+
+    if with_db:
+        config['database'] = os.getenv('DB_NAME', 'fitness_db')
+
+    last_error = None
+    for attempt in range(1, retries + 1):
         try:
-            _connection.ping(reconnect=True)
-            return _connection
-        except Exception:
-            try:
-                _connection.close()
-            except:
-                pass
-            _connection = None
+            conn = pymysql.connect(**config)
+            if attempt > 1:
+                print(f"DB connected on attempt {attempt}")
+            return conn
+        except Exception as e:
+            last_error = e
+            print(f"DB connection attempt {attempt}/{retries} failed: {e}")
+            if attempt < retries:
+                time.sleep(retry_delay)
 
-    try:
-        config = {
-            'host': os.getenv('DB_HOST', '127.0.0.1'),
-            'user': os.getenv('DB_USER', 'root'),
-            'password': os.getenv('DB_PASSWORD', ''),
-            'port': int(os.getenv('DB_PORT', 3306)),
-            'charset': 'utf8mb4',
-            'cursorclass': pymysql.cursors.DictCursor if with_db else None,
-            'connect_timeout': 10,
-            'read_timeout': 10,
-            'write_timeout': 10,
-            'autocommit': True
-        }
-        
-        ssl_ca = os.getenv('DB_SSL_CA')
-        if ssl_ca:
-            config['ssl'] = {'ca': ssl_ca}
-
-        if with_db:
-            config['database'] = os.getenv('DB_NAME', 'fitness_db')
-        
-        _connection = pymysql.connect(**config)
-        return _connection
-    except Exception as e:
-        print(f"Error connecting to Database: {e}")
-        return None
+    print(f"All {retries} DB connection attempts failed. Last error: {last_error}")
+    return None
 
 def init_db():
     # First, connect without a database to create it if it doesn't exist
@@ -68,6 +71,7 @@ def init_db():
         print("Failed to initialize database tables.")
         return
     cursor = conn.cursor()
+    cursor.execute(f"USE {os.getenv('DB_NAME', 'fitness_db')}")
     
     # Create Users Table
     cursor.execute("""

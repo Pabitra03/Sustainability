@@ -15,7 +15,7 @@ from routes.progress_routes import progress_routes
 from routes.dashboard_routes import dashboard_bp
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=True)
 
 app = Flask(__name__)
 CORS(app)
@@ -41,8 +41,8 @@ def handle_exception(e):
 
 @app.route('/', methods=['GET'])
 def home():
-    return "BalancedBody AI Backend is running!"
+    return "Sustainability Backend is running!"
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5001))
+    port = 5001
     app.run(host='0.0.0.0', port=port, debug=True)

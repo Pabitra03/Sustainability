@@ -75,7 +75,7 @@ def get_dashboard():
         response_data = {
             "name": user['user_name'],
             "today_date": datetime.now().strftime("%A, %B %d"),
-            "active_days": 5, # Mock streak
+            "active_days": 0, # Initial value before fetchProgressStatus updates it
             "metrics": {
                 "bmi": bmi,
                 "bmr": bmr,
@@ -94,3 +94,4 @@ def get_dashboard():
         return jsonify({"error": str(e)}), 500
     finally:
         cursor.close()
+        conn.close()

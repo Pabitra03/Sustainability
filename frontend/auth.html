@@ -1,205 +1,244 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BalancedBody AI | Authenticate</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: { extend: { colors: { primary: { 50: '#f7fee7', 100: '#ecfccb', 500: '#84cc16', 600: '#65a30d', 900: '#365314' }, secondary: { 500: '#3b82f6' } }, fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] } } }
-        }
-    </script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <script src="https://unpkg.com/feather-icons"></script>
-</head>
-<body class="bg-background dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col transition-colors duration-200">
 
-    <!-- Navbar Minimal -->
-    <div class="absolute top-0 left-0 w-full z-10 px-6 py-4 flex justify-between">
-        <a href="index.html" class="flex items-center gap-1.5 text-gray-900 dark:text-white lg:text-white drop-shadow-md">
-            <i data-feather="activity" class="text-primary-500 w-4 h-4 sm:w-5 sm:h-5"></i>
-            <span class="font-bold text-sm sm:text-xl tracking-tight">BalancedBody AI</span>
-        </a>
-        <button id="theme-toggle" onclick="toggleTheme()" class="p-2 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 rounded-full transition-all">
-            <i data-feather="moon" id="theme-icon-moon" class="w-5 h-5 text-gray-700 dark:text-white hidden dark:block"></i>
-            <i data-feather="sun" id="theme-icon-sun" class="w-5 h-5 text-gray-700 dark:text-white block dark:hidden"></i>
-        </button>
+  <script>if(localStorage.theme==="dark"||(!localStorage.theme&&window.matchMedia("(prefers-color-scheme: dark)").matches)){document.documentElement.classList.add("dark")}</script>
+    <style>
+        html { background-color: #050505 !important; }
+        html:not(.dark) { background-color: #fafafa !important; }
+    </style>
+
+
+
+
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sustainability | Authenticate</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { colors: { primary: { 50: '#f7fee7', 100: '#ecfccb', 500: '#84cc16', 600: '#65a30d', 900: '#365314' }, secondary: { 500: '#3b82f6' } }, fontFamily: { sans: ['Outfit', 'system-ui', 'sans-serif'] } } }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body class="bg-[#fafafa] dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col ">
+
+
+  <!-- Navbar Minimal -->
+  <div class="absolute top-0 left-0 w-full z-10 px-6 py-4 flex justify-between">
+    <a href="index.html" class="flex items-center gap-1.5 text-gray-900 dark:text-white lg:text-white drop-shadow-md">
+      <i data-feather="activity" class="text-primary-500 w-4 h-4 sm:w-5 sm:h-5"></i>
+      <span class="font-bold text-sm sm:text-xl tracking-tight">Sustainability</span>
+    </a>
+    <button id="theme-toggle" onclick="toggleTheme()" class="p-2 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 rounded-full transition-all">
+      <i data-feather="moon" id="theme-icon-moon" class="w-5 h-5 text-gray-700 dark:text-white hidden dark:block"></i>
+      <i data-feather="sun" id="theme-icon-sun" class="w-5 h-5 text-gray-700 dark:text-white block dark:hidden"></i>
+    </button>
+  </div>
+
+  <!-- Split Screen Layout -->
+  <main class="flex-grow flex h-screen w-full">
+    
+    <!-- Left Side: Fitness Image -->
+    <div class="hidden lg:flex w-1/2 bg-gray-900 relative">
+      <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80" alt="Fitness Training" class="absolute inset-0 w-full h-full object-cover">
+      <div class="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent"></div>
+      <div class="absolute bottom-12 left-12 right-12 text-white">
+        <h2 class="text-4xl font-bold mb-4">Your Health Journey Starts Here.</h2>
+        <p class="text-lg text-gray-200">Join thousands who have optimized their metabolism using our intelligent engine.</p>
+      </div>
     </div>
 
-    <!-- Split Screen Layout -->
-    <main class="flex-grow flex h-screen w-full">
+    <!-- Right Side: Forms -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white dark:bg-gray-900">
+      <div class="max-w-md w-full">
         
-        <!-- Left Side: Fitness Image -->
-        <div class="hidden lg:flex w-1/2 bg-gray-900 relative">
-            <img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80" alt="Fitness Training" class="absolute inset-0 w-full h-full object-cover">
-            <div class="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent"></div>
-            <div class="absolute bottom-12 left-12 right-12 text-white">
-                <h2 class="text-4xl font-bold mb-4">Your Health Journey Starts Here.</h2>
-                <p class="text-lg text-gray-200">Join thousands who have optimized their metabolism using our intelligent engine.</p>
-            </div>
+        <!-- Tab Controls -->
+        <div class="flex border-b border-gray-200 dark:border-gray-800 mb-8">
+          <button onclick="switchTab('login')" id="tab-login" class="flex-1 pb-4 text-base font-medium text-center border-b-2 border-primary-500 text-primary-600 dark:text-primary-400 transition-colors">Log In</button>
+          <button onclick="switchTab('register')" id="tab-register" class="flex-1 pb-4 text-base font-medium text-center border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 transition-colors">Register</button>
         </div>
 
-        <!-- Right Side: Forms -->
-        <div class="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white dark:bg-gray-900">
-            <div class="max-w-md w-full">
-                
-                <!-- Tab Controls -->
-                <div class="flex border-b border-gray-200 dark:border-gray-800 mb-8">
-                    <button onclick="switchTab('login')" id="tab-login" class="flex-1 pb-4 text-base font-medium text-center border-b-2 border-primary-500 text-primary-600 dark:text-primary-400 transition-colors">Log In</button>
-                    <button onclick="switchTab('register')" id="tab-register" class="flex-1 pb-4 text-base font-medium text-center border-b-2 border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 transition-colors">Register</button>
-                </div>
-
-                <div id="error-alert" class="hidden mb-6 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 text-orange-600 dark:text-orange-400 p-3 rounded-lg text-sm flex gap-2 items-center">
-                    <i data-feather="alert-triangle" class="w-4 h-4"></i>
-                    <span id="error-message"></span>
-                </div>
-
-                <!-- Login Form -->
-                <form id="form-login" class="space-y-5">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
-                        <input id="login-email" type="email" required placeholder="name@example.com" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-shadow">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
-                        <div class="relative">
-                            <input id="login-password" type="password" required placeholder="••••••••" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-shadow">
-                            <button type="button" onclick="togglePassword('login-password')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                                <i data-feather="eye" class="w-5 h-5"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <button type="submit" id="login-btn" class="hover-scale w-full bg-primary-500 hover:bg-primary-600 text-white font-medium py-3 rounded-lg flex justify-center items-center gap-2">
-                        <span>Login</span>
-                    </button>
-                </form>
-
-                <!-- Register Form -->
-                <form id="form-register" class="space-y-5 hidden">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
-                        <input id="reg-name" type="text" required placeholder="John Doe" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-shadow">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email address</label>
-                        <input id="reg-email" type="email" required placeholder="name@example.com" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-shadow">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
-                        <div class="relative">
-                            <input id="reg-password" type="password" required placeholder="Choose a strong password" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-shadow">
-                            <button type="button" onclick="togglePassword('reg-password')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                                <i data-feather="eye" class="w-5 h-5"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <button type="submit" id="reg-btn" class="hover-scale w-full bg-secondary-500 hover:bg-secondary-600 text-white font-medium py-3 rounded-lg flex justify-center items-center gap-2">
-                        <span>Sign Up</span>
-                    </button>
-                </form>
-            </div>
+        <div id="error-alert" class="hidden mb-6 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 text-orange-600 dark:text-orange-400 p-3 rounded-lg text-sm flex gap-2 items-center">
+          <i data-feather="alert-triangle" class="w-4 h-4"></i>
+          <span id="error-message"></span>
         </div>
 
-    </main>
+        <!-- Login Form -->
+        <form id="form-login" class="space-y-5">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+            <input id="login-email" type="email" required placeholder="name@example.com" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-shadow">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+            <div class="relative">
+              <input id="login-password" type="password" required placeholder="••••••••" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-shadow">
+              <button type="button" onclick="togglePassword('login-password')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                <i data-feather="eye" class="w-5 h-5"></i>
+              </button>
+            </div>
+          </div>
+          <button type="submit" id="login-btn" class="hover-scale w-full bg-primary-500 hover:bg-primary-600 text-white font-medium py-3 rounded-lg flex justify-center items-center gap-2">
+            <span>Login</span>
+          </button>
+        </form>
 
-    <script src="js/app.js?v=2"></script>
-    <script>
-        feather.replace();
+        <!-- Register Form -->
+        <form id="form-register" class="space-y-5 hidden">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
+            <input id="reg-name" type="text" required placeholder="Write your name here" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-shadow">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email address</label>
+            <input id="reg-email" type="email" required placeholder="name@example.com" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-shadow">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+            <div class="relative">
+              <input id="reg-password" type="password" required placeholder="Choose a strong password" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 transition-shadow">
+              <button type="button" onclick="togglePassword('reg-password')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                <i data-feather="eye" class="w-5 h-5"></i>
+              </button>
+            </div>
+          </div>
+          <button type="submit" id="reg-btn" class="hover-scale w-full bg-secondary-500 hover:bg-secondary-600 text-white font-medium py-3 rounded-lg flex justify-center items-center gap-2">
+            <span>Sign Up</span>
+          </button>
+        </form>
+      </div>
+    </div>
 
+  </main>
+
+  <script src="js/app.js?v=2"></script>
+  <script>
+    feather.replace();
+
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('tab') === 'register') {
+      document.addEventListener('DOMContentLoaded', () => switchTab('register'));
+    }
+
+    function switchTab(tab) {
+      const loginForm = document.getElementById('form-login');
+      const regForm = document.getElementById('form-register');
+      const loginTab = document.getElementById('tab-login');
+      const regTab = document.getElementById('tab-register');
+      const errorAlert = document.getElementById('error-alert');
+
+      errorAlert.classList.add('hidden');
+
+      if (tab === 'login') {
+        loginForm.classList.remove('hidden');
+        regForm.classList.add('hidden');
+        loginTab.classList.add('border-primary-500', 'text-primary-600', 'dark:text-primary-400');
+        loginTab.classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400', 'hover:text-gray-700');
+        regTab.classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400', 'hover:text-gray-700');
+        regTab.classList.remove('border-primary-500', 'text-primary-600', 'dark:text-primary-400');
+      } else {
+        regForm.classList.remove('hidden');
+        loginForm.classList.add('hidden');
+        regTab.classList.add('border-primary-500', 'text-primary-600', 'dark:text-primary-400');
+        regTab.classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400', 'hover:text-gray-700');
+        loginTab.classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400', 'hover:text-gray-700');
+        loginTab.classList.remove('border-primary-500', 'text-primary-600', 'dark:text-primary-400');
+      }
+    }
+
+    function togglePassword(inputId) {
+      const input = document.getElementById(inputId);
+      input.type = input.type === "password" ? "text" : "password";
+    }
+
+    function showError(msg) {
+      document.getElementById('error-alert').classList.remove('hidden');
+      document.getElementById('error-message').textContent = msg;
+    }
+
+    // Helper: fetch with auto-retry for DB wake-up
+    async function fetchWithRetry(url, options, maxRetries = 5, retryDelay = 3000) {
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          const res = await fetch(url, options);
+          const data = await res.json();
+
+          // If DB is waking up from auto-pause, retry silently
+          if (!res.ok && data.error === 'Database connection failed' && attempt < maxRetries) {
+            showError(`Database is waking up... retrying (${attempt}/${maxRetries})`);
+            await new Promise(r => setTimeout(r, retryDelay));
+            continue;
+          }
+
+          return { res, data };
+        } catch (err) {
+          if (attempt === maxRetries) throw err;
+          await new Promise(r => setTimeout(r, retryDelay));
+        }
+      }
+    }
+
+    document.getElementById('form-login').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('login-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<i data-feather="loader" class="animate-spin"></i> Processing...';
+      feather.replace();
+
+      try {
+        const { res, data } = await fetchWithRetry(
+          `${API_BASE_URL}/auth/login`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: document.getElementById('login-email').value, password: document.getElementById('login-password').value })
+          }
+        );
+        if (!res.ok) throw new Error(data.error);
         
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('tab') === 'register') {
-            document.addEventListener('DOMContentLoaded', () => switchTab('register'));
-        }
+        setSession(data.user_id, data.name);
+        window.location.href = data.has_profile ? 'dashboard.html' : 'profile.html';
+      } catch (err) {
+        showError(err.message);
+        btn.disabled = false;
+        btn.innerHTML = '<span>Login</span>';
+      }
+    });
 
-        function switchTab(tab) {
-            const loginForm = document.getElementById('form-login');
-            const regForm = document.getElementById('form-register');
-            const loginTab = document.getElementById('tab-login');
-            const regTab = document.getElementById('tab-register');
-            const errorAlert = document.getElementById('error-alert');
+    document.getElementById('form-register').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('reg-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<i data-feather="loader" class="animate-spin"></i> Processing...';
+      feather.replace();
 
-            errorAlert.classList.add('hidden');
-
-            if (tab === 'login') {
-                loginForm.classList.remove('hidden');
-                regForm.classList.add('hidden');
-                loginTab.classList.add('border-primary-500', 'text-primary-600', 'dark:text-primary-400');
-                loginTab.classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400', 'hover:text-gray-700');
-                regTab.classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400', 'hover:text-gray-700');
-                regTab.classList.remove('border-primary-500', 'text-primary-600', 'dark:text-primary-400');
-            } else {
-                regForm.classList.remove('hidden');
-                loginForm.classList.add('hidden');
-                regTab.classList.add('border-primary-500', 'text-primary-600', 'dark:text-primary-400');
-                regTab.classList.remove('border-transparent', 'text-gray-500', 'dark:text-gray-400', 'hover:text-gray-700');
-                loginTab.classList.add('border-transparent', 'text-gray-500', 'dark:text-gray-400', 'hover:text-gray-700');
-                loginTab.classList.remove('border-primary-500', 'text-primary-600', 'dark:text-primary-400');
-            }
-        }
-
-        function togglePassword(inputId) {
-            const input = document.getElementById(inputId);
-            input.type = input.type === "password" ? "text" : "password";
-        }
-
-        function showError(msg) {
-            document.getElementById('error-alert').classList.remove('hidden');
-            document.getElementById('error-message').textContent = msg;
-        }
-
-        document.getElementById('form-login').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('login-btn');
-            btn.disabled = true;
-            btn.innerHTML = '<i data-feather="loader" class="animate-spin"></i> Processing...';
-            feather.replace();
-
-            try {
-                const res = await fetch(`${API_BASE_URL}/auth/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: document.getElementById('login-email').value, password: document.getElementById('login-password').value })
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error);
-                
-                setSession(data.user_id, data.name);
-                window.location.href = data.has_profile ? 'dashboard.html' : 'profile.html';
-            } catch (err) {
-                showError(err.message);
-                btn.disabled = false;
-                btn.innerHTML = '<span>Login</span>';
-            }
-        });
-
-        document.getElementById('form-register').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('reg-btn');
-            btn.disabled = true;
-            btn.innerHTML = '<i data-feather="loader" class="animate-spin"></i> Processing...';
-            feather.replace();
-
-            try {
-                const res = await fetch(`${API_BASE_URL}/auth/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: document.getElementById('reg-name').value, email: document.getElementById('reg-email').value, password: document.getElementById('reg-password').value })
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.error);
-                
-                setSession(data.user_id, data.name);
-                window.location.href = 'profile.html';
-            } catch (err) {
-                showError(err.message);
-                btn.disabled = false;
-                btn.innerHTML = '<span>Sign Up</span>';
-            }
-        });
-    </script>
+      try {
+        const { res, data } = await fetchWithRetry(
+          `${API_BASE_URL}/auth/register`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: document.getElementById('reg-name').value, email: document.getElementById('reg-email').value, password: document.getElementById('reg-password').value })
+          }
+        );
+        if (!res.ok) throw new Error(data.error);
+        
+        setSession(data.user_id, data.name);
+        window.location.href = 'profile.html';
+      } catch (err) {
+        showError(err.message);
+        btn.disabled = false;
+        btn.innerHTML = '<span>Sign Up</span>';
+      }
+    });
+  </script>
 </body>
 </html>

@@ -1,386 +1,402 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BalancedBody AI | Dashboard</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: { extend: { colors: { primary: { 50: '#f7fee7', 100: '#ecfccb', 500: '#84cc16', 600: '#65a30d', 900: '#365314' }, secondary: { 500: '#3b82f6' } }, fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] } } }
-        }
-    </script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <!-- Feather Icons -->
-    <script src="https://unpkg.com/feather-icons"></script>
+
+  <script>if(localStorage.theme==="dark"||(!localStorage.theme&&window.matchMedia("(prefers-color-scheme: dark)").matches)){document.documentElement.classList.add("dark")}</script>
+    <style>
+        html { background-color: #050505 !important; }
+        html:not(.dark) { background-color: #fafafa !important; }
+    </style>
+
+
+
+
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sustainability | Dashboard</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { colors: { primary: { 50: '#f7fee7', 100: '#ecfccb', 500: '#84cc16', 600: '#65a30d', 900: '#365314' }, secondary: { 500: '#3b82f6' } }, fontFamily: { sans: ['Outfit', 'system-ui', 'sans-serif'] } } }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Feather Icons -->
+  <script src="https://unpkg.com/feather-icons"></script>
 </head>
-<body class="bg-background dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-200">
+<body class="bg-[#fafafa] dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen ">
 
-    <div id="app-shell" class="w-full h-full pb-24 lg:pb-8">
-        <!-- Congratulation Banner (Hidden by default) -->
-        <div id="congrats-banner" class="hidden fixed top-20 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-md bg-green-500 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-4 animate-bounce">
-            <div class="text-3xl">🏆</div>
-            <div>
-                <h4 class="font-black text-lg">CONGRATULATIONS!</h4>
-                <p class="text-sm opacity-90">You completed today's tasks! <span id="streak-msg">Keep it up!</span></p>
-            </div>
-            <button onclick="this.parentElement.classList.add('hidden')" class="ml-auto p-1 hover:bg-white/20 rounded-lg">
-                <i data-feather="x" class="w-4 h-4"></i>
-            </button>
-        </div>
 
-        <div class="mb-8 relative">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-primary-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-primary-500/20">👋</div>
-                        <div>
-                            <h1 class="text-2xl font-black text-gray-900 dark:text-white">Hi, <span id="display-name" class="skeleton text-transparent rounded">User Name</span></h1>
-                            <p id="today-date-display" class="text-xs text-secondary-500 font-bold uppercase tracking-widest mt-0.5"></p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <div class="px-4 py-2 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm flex items-center gap-2">
-                             <div class="w-2 h-2 rounded-full bg-primary-500 animate-ping"></div>
-                             <span id="days-planned-count" class="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-tighter">Day 1 / 30</span>
-                        </div>
-                        <div class="flex items-center gap-2 bg-primary-500 px-4 py-2 rounded-2xl shadow-lg shadow-primary-500/20">
-                            <span class="text-lg">🔥</span>
-                            <span id="active-days-count" class="text-xs font-black text-black uppercase tracking-tighter">0 Day Streak</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Yesterday Missed Warning (Hidden by default) -->
-            <div id="yesterday-warning" class="hidden bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-4 flex items-start gap-4 mb-4 animate-pulse">
-                <div class="mt-1 bg-red-100 dark:bg-red-900/50 p-2 rounded-full text-red-600 dark:text-red-400">
-                    <i data-feather="alert-triangle" class="w-5 h-5"></i>
-                </div>
-                <div class="flex-1">
-                    <h3 class="font-bold text-red-900 dark:text-red-100">Missed Goals Yesterday</h3>
-                    <p class="text-sm text-red-700 dark:text-red-300">You didn't complete all tasks yesterday. Let's make it up today!</p>
-                </div>
-                <button onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-600">
-                    <i data-feather="x" class="w-4 h-4"></i>
-                </button>
-            </div>
-
-            <div class="bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-lg p-4 flex items-start gap-4 mb-4">
-                <div class="mt-1 bg-primary-100 dark:bg-primary-900/50 p-2 rounded-full text-primary-600 dark:text-primary-400">
-                    <span class="text-xl">💪</span>
-                </div>
-                <div>
-                    <h3 class="font-bold text-primary-900 dark:text-primary-100">Ready for today?</h3>
-                    <p class="text-sm text-primary-700 dark:text-primary-300">Consistency is key. Let's make every calorie count!</p>
-                </div>
-            </div>
-
-            <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4 flex items-start gap-4">
-                <i data-feather="bell" class="text-orange-500 mt-1"></i>
-                <div class="flex-1">
-                    <p class="text-sm text-orange-800 dark:text-orange-200 font-medium">Daily Goal Checklist</p>
-                </div>
-                <a href="workout.html" class="text-sm font-bold text-orange-600 dark:text-orange-400 hover:text-orange-700">Go to Workout</a>
-            </div>
-        </div>
-
-        <!-- Metric Cards Grid -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            
-            <!-- BMI -->
-            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-xl shadow-sm hover-scale">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-500 rounded-lg"><i data-feather="activity" class="w-4 h-4"></i></div>
-                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">BMI</span>
-                </div>
-                <h3 id="metric-bmi" class="text-2xl font-bold text-gray-900 dark:text-white skeleton w-20 h-8 rounded mb-1"></h3>
-                <p id="metric-bmi-label" class="text-xs font-medium text-blue-500 skeleton w-24 h-4 rounded"></p>
-            </div>
-
-            <!-- Calories -->
-            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-xl shadow-sm hover-scale">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="p-2 bg-primary-50 dark:bg-primary-900/20 text-primary-500 rounded-lg"><i data-feather="zap" class="w-4 h-4"></i></div>
-                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Daily Calories</span>
-                </div>
-                <div class="flex items-baseline gap-1 mb-1">
-                    <h3 id="metric-cal" class="text-2xl font-bold text-gray-900 dark:text-white skeleton w-20 h-8 rounded"></h3>
-                    <span class="text-sm text-gray-500 hidden" id="cal-unit">kcal</span>
-                </div>
-                <p class="text-xs font-medium text-gray-400">Target allocation</p>
-            </div>
-
-            <!-- Workout Time -->
-            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-xl shadow-sm hover-scale">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="p-2 bg-purple-50 dark:bg-purple-900/20 text-purple-500 rounded-lg"><i data-feather="clock" class="w-4 h-4"></i></div>
-                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Workout Today</span>
-                </div>
-                <div class="flex items-baseline gap-1 mb-1">
-                    <h3 id="metric-time" class="text-2xl font-bold text-gray-900 dark:text-white">45</h3>
-                    <span class="text-sm text-gray-500">min</span>
-                </div>
-                <p class="text-xs font-medium text-purple-500">Recommended</p>
-            </div>
-
-            <!-- Goal -->
-            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-xl shadow-sm hover-scale">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="p-2 bg-orange-50 dark:bg-orange-900/20 text-orange-500 rounded-lg"><i data-feather="target" class="w-4 h-4"></i></div>
-                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Goal</span>
-                </div>
-                <h3 id="metric-goal" class="text-lg font-bold text-gray-900 dark:text-white skeleton w-24 h-8 rounded mb-1"></h3>
-                <p class="text-xs font-medium text-orange-500">Current trajectory</p>
-            </div>
-        </div>
-
-        <!-- Today's Diet & Workout Section -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-            <!-- Diet Recommendation -->
-            <div class="lg:col-span-2 space-y-6">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-                    <div>
-                        <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                            <span class="p-2 bg-primary-100 dark:bg-primary-900/40 text-primary-600 rounded-lg"><i data-feather="coffee" class="w-5 h-5"></i></span>
-                            Today's Diet Recommendation
-                        </h2>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Personalized nutrition plan based on your fitness goals.</p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span id="diet-status-badge" class="text-[10px] font-bold px-2 py-1 rounded bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 border border-orange-200 dark:border-orange-800 uppercase">INCOMPLETE</span>
-                        <span id="diet-plan-name" class="text-[10px] sm:text-xs font-black text-primary-500 bg-primary-500/10 px-3 py-1.5 rounded-full border border-primary-500/20">Plan Name</span>
-                    </div>
-                </div>
-
-                <!-- Main Featured Meal -->
-                <div class="relative bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-2xl group ring-1 ring-black/5 dark:ring-white/5">
-                    <div class="h-[300px] sm:h-[400px] w-full bg-gray-100 dark:bg-gray-900 relative">
-                        <img id="featured-meal-img" src="" alt="Featured Meal" 
-                             class="w-full h-full object-cover opacity-0 transition-all duration-1000 z-10 relative group-hover:scale-105 transition-transform" 
-                             onload="this.classList.remove('opacity-0'); document.getElementById('img-placeholder').classList.add('hidden')"
-                             onerror="this.src='/assets/img/veg_main.png'; this.classList.remove('opacity-0');">
-                        <div id="img-placeholder" class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-600">
-                             <i data-feather="image" class="w-16 h-16 animate-pulse"></i>
-                        </div>
-                        <div class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-20"></div>
-                    </div>
-                    <div class="absolute inset-0 z-30 flex flex-col justify-end p-5 sm:p-8">
-                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 sm:gap-6">
-                            <div class="max-w-full sm:max-w-[70%]">
-                                <span class="bg-primary-500 text-black text-[10px] font-black uppercase px-2 py-1 rounded mb-2 sm:mb-3 inline-block tracking-tighter">Chef's Choice</span>
-                                <h3 id="featured-meal-title" class="text-2xl sm:text-3xl font-black text-white mb-1 sm:mb-2 leading-tight drop-shadow-lg"></h3>
-                                <p id="featured-meal-desc" class="text-xs sm:text-sm text-gray-200 line-clamp-2 drop-shadow-md opacity-90"></p>
-                            </div>
-                            <button id="mark-diet-btn" onclick="markTaskComplete('diet')" class="bg-white hover:bg-primary-500 text-black font-black text-xs sm:text-sm uppercase px-5 py-2.5 sm:px-6 sm:py-3 rounded-xl sm:rounded-2xl transition-all hover-scale shadow-xl whitespace-nowrap self-start sm:self-auto">
-                                Mark as Eaten
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- Breakfast -->
-                    <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm relative overflow-hidden group hover:border-blue-500/50 transition-colors">
-                        <div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <i data-feather="sun" class="w-12 h-12 text-blue-500"></i>
-                        </div>
-                        <span class="text-[10px] font-black text-blue-500 uppercase tracking-widest block mb-1">Sunrise Fuel</span>
-                        <h4 id="meal-breakfast" class="font-black text-gray-900 dark:text-white text-lg sm:text-base mb-1">Loading...</h4>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">High energy morning fuel.</p>
-                    </div>
-                    <!-- Lunch -->
-                    <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm relative overflow-hidden group hover:border-orange-500/50 transition-colors">
-                        <div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <i data-feather="cloud" class="w-12 h-12 text-orange-500"></i>
-                        </div>
-                        <span class="text-[10px] font-black text-orange-500 uppercase tracking-widest block mb-1">Peak Performance</span>
-                        <h4 id="meal-lunch" class="font-black text-gray-900 dark:text-white text-lg sm:text-base mb-1">Loading...</h4>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Stable afternoon energy.</p>
-                    </div>
-                    <!-- Dinner -->
-                    <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm relative overflow-hidden group hover:border-purple-500/50 transition-colors">
-                        <div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <i data-feather="moon" class="w-12 h-12 text-purple-500"></i>
-                        </div>
-                        <span class="text-[10px] font-black text-purple-500 uppercase tracking-widest block mb-1">Night Recovery</span>
-                        <h4 id="meal-dinner" class="font-black text-gray-900 dark:text-white text-lg sm:text-base mb-1">Loading...</h4>
-                        <p class="text-xs text-gray-500 dark:text-gray-400">Restorative evening meal.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Side Workout Suggestion -->
-            <div class="space-y-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                        <span class="p-2 bg-orange-100 dark:bg-orange-900/40 text-orange-600 rounded-lg"><i data-feather="target" class="w-5 h-5"></i></span>
-                        Workout Focus
-                    </h2>
-                    <span id="workout-status-badge" class="text-[10px] font-bold px-2 py-1 rounded bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 border border-orange-200 dark:border-orange-800 uppercase">Incomplete</span>
-                </div>
-                
-                <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-4 sm:p-6 shadow-md relative overflow-hidden h-auto">
-                    <div class="absolute -right-8 -top-8 w-32 h-32 bg-orange-500/5 rounded-full blur-3xl"></div>
-                    <div class="relative z-10 flex flex-col">
-                        <div class="flex items-start justify-between mb-4">
-                            <div>
-                                <h3 id="workout-name" class="text-xl sm:text-2xl font-black text-gray-900 dark:text-white mb-1"></h3>
-                                <p id="workout-desc" class="text-xs sm:text-sm text-gray-500 dark:text-gray-400"></p>
-                            </div>
-                            <div class="p-2 sm:p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl text-orange-500">
-                                <i data-feather="zap" class="w-5 h-5 sm:w-6 sm:h-6"></i>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-6">
-                            <h4 id="today-workout-item" class="text-2xl sm:text-3xl font-black text-primary-500 drop-shadow-sm"></h4>
-                        </div>
-                        
-                        <button id="mark-workout-btn" onclick="markTaskComplete('workout')" class="mt-auto w-full bg-orange-500 hover:bg-orange-600 text-white font-black py-3 sm:py-4 rounded-xl shadow-lg shadow-orange-500/20 transition-all hover-scale flex items-center justify-center gap-2 text-sm sm:text-base">
-                            <span>MARK WORKOUT COMPLETE</span>
-                            <i data-feather="check-circle" class="w-4 h-4 sm:w-5 sm:h-5"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div id="app-shell" class="w-full h-full pb-24 lg:pb-8">
+    <!-- Congratulation Banner (Hidden by default) -->
+    <div id="congrats-banner" class="hidden fixed top-20 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-md bg-green-500 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-4 animate-bounce">
+      <div class="text-3xl">🏆</div>
+      <div>
+        <h4 class="font-black text-lg">CONGRATULATIONS!</h4>
+        <p class="text-sm opacity-90">You completed today's tasks! <span id="streak-msg">Keep it up!</span></p>
+      </div>
+      <button onclick="this.parentElement.classList.add('hidden')" class="ml-auto p-1 hover:bg-white/20 rounded-lg">
+        <i data-feather="x" class="w-4 h-4"></i>
+      </button>
     </div>
 
-    <script src="js/app.js?v=2"></script>
-    <script>
-        const userId = getUserId();
+    <div class="mb-8 relative">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-primary-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-primary-500/20">👋</div>
+            <div>
+              <h1 class="text-2xl font-black text-gray-900 dark:text-white">Hi, <span id="display-name" class="skeleton text-transparent rounded">User Name</span></h1>
+              <p id="today-date-display" class="text-xs text-secondary-500 font-bold uppercase tracking-widest mt-0.5"></p>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="px-4 py-2 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm flex items-center gap-2">
+               <div class="w-2 h-2 rounded-full bg-primary-500 animate-ping"></div>
+               <span id="days-planned-count" class="text-xs font-black text-gray-700 dark:text-gray-300 uppercase tracking-tighter">Day 1 / 30</span>
+            </div>
+            <div class="flex items-center gap-2 bg-primary-500 px-4 py-2 rounded-2xl shadow-lg shadow-primary-500/20">
+              <span class="text-lg">🔥</span>
+              <span id="active-days-count" class="text-xs font-black text-black uppercase tracking-tighter">0 Day Streak</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Yesterday Missed Warning (Hidden by default) -->
+      <div id="yesterday-warning" class="hidden bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-4 flex items-start gap-4 mb-4 animate-pulse">
+        <div class="mt-1 bg-red-100 dark:bg-red-900/50 p-2 rounded-full text-red-600 dark:text-red-400">
+          <i data-feather="alert-triangle" class="w-5 h-5"></i>
+        </div>
+        <div class="flex-1">
+          <h3 class="font-bold text-red-900 dark:text-red-100">Missed Goals Yesterday</h3>
+          <p class="text-sm text-red-700 dark:text-red-300">You didn't complete all tasks yesterday. Let's make it up today!</p>
+        </div>
+        <button onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-600">
+          <i data-feather="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-lg p-4 flex items-start gap-4 mb-4">
+        <div class="mt-1 bg-primary-100 dark:bg-primary-900/50 p-2 rounded-full text-primary-600 dark:text-primary-400">
+          <span class="text-xl">💪</span>
+        </div>
+        <div>
+          <h3 class="font-bold text-primary-900 dark:text-primary-100">Ready for today?</h3>
+          <p class="text-sm text-primary-700 dark:text-primary-300">Consistency is key. Let's make every calorie count!</p>
+        </div>
+      </div>
+
+      <div class="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4 flex items-start gap-4">
+        <i data-feather="bell" class="text-orange-500 mt-1"></i>
+        <div class="flex-1">
+          <p class="text-sm text-orange-800 dark:text-orange-200 font-medium">Daily Goal Checklist</p>
+        </div>
+        <a href="workout.html" class="text-sm font-bold text-orange-600 dark:text-orange-400 hover:text-orange-700">Go to Workout</a>
+      </div>
+    </div>
+
+    <!-- Metric Cards Grid -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      
+      <!-- BMI -->
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-xl shadow-sm hover-scale">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="p-2 bg-blue-50 dark:bg-blue-900/20 text-blue-500 rounded-lg"><i data-feather="activity" class="w-4 h-4"></i></div>
+          <span class="text-sm font-medium text-gray-500 dark:text-gray-400">BMI</span>
+        </div>
+        <h3 id="metric-bmi" class="text-2xl font-bold text-gray-900 dark:text-white skeleton w-20 h-8 rounded mb-1"></h3>
+        <p id="metric-bmi-label" class="text-xs font-medium text-blue-500 skeleton w-24 h-4 rounded"></p>
+      </div>
+
+      <!-- Calories -->
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-xl shadow-sm hover-scale">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="p-2 bg-primary-50 dark:bg-primary-900/20 text-primary-500 rounded-lg"><i data-feather="zap" class="w-4 h-4"></i></div>
+          <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Daily Calories</span>
+        </div>
+        <div class="flex items-baseline gap-1 mb-1">
+          <h3 id="metric-cal" class="text-2xl font-bold text-gray-900 dark:text-white skeleton w-20 h-8 rounded"></h3>
+          <span class="text-sm text-gray-500 hidden" id="cal-unit">kcal</span>
+        </div>
+        <p class="text-xs font-medium text-gray-400">Target allocation</p>
+      </div>
+
+      <!-- Workout Time -->
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-xl shadow-sm hover-scale">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="p-2 bg-purple-50 dark:bg-purple-900/20 text-purple-500 rounded-lg"><i data-feather="clock" class="w-4 h-4"></i></div>
+          <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Workout Today</span>
+        </div>
+        <div class="flex items-baseline gap-1 mb-1">
+          <h3 id="metric-time" class="text-2xl font-bold text-gray-900 dark:text-white">45</h3>
+          <span class="text-sm text-gray-500">min</span>
+        </div>
+        <p class="text-xs font-medium text-purple-500">Recommended</p>
+      </div>
+
+      <!-- Goal -->
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-xl shadow-sm hover-scale">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="p-2 bg-orange-50 dark:bg-orange-900/20 text-orange-500 rounded-lg"><i data-feather="target" class="w-4 h-4"></i></div>
+          <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Goal</span>
+        </div>
+        <h3 id="metric-goal" class="text-lg font-bold text-gray-900 dark:text-white skeleton w-24 h-8 rounded mb-1"></h3>
+        <p class="text-xs font-medium text-orange-500">Current trajectory</p>
+      </div>
+    </div>
+
+    <!-- Today's Diet & Workout Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+      <!-- Diet Recommendation -->
+      <div class="lg:col-span-2 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+          <div>
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+              <span class="p-2 bg-primary-100 dark:bg-primary-900/40 text-primary-600 rounded-lg"><i data-feather="coffee" class="w-5 h-5"></i></span>
+              Today's Diet Recommendation
+            </h2>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Personalized nutrition plan based on your fitness goals.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="diet-status-badge" class="text-[10px] font-bold px-2 py-1 rounded bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 border border-orange-200 dark:border-orange-800 uppercase">INCOMPLETE</span>
+            <span id="diet-plan-name" class="text-[10px] sm:text-xs font-black text-primary-500 bg-primary-500/10 px-3 py-1.5 rounded-full border border-primary-500/20">Plan Name</span>
+          </div>
+        </div>
+
+        <!-- Main Featured Meal -->
+        <div class="relative bg-white dark:bg-gray-800 rounded-3xl border border-gray-200 dark:border-gray-700 overflow-hidden shadow-2xl group ring-1 ring-black/5 dark:ring-white/5">
+          <div class="h-[300px] sm:h-[400px] w-full bg-gray-100 dark:bg-gray-900 relative">
+            <img id="featured-meal-img" src="" alt="Featured Meal" 
+               class="w-full h-full object-cover opacity-0 transition-all duration-1000 z-10 relative group-hover:scale-105 transition-transform" 
+               onload="this.classList.remove('opacity-0'); document.getElementById('img-placeholder').classList.add('hidden')"
+               onerror="this.src='/assets/img/veg_main.png'; this.classList.remove('opacity-0');">
+            <div id="img-placeholder" class="absolute inset-0 flex items-center justify-center text-gray-400 dark:text-gray-600">
+               <i data-feather="image" class="w-16 h-16 animate-pulse"></i>
+            </div>
+            <div class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-20"></div>
+          </div>
+          <div class="absolute inset-0 z-30 flex flex-col justify-end p-5 sm:p-8">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 sm:gap-6">
+              <div class="max-w-full sm:max-w-[70%]">
+                <span class="bg-primary-500 text-black text-[10px] font-black uppercase px-2 py-1 rounded mb-2 sm:mb-3 inline-block tracking-tighter">Chef's Choice</span>
+                <h3 id="featured-meal-title" class="text-2xl sm:text-3xl font-black text-white mb-1 sm:mb-2 leading-tight drop-shadow-lg"></h3>
+                <p id="featured-meal-desc" class="text-xs sm:text-sm text-gray-200 line-clamp-2 drop-shadow-md opacity-90"></p>
+              </div>
+              <button id="mark-diet-btn" onclick="markTaskComplete('diet')" class="bg-white hover:bg-primary-500 text-black font-black text-xs sm:text-sm uppercase px-5 py-2.5 sm:px-6 sm:py-3 rounded-xl sm:rounded-2xl transition-all hover-scale shadow-xl whitespace-nowrap self-start sm:self-auto">
+                Mark as Eaten
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Breakfast -->
+          <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm relative overflow-hidden group hover:border-blue-500/50 transition-colors">
+            <div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+              <i data-feather="sun" class="w-12 h-12 text-blue-500"></i>
+            </div>
+            <span class="text-[10px] font-black text-blue-500 uppercase tracking-widest block mb-1">Sunrise Fuel</span>
+            <h4 id="meal-breakfast" class="font-black text-gray-900 dark:text-white text-lg sm:text-base mb-1">Loading...</h4>
+            <p class="text-xs text-gray-500 dark:text-gray-400">High energy morning fuel.</p>
+          </div>
+          <!-- Lunch -->
+          <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm relative overflow-hidden group hover:border-orange-500/50 transition-colors">
+            <div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+              <i data-feather="cloud" class="w-12 h-12 text-orange-500"></i>
+            </div>
+            <span class="text-[10px] font-black text-orange-500 uppercase tracking-widest block mb-1">Peak Performance</span>
+            <h4 id="meal-lunch" class="font-black text-gray-900 dark:text-white text-lg sm:text-base mb-1">Loading...</h4>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Stable afternoon energy.</p>
+          </div>
+          <!-- Dinner -->
+          <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm relative overflow-hidden group hover:border-purple-500/50 transition-colors">
+            <div class="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
+              <i data-feather="moon" class="w-12 h-12 text-purple-500"></i>
+            </div>
+            <span class="text-[10px] font-black text-purple-500 uppercase tracking-widest block mb-1">Night Recovery</span>
+            <h4 id="meal-dinner" class="font-black text-gray-900 dark:text-white text-lg sm:text-base mb-1">Loading...</h4>
+            <p class="text-xs text-gray-500 dark:text-gray-400">Restorative evening meal.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Side Workout Suggestion -->
+      <div class="space-y-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <span class="p-2 bg-orange-100 dark:bg-orange-900/40 text-orange-600 rounded-lg"><i data-feather="target" class="w-5 h-5"></i></span>
+            Workout Focus
+          </h2>
+          <span id="workout-status-badge" class="text-[10px] font-bold px-2 py-1 rounded bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 border border-orange-200 dark:border-orange-800 uppercase">Incomplete</span>
+        </div>
         
-        async function markTaskComplete(taskType) {
-            try {
-                const res = await fetch(`${API_BASE_URL}/progress/mark-complete`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_id: userId, task_type: taskType })
-                });
-                const data = await res.json();
-                if (data.fully_completed) {
-                    showCongrats();
-                }
-                fetchProgressStatus();
-            } catch (e) { console.error("Error marking complete:", e); }
-        }
+        <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-4 sm:p-6 shadow-md relative overflow-hidden h-auto">
+          <div class="absolute -right-8 -top-8 w-32 h-32 bg-orange-500/5 rounded-full blur-3xl"></div>
+          <div class="relative z-10 flex flex-col">
+            <div class="flex items-start justify-between mb-4">
+              <div>
+                <h3 id="workout-name" class="text-xl sm:text-2xl font-black text-gray-900 dark:text-white mb-1"></h3>
+                <p id="workout-desc" class="text-xs sm:text-sm text-gray-500 dark:text-gray-400"></p>
+              </div>
+              <div class="p-2 sm:p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl text-orange-500">
+                <i data-feather="zap" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+              </div>
+            </div>
+            
+            <div class="mb-6">
+              <h4 id="today-workout-item" class="text-2xl sm:text-3xl font-black text-primary-500 drop-shadow-sm"></h4>
+            </div>
+            
+            <button id="mark-workout-btn" onclick="markTaskComplete('workout')" class="mt-auto w-full bg-orange-500 hover:bg-orange-600 text-white font-black py-3 sm:py-4 rounded-xl shadow-lg shadow-orange-500/20 transition-all hover-scale flex items-center justify-center gap-2 text-sm sm:text-base">
+              <span>MARK WORKOUT COMPLETE</span>
+              <i data-feather="check-circle" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        async function fetchProgressStatus() {
-            try {
-                const res = await fetch(`${API_BASE_URL}/progress/status/${userId}`);
-                const data = await res.json();
-                
-                // Update Yesterday Warning
-                if (data.yesterday_completed === false) {
-                    document.getElementById('yesterday-warning').classList.remove('hidden');
-                }
-
-                // Update badges and buttons
-                const dietBadge = document.getElementById('diet-status-badge');
-                const dietBtn = document.getElementById('mark-diet-btn');
-                
-                if (data.diet_completed) {
-                    dietBadge.textContent = 'COMPLETED';
-                    dietBadge.className = "text-[10px] font-bold px-2 py-1 rounded bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800 uppercase";
-                    dietBtn.textContent = 'DONE ✓';
-                    dietBtn.disabled = true;
-                    dietBtn.className = "bg-green-500 text-white font-black text-xs uppercase px-4 py-2 rounded-lg opacity-80 cursor-default";
-                } else {
-                    dietBadge.textContent = 'INCOMPLETE';
-                    dietBadge.className = "text-[10px] font-bold px-2 py-1 rounded bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 border border-orange-200 dark:border-orange-800 uppercase";
-                }
-
-                const workBadge = document.getElementById('workout-status-badge');
-                const workBtn = document.getElementById('mark-workout-btn');
-                if (data.workout_completed) {
-                    workBadge.textContent = 'COMPLETED';
-                    workBadge.className = "text-[10px] font-bold px-2 py-1 rounded bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800 uppercase";
-                    workBtn.innerHTML = 'WORKOUT COMPLETED ✓';
-                    workBtn.disabled = true;
-                    workBtn.className = "w-full bg-green-500 text-white font-black py-4 rounded-xl flex items-center justify-center gap-2 cursor-default";
-                } else {
-                    workBadge.textContent = 'INCOMPLETE';
-                    workBadge.className = "text-[10px] font-bold px-2 py-1 rounded bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 border border-orange-200 dark:border-orange-800 uppercase";
-                }
-
-                // Days Planned / Track
-                document.getElementById('days-planned-count').textContent = `Day ${data.days_active || 1} / ${data.days_planned || 30}`;
-                document.getElementById('active-days-count').textContent = `${data.days_active || 0} Day Streak`;
-                
-                if (data.diet_completed && data.workout_completed) {
-                    showCongrats();
-                }
-            } catch (e) { console.error("Error fetching status:", e); }
-        }
-
-        function showCongrats() {
-            const banner = document.getElementById('congrats-banner');
-            if (banner.classList.contains('hidden')) {
-                banner.classList.remove('hidden');
-                // Auto hide after 5 seconds
-                setTimeout(() => banner.classList.add('hidden'), 5000);
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', async () => {
-            if (!userId) { window.location.href = 'auth.html'; return; }
-
-            try {
-                const res = await fetch(`${API_BASE_URL}/dashboard?user_id=${userId}`);
-                if (!res.ok) throw new Error('Need onboarding');
-                const data = await res.json();
-                
-                document.getElementById('display-name').textContent = data.name;
-                document.getElementById('display-name').classList.remove('skeleton', 'text-transparent');
-                document.getElementById('today-date-display').textContent = data.today_date;
-                document.getElementById('active-days-count').textContent = `${data.active_days} Day Streak`;
-
-                document.getElementById('metric-bmi').textContent = data.metrics.bmi;
-                document.getElementById('metric-bmi-label').textContent = (data.metrics.bmi > 25) ? 'Overweight' : 'Healthy';
-                document.getElementById('metric-cal').textContent = data.metrics.tdee;
-                document.getElementById('cal-unit').classList.remove('hidden');
-
-                const goalEl = document.getElementById('metric-goal');
-                goalEl.textContent = data.metrics.goal === 'loss' ? 'Weight Loss' : 
-                                    data.metrics.goal === 'gain' ? 'Muscle Gain' : 'Maintenance';
-                goalEl.classList.remove('skeleton', 'w-24', 'h-8');
-
-                // Correctly get lowercase weekday (e.g., 'monday')
-                const weekday = new Date().toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
-                
-                const dietData = data.diet[weekday] || data.diet.monday;
-                
-                document.getElementById('diet-plan-name').textContent = data.diet.name;
-                document.getElementById('featured-meal-title').textContent = dietData.lunch.item;
-                document.getElementById('featured-meal-desc').textContent = dietData.lunch.details;
-                
-                const mealImg = document.getElementById('featured-meal-img');
-                mealImg.src = dietData.lunch.image + '?v=' + new Date().getTime();
-                
-                document.getElementById('meal-breakfast').textContent = dietData.breakfast.item;
-                document.getElementById('meal-lunch').textContent = dietData.lunch.item;
-                document.getElementById('meal-dinner').textContent = dietData.dinner.item;
-
-                document.getElementById('workout-name').textContent = data.workout.name;
-                document.getElementById('workout-desc').textContent = data.workout.desc;
-                document.getElementById('today-workout-item').textContent = data.workout[weekday] || "Rest Day";
-
-                feather.replace();
-                fetchProgressStatus();
-
-            } catch (err) {
-                console.error("Dashboard Init Error:", err);
-                if (err.message === 'Need onboarding') {
-                    window.location.href = 'profile.html';
-                }
-                // If it's a JS error (like the one we just fixed), we stay on the page 
-                // but log the error so we can see it in console.
-            }
+  <script src="js/app.js?v=2"></script>
+  <script>
+    const userId = getUserId();
+    
+    async function markTaskComplete(taskType) {
+      try {
+        const res = await fetch(`${API_BASE_URL}/progress/mark-complete`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: userId, task_type: taskType })
         });
-    </script>
+        const data = await res.json();
+        if (data.fully_completed) {
+          showCongrats();
+        }
+        fetchProgressStatus();
+      } catch (e) { console.error("Error marking complete:", e); }
+    }
+
+    async function fetchProgressStatus() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/progress/status/${userId}`);
+        const data = await res.json();
+        
+        // Update Yesterday Warning
+        if (data.yesterday_completed === false) {
+          document.getElementById('yesterday-warning').classList.remove('hidden');
+        }
+
+        // Update badges and buttons
+        const dietBadge = document.getElementById('diet-status-badge');
+        const dietBtn = document.getElementById('mark-diet-btn');
+        
+        if (data.diet_completed) {
+          dietBadge.textContent = 'COMPLETED';
+          dietBadge.className = "text-[10px] font-bold px-2 py-1 rounded bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800 uppercase";
+          dietBtn.textContent = 'DONE ✓';
+          dietBtn.disabled = true;
+          dietBtn.className = "bg-green-500 text-white font-black text-xs uppercase px-4 py-2 rounded-lg opacity-80 cursor-default";
+        } else {
+          dietBadge.textContent = 'INCOMPLETE';
+          dietBadge.className = "text-[10px] font-bold px-2 py-1 rounded bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 border border-orange-200 dark:border-orange-800 uppercase";
+        }
+
+        const workBadge = document.getElementById('workout-status-badge');
+        const workBtn = document.getElementById('mark-workout-btn');
+        if (data.workout_completed) {
+          workBadge.textContent = 'COMPLETED';
+          workBadge.className = "text-[10px] font-bold px-2 py-1 rounded bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800 uppercase";
+          workBtn.innerHTML = 'WORKOUT COMPLETED ✓';
+          workBtn.disabled = true;
+          workBtn.className = "w-full bg-green-500 text-white font-black py-4 rounded-xl flex items-center justify-center gap-2 cursor-default";
+        } else {
+          workBadge.textContent = 'INCOMPLETE';
+          workBadge.className = "text-[10px] font-bold px-2 py-1 rounded bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 border border-orange-200 dark:border-orange-800 uppercase";
+        }
+
+        // Days Planned / Track
+        document.getElementById('days-planned-count').textContent = `Day ${data.days_active || 1} / ${data.days_planned || 30}`;
+        document.getElementById('active-days-count').textContent = `${data.streak !== undefined ? data.streak : 0} Day Streak`;
+        
+        if (data.diet_completed && data.workout_completed) {
+          showCongrats();
+        }
+      } catch (e) { console.error("Error fetching status:", e); }
+    }
+
+    function showCongrats() {
+      const banner = document.getElementById('congrats-banner');
+      if (banner.classList.contains('hidden')) {
+        banner.classList.remove('hidden');
+        // Auto hide after 5 seconds
+        setTimeout(() => banner.classList.add('hidden'), 5000);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!userId) { window.location.href = 'auth.html'; return; }
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/dashboard?user_id=${userId}`);
+        if (!res.ok) throw new Error('Need onboarding');
+        const data = await res.json();
+        
+        document.getElementById('display-name').textContent = data.name;
+        document.getElementById('display-name').classList.remove('skeleton', 'text-transparent');
+        document.getElementById('today-date-display').textContent = data.today_date;
+        document.getElementById('active-days-count').textContent = `${data.active_days} Day Streak`;
+
+        document.getElementById('metric-bmi').textContent = data.metrics.bmi;
+        document.getElementById('metric-bmi').classList.remove('skeleton', 'w-20', 'h-8');
+        document.getElementById('metric-bmi-label').textContent = (data.metrics.bmi > 25) ? 'Overweight' : 'Healthy';
+        document.getElementById('metric-bmi-label').classList.remove('skeleton', 'w-24', 'h-4');
+        document.getElementById('metric-cal').textContent = data.metrics.tdee;
+        document.getElementById('metric-cal').classList.remove('skeleton', 'w-20', 'h-8');
+        document.getElementById('cal-unit').classList.remove('hidden');
+
+        const goalEl = document.getElementById('metric-goal');
+        goalEl.textContent = data.metrics.goal === 'loss' ? 'Weight Loss' : 
+                  data.metrics.goal === 'gain' ? 'Muscle Gain' : 'Maintenance';
+        goalEl.classList.remove('skeleton', 'w-24', 'h-8');
+
+        // Correctly get lowercase weekday (e.g., 'monday')
+        const weekday = new Date().toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+        
+        const dietData = data.diet[weekday] || data.diet.monday;
+        
+        document.getElementById('diet-plan-name').textContent = data.diet.name;
+        document.getElementById('featured-meal-title').textContent = dietData.lunch.item;
+        document.getElementById('featured-meal-desc').textContent = dietData.lunch.details;
+        
+        const mealImg = document.getElementById('featured-meal-img');
+        mealImg.src = dietData.lunch.image + '?v=' + new Date().getTime();
+        
+        document.getElementById('meal-breakfast').textContent = dietData.breakfast.item;
+        document.getElementById('meal-lunch').textContent = dietData.lunch.item;
+        document.getElementById('meal-dinner').textContent = dietData.dinner.item;
+
+        document.getElementById('workout-name').textContent = data.workout.name;
+        document.getElementById('workout-desc').textContent = data.workout.desc;
+        document.getElementById('today-workout-item').textContent = data.workout[weekday] || "Rest Day";
+
+        feather.replace();
+        fetchProgressStatus();
+
+      } catch (err) {
+        console.error("Dashboard Init Error:", err);
+        if (err.message === 'Need onboarding') {
+          window.location.href = 'profile.html';
+        }
+        // If it's a JS error (like the one we just fixed), we stay on the page 
+        // but log the error so we can see it in console.
+      }
+    });
+  </script>
 </body>
 </html>

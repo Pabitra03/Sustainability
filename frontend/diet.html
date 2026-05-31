@@ -2,334 +2,347 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BalancedBody AI | Diet Plan</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: { extend: { colors: { primary: { 50: '#f7fee7', 100: '#ecfccb', 500: '#84cc16', 600: '#65a30d', 900: '#365314' }, secondary: { 500: '#3b82f6' } }, fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] } } }
-        }
-    </script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <script src="https://unpkg.com/feather-icons"></script>
+
+  <script>if(localStorage.theme==="dark"||(!localStorage.theme&&window.matchMedia("(prefers-color-scheme: dark)").matches)){document.documentElement.classList.add("dark")}</script>
+    <style>
+        html { background-color: #050505 !important; }
+        html:not(.dark) { background-color: #fafafa !important; }
+    </style>
+
+
+
+
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sustainability | Diet Plan</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { colors: { primary: { 50: '#f7fee7', 100: '#ecfccb', 500: '#84cc16', 600: '#65a30d', 900: '#365314' }, secondary: { 500: '#3b82f6' } }, fontFamily: { sans: ['Outfit', 'system-ui', 'sans-serif'] } } }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://unpkg.com/feather-icons"></script>
 </head>
 
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-200">
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen ">
 
-    <div id="app-shell" class="w-full h-full">
 
-        <!-- Header -->
-        <div class="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Daily Diet Plan</h1>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Personalized macronutrient protocol</p>
-            </div>
-            <button id="gen-btn" onclick="generateNewPlan()"
-                class="hover-scale bg-primary-500 hover:bg-primary-600 text-black px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-colors self-start sm:self-auto">
-                <i data-feather="refresh-cw" class="w-4 h-4"></i>
-                <span>Generate New Plan</span>
-            </button>
-        </div>
+  <div id="app-shell" class="w-full h-full">
 
-        <!-- Loading -->
-        <div id="loading" class="flex justify-center items-center py-20">
-            <i data-feather="loader" class="w-8 h-8 animate-spin text-primary-500"></i>
-        </div>
-
-        <div id="diet-content" class="hidden">
-
-            <!-- Macro Summary Bar -->
-            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 mb-6">
-                <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Today's Macro Targets</h3>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-                    <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3">
-                        <p class="text-xs text-blue-500 font-bold uppercase tracking-wider mb-1">Protein</p>
-                        <p class="text-2xl font-black text-blue-600 dark:text-blue-400" id="macro-p">--g</p>
-                    </div>
-                    <div class="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-3">
-                        <p class="text-xs text-amber-500 font-bold uppercase tracking-wider mb-1">Carbs</p>
-                        <p class="text-2xl font-black text-amber-600 dark:text-amber-400" id="macro-c">--g</p>
-                    </div>
-                    <div class="bg-rose-50 dark:bg-rose-900/20 rounded-xl p-3">
-                        <p class="text-xs text-rose-500 font-bold uppercase tracking-wider mb-1">Fat</p>
-                        <p class="text-2xl font-black text-rose-600 dark:text-rose-400" id="macro-f">--g</p>
-                    </div>
-                    <div class="bg-primary-50 dark:bg-primary-900/20 rounded-xl p-3">
-                        <p class="text-xs text-primary-500 font-bold uppercase tracking-wider mb-1">Total Kcal</p>
-                        <p class="text-2xl font-black text-primary-600 dark:text-primary-400" id="macro-kcal">--</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Day Tabs -->
-            <div class="flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-hide">
-                <button id="tab-today" onclick="switchDay('today')"
-                    class="day-tab shrink-0 px-4 py-2 rounded-lg text-sm font-bold transition-colors bg-primary-500 text-black">
-                    Today
-                </button>
-                <button id="tab-tomorrow" onclick="switchDay('tomorrow')"
-                    class="day-tab shrink-0 px-4 py-2 rounded-lg text-sm font-bold transition-colors bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-primary-100">
-                    Tomorrow
-                </button>
-                <button id="tab-week" onclick="switchDay('week')"
-                    class="day-tab shrink-0 px-4 py-2 rounded-lg text-sm font-bold transition-colors bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-primary-100">
-                    Full Week
-                </button>
-            </div>
-
-            <!-- Today / Tomorrow Meal Cards (default view) -->
-            <div id="view-day">
-                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5" id="meals-container"></div>
-            </div>
-
-            <!-- Full Week View -->
-            <div id="view-week" class="hidden">
-                <div class="space-y-3" id="week-container"></div>
-            </div>
-        </div>
+    <!-- Header -->
+    <div class="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Daily Diet Plan</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Personalized macronutrient protocol</p>
+      </div>
+      <button id="gen-btn" onclick="generateNewPlan()"
+        class="hover-scale bg-primary-500 hover:bg-primary-600 text-black px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-colors self-start sm:self-auto">
+        <i data-feather="refresh-cw" class="w-4 h-4"></i>
+        <span>Generate New Plan</span>
+      </button>
     </div>
 
-    <script src="js/app.js?v=2"></script>
-    <script>
-        let allData = null;
-        let currentDayOffset = 0; // 0=today, 1=tomorrow
+    <!-- Loading -->
+    <div id="loading" class="flex justify-center items-center py-20">
+      <i data-feather="loader" class="w-8 h-8 animate-spin text-primary-500"></i>
+    </div>
 
-        const MEAL_IMAGES = {
-            Breakfast: '/assets/img/veg_breakfast.png',
-            Lunch: '/assets/img/veg_main.png',
-            Dinner: '/assets/img/veg_main.png',
-            Snacks: 'https://images.unsplash.com/photo-1582515073490-39981397c445?auto=format&fit=crop&w=500&q=60'
-        };
-        const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    <div id="diet-content" class="hidden">
 
-        function getTodayIndex() {
-            const d = new Date().getDay();
-            return d === 0 ? 6 : d - 1;
+      <!-- Macro Summary Bar -->
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 mb-6">
+        <h3 class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Today's Macro Targets</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+          <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3">
+            <p class="text-xs text-blue-500 font-bold uppercase tracking-wider mb-1">Protein</p>
+            <p class="text-2xl font-black text-blue-600 dark:text-blue-400" id="macro-p">--g</p>
+          </div>
+          <div class="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-3">
+            <p class="text-xs text-amber-500 font-bold uppercase tracking-wider mb-1">Carbs</p>
+            <p class="text-2xl font-black text-amber-600 dark:text-amber-400" id="macro-c">--g</p>
+          </div>
+          <div class="bg-rose-50 dark:bg-rose-900/20 rounded-xl p-3">
+            <p class="text-xs text-rose-500 font-bold uppercase tracking-wider mb-1">Fat</p>
+            <p class="text-2xl font-black text-rose-600 dark:text-rose-400" id="macro-f">--g</p>
+          </div>
+          <div class="bg-primary-50 dark:bg-primary-900/20 rounded-xl p-3">
+            <p class="text-xs text-primary-500 font-bold uppercase tracking-wider mb-1">Total Kcal</p>
+            <p class="text-2xl font-black text-primary-600 dark:text-primary-400" id="macro-kcal">--</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Day Tabs -->
+      <div class="flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-hide">
+        <button id="tab-today" onclick="switchDay('today')"
+          class="day-tab shrink-0 px-4 py-2 rounded-lg text-sm font-bold transition-colors bg-primary-500 text-black">
+          Today
+        </button>
+        <button id="tab-tomorrow" onclick="switchDay('tomorrow')"
+          class="day-tab shrink-0 px-4 py-2 rounded-lg text-sm font-bold transition-colors bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-primary-100">
+          Tomorrow
+        </button>
+        <button id="tab-week" onclick="switchDay('week')"
+          class="day-tab shrink-0 px-4 py-2 rounded-lg text-sm font-bold transition-colors bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-primary-100">
+          Full Week
+        </button>
+      </div>
+
+      <!-- Today / Tomorrow Meal Cards (default view) -->
+      <div id="view-day">
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5" id="meals-container"></div>
+      </div>
+
+      <!-- Full Week View -->
+      <div id="view-week" class="hidden">
+        <div class="space-y-3" id="week-container"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js?v=2"></script>
+  <script>
+    let allData = null;
+    let currentDayOffset = 0; // 0=today, 1=tomorrow
+
+    const MEAL_IMAGES = {
+      Breakfast: '/assets/img/veg_breakfast.png',
+      Lunch: '/assets/img/veg_main.png',
+      Dinner: '/assets/img/veg_main.png',
+      Snacks: 'https://images.unsplash.com/photo-1582515073490-39981397c445?auto=format&fit=crop&w=500&q=60'
+    };
+    const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+    function getTodayIndex() {
+      const d = new Date().getDay();
+      return d === 0 ? 6 : d - 1;
+    }
+
+    // Pool of meal alternatives for Generate New Plan
+    const MEAL_POOL = {
+      Breakfast: [
+        'Poha with peanuts & sprouts, boiled eggs, green tea',
+        'Besan Chilla with mint chutney, boiled eggs, orange juice',
+        'Dahi (curd) with fruits, mixed nuts & seeds',
+        'Masala omelette with whole wheat roti, black coffee',
+        'Moong dal chilla with paneer filling, almond milk'
+      ],
+      Lunch: [
+        'Chicken Tikka, brown rice, side salad',
+        'Rajma Chawal (kidney beans & rice) with cucumber raita',
+        'Chicken Kathi Roll with whole wheat paratha & mint chutney',
+        'Dal Tadka with whole grain roti & mixed greens salad',
+        'Fish Curry with rice, side of roasted veggies'
+      ],
+      Dinner: [
+        'Tandoori Fish with sweet potato mash & green beans',
+        'Grilled paneer tikka with dal and basmati rice',
+        'Chicken Curry with bell peppers, cauliflower & brown rice',
+        'Soya Chunks Pulao with cucumber raita & spinach',
+        'Egg curry with whole wheat roti and cucumber raita'
+      ],
+      Snacks: [
+        'Mixed nuts (almonds, walnuts) & Dahi',
+        'Apple slices with peanut butter',
+        'Roasted Makhana (fox nuts) & green tea',
+        'Sprouted moong chaat with cucumber & tomatoes',
+        'Paneer cubes with roasted cumin powder'
+      ]
+    };
+
+    let planVariantIndex = 0;
+
+    function getVariantMeals(dayPlan) {
+      // Use the backend plan as option 0, pool options for subsequent generations
+      const idx = planVariantIndex % MEAL_POOL.Breakfast.length;
+      if (planVariantIndex === 0) {
+        return [
+          { type: 'Breakfast', icon: 'sun', content: dayPlan.breakfast, img: MEAL_IMAGES.Breakfast },
+          { type: 'Lunch', icon: 'cpu', content: dayPlan.lunch, img: MEAL_IMAGES.Lunch },
+          { type: 'Snacks', icon: 'coffee', content: MEAL_POOL.Snacks[0], img: MEAL_IMAGES.Snacks },
+          { type: 'Dinner', icon: 'moon', content: dayPlan.dinner, img: MEAL_IMAGES.Dinner }
+        ];
+      }
+      return [
+        { type: 'Breakfast', icon: 'sun', content: MEAL_POOL.Breakfast[idx], img: MEAL_IMAGES.Breakfast },
+        { type: 'Lunch', icon: 'cpu', content: MEAL_POOL.Lunch[idx], img: MEAL_IMAGES.Lunch },
+        { type: 'Snacks', icon: 'coffee', content: MEAL_POOL.Snacks[idx], img: MEAL_IMAGES.Snacks },
+        { type: 'Dinner', icon: 'moon', content: MEAL_POOL.Dinner[idx], img: MEAL_IMAGES.Dinner }
+      ];
+    }
+
+    function renderMeals(plan, tdee, useVariant = false) {
+      // Check if plan is the new object structure or old string structure
+      const getMealName = (m) => typeof m === 'object' ? m.item : m;
+      const getMealImg = (m, type) => (typeof m === 'object' && m.image) ? m.image : MEAL_IMAGES[type];
+
+      const meals = useVariant ? getVariantMeals(plan) : [
+        { type: 'Breakfast', icon: 'sun', content: getMealName(plan.breakfast), img: getMealImg(plan.breakfast, 'Breakfast') },
+        { type: 'Lunch', icon: 'cpu', content: getMealName(plan.lunch), img: getMealImg(plan.lunch, 'Lunch') },
+        { type: 'Snacks', icon: 'coffee', content: MEAL_POOL.Snacks[0], img: MEAL_IMAGES.Snacks },
+        { type: 'Dinner', icon: 'moon', content: getMealName(plan.dinner), img: getMealImg(plan.dinner, 'Dinner') }
+      ];
+      const container = document.getElementById('meals-container');
+      container.innerHTML = '';
+      meals.forEach(meal => {
+        const cals = Math.round(tdee * (meal.type === 'Snacks' ? 0.15 : 0.28));
+        const card = document.createElement('div');
+        card.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm hover-scale flex flex-col';
+        card.innerHTML = `
+          <img src="${meal.img}" alt="${meal.type}" class="w-full h-36 object-cover bg-gray-100 dark:bg-gray-900">
+          <div class="p-5 flex-1 flex flex-col">
+            <div class="flex items-center gap-2 mb-3">
+              <i data-feather="${meal.icon}" class="w-4 h-4 text-primary-500"></i>
+              <h3 class="font-bold text-gray-900 dark:text-white uppercase tracking-wider text-sm">${meal.type}</h3>
+            </div>
+            <p class="text-gray-700 dark:text-gray-300 font-medium mb-4 flex-1 text-sm leading-relaxed">${meal.content}</p>
+            <div class="border-t border-gray-100 dark:border-gray-700 pt-3 mt-auto">
+              <div class="flex justify-between items-center text-sm mb-1">
+                <span class="text-gray-500">Calories</span>
+                <span class="font-bold text-primary-600 dark:text-primary-400">${cals} kcal</span>
+              </div>
+              <div class="flex justify-between text-xs text-gray-400">
+                <span>P: ${Math.round((cals * 0.3) / 4)}g</span>
+                <span>C: ${Math.round((cals * 0.45) / 4)}g</span>
+                <span>F: ${Math.round((cals * 0.25) / 9)}g</span>
+              </div>
+            </div>
+          </div>`;
+        container.appendChild(card);
+      });
+      feather.replace();
+    }
+
+    function renderWeek(weeklyPlan, tdee) {
+      const container = document.getElementById('week-container');
+      container.innerHTML = '';
+      weeklyPlan.forEach((day, i) => {
+        const row = document.createElement('div');
+        row.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4';
+        row.innerHTML = `
+          <h4 class="font-bold text-primary-500 uppercase tracking-widest text-xs mb-3">${DAYS[i]}</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+            <div><span class="text-gray-400 text-xs uppercase font-bold">Breakfast</span><p class="text-gray-800 dark:text-gray-200 mt-1">${day.breakfast}</p></div>
+            <div><span class="text-gray-400 text-xs uppercase font-bold">Lunch</span><p class="text-gray-800 dark:text-gray-200 mt-1">${day.lunch}</p></div>
+            <div><span class="text-gray-400 text-xs uppercase font-bold">Dinner</span><p class="text-gray-800 dark:text-gray-200 mt-1">${day.dinner}</p></div>
+          </div>`;
+        container.appendChild(row);
+      });
+    }
+
+    function switchDay(tab) {
+      // Update tab styles
+      document.querySelectorAll('.day-tab').forEach(btn => {
+        btn.classList.remove('bg-primary-500', 'text-black');
+        btn.classList.add('bg-gray-100', 'dark:bg-gray-800', 'text-gray-600', 'dark:text-gray-300');
+      });
+      const activeBtn = document.getElementById(`tab-${tab}`);
+      activeBtn.classList.remove('bg-gray-100', 'dark:bg-gray-800', 'text-gray-600', 'dark:text-gray-300');
+      activeBtn.classList.add('bg-primary-500', 'text-black');
+
+      if (!allData) return;
+
+      if (tab === 'week') {
+        document.getElementById('view-day').classList.add('hidden');
+        document.getElementById('view-week').classList.remove('hidden');
+        renderWeek(allData.weekly_plan, allData.metrics.tdee);
+      } else {
+        document.getElementById('view-week').classList.add('hidden');
+        document.getElementById('view-day').classList.remove('hidden');
+        const offset = tab === 'tomorrow' ? 1 : 0;
+        const idx = (getTodayIndex() + offset) % 7;
+        renderMeals(allData.weekly_plan[idx], allData.metrics.tdee);
+      }
+    }
+
+    function generateNewPlan() {
+      if (!allData) return;
+      planVariantIndex++;
+      const btn = document.getElementById('gen-btn');
+      btn.innerHTML = '<i data-feather="loader" class="w-4 h-4 animate-spin inline-block mr-2"></i>Generating...';
+      btn.disabled = true;
+      feather.replace();
+
+      setTimeout(() => {
+        const idx = getTodayIndex();
+        const tdee = allData.metrics.tdee;
+        const poolIdx = planVariantIndex % MEAL_POOL.Breakfast.length;
+
+        // Check which tab is active
+        const activeTab = document.querySelector('.day-tab.bg-primary-500');
+        const activeTabId = activeTab ? activeTab.id : 'tab-today';
+
+        if (activeTabId === 'tab-week') {
+          // Regenerate full week with varied meals per day
+          const container = document.getElementById('week-container');
+          container.innerHTML = '';
+          const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+          allData.weekly_plan.forEach((day, i) => {
+            const dayPoolIdx = (planVariantIndex + i) % MEAL_POOL.Breakfast.length;
+            const breakfast = planVariantIndex === 1 ? day.breakfast : MEAL_POOL.Breakfast[dayPoolIdx];
+            const lunch = planVariantIndex === 1 ? day.lunch : MEAL_POOL.Lunch[dayPoolIdx];
+            const dinner = planVariantIndex === 1 ? day.dinner : MEAL_POOL.Dinner[dayPoolIdx];
+            const row = document.createElement('div');
+            row.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4';
+            row.innerHTML = `
+              <h4 class="font-bold text-primary-500 uppercase tracking-widest text-xs mb-3">${DAYS[i]}</h4>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                <div><span class="text-gray-400 text-xs uppercase font-bold">Breakfast</span><p class="text-gray-800 dark:text-gray-200 mt-1">${breakfast}</p></div>
+                <div><span class="text-gray-400 text-xs uppercase font-bold">Lunch</span><p class="text-gray-800 dark:text-gray-200 mt-1">${lunch}</p></div>
+                <div><span class="text-gray-400 text-xs uppercase font-bold">Dinner</span><p class="text-gray-800 dark:text-gray-200 mt-1">${dinner}</p></div>
+              </div>`;
+            container.appendChild(row);
+          });
+        } else {
+          // Regenerate today/tomorrow meals
+          const offset = activeTabId === 'tab-tomorrow' ? 1 : 0;
+          const dayIdx = (getTodayIndex() + offset) % 7;
+          renderMeals(allData.weekly_plan[dayIdx], tdee, true);
         }
 
-        // Pool of meal alternatives for Generate New Plan
-        const MEAL_POOL = {
-            Breakfast: [
-                'Poha with peanuts & sprouts, boiled eggs, green tea',
-                'Besan Chilla with mint chutney, boiled eggs, orange juice',
-                'Dahi (curd) with fruits, mixed nuts & seeds',
-                'Masala omelette with whole wheat roti, black coffee',
-                'Moong dal chilla with paneer filling, almond milk'
-            ],
-            Lunch: [
-                'Chicken Tikka, brown rice, side salad',
-                'Rajma Chawal (kidney beans & rice) with cucumber raita',
-                'Chicken Kathi Roll with whole wheat paratha & mint chutney',
-                'Dal Tadka with whole grain roti & mixed greens salad',
-                'Fish Curry with rice, side of roasted veggies'
-            ],
-            Dinner: [
-                'Tandoori Fish with sweet potato mash & green beans',
-                'Grilled paneer tikka with dal and basmati rice',
-                'Chicken Curry with bell peppers, cauliflower & brown rice',
-                'Soya Chunks Pulao with cucumber raita & spinach',
-                'Egg curry with whole wheat roti and cucumber raita'
-            ],
-            Snacks: [
-                'Mixed nuts (almonds, walnuts) & Dahi',
-                'Apple slices with peanut butter',
-                'Roasted Makhana (fox nuts) & green tea',
-                'Sprouted moong chaat with cucumber & tomatoes',
-                'Paneer cubes with roasted cumin powder'
-            ]
-        };
+        btn.innerHTML = '<i data-feather="refresh-cw" class="w-4 h-4 inline-block mr-2"></i>Generate New Plan';
+        btn.disabled = false;
+        feather.replace();
+      }, 800);
+    }
 
-        let planVariantIndex = 0;
+    document.addEventListener('DOMContentLoaded', async () => {
+      const userId = getUserId();
+      if (!userId) { window.location.href = 'auth.html'; return; }
 
-        function getVariantMeals(dayPlan) {
-            // Use the backend plan as option 0, pool options for subsequent generations
-            const idx = planVariantIndex % MEAL_POOL.Breakfast.length;
-            if (planVariantIndex === 0) {
-                return [
-                    { type: 'Breakfast', icon: 'sun', content: dayPlan.breakfast, img: MEAL_IMAGES.Breakfast },
-                    { type: 'Lunch', icon: 'cpu', content: dayPlan.lunch, img: MEAL_IMAGES.Lunch },
-                    { type: 'Snacks', icon: 'coffee', content: MEAL_POOL.Snacks[0], img: MEAL_IMAGES.Snacks },
-                    { type: 'Dinner', icon: 'moon', content: dayPlan.dinner, img: MEAL_IMAGES.Dinner }
-                ];
-            }
-            return [
-                { type: 'Breakfast', icon: 'sun', content: MEAL_POOL.Breakfast[idx], img: MEAL_IMAGES.Breakfast },
-                { type: 'Lunch', icon: 'cpu', content: MEAL_POOL.Lunch[idx], img: MEAL_IMAGES.Lunch },
-                { type: 'Snacks', icon: 'coffee', content: MEAL_POOL.Snacks[idx], img: MEAL_IMAGES.Snacks },
-                { type: 'Dinner', icon: 'moon', content: MEAL_POOL.Dinner[idx], img: MEAL_IMAGES.Dinner }
-            ];
+      try {
+        const res = await fetch(`${API_BASE_URL}/dashboard?user_id=${userId}`);
+        if (!res.ok) throw new Error('Need profile');
+        const data = await res.json();
+        allData = data;
+
+        const tdee = data.metrics.tdee;
+        document.getElementById('macro-p').textContent = Math.round((tdee * 0.3) / 4) + 'g';
+        document.getElementById('macro-c').textContent = Math.round((tdee * 0.45) / 4) + 'g';
+        document.getElementById('macro-f').textContent = Math.round((tdee * 0.25) / 9) + 'g';
+        document.getElementById('macro-kcal').textContent = tdee;
+
+        // Render today's meals
+        const todayIdx = getTodayIndex();
+        renderMeals(data.weekly_plan[todayIdx], tdee);
+
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('diet-content').classList.remove('hidden');
+        feather.replace();
+
+      } catch (err) {
+        console.error("Diet Init Error:", err);
+        if (err.message === 'Need profile') {
+          window.location.href = 'profile.html';
         }
-
-        function renderMeals(plan, tdee, useVariant = false) {
-            // Check if plan is the new object structure or old string structure
-            const getMealName = (m) => typeof m === 'object' ? m.item : m;
-            const getMealImg = (m, type) => (typeof m === 'object' && m.image) ? m.image : MEAL_IMAGES[type];
-
-            const meals = useVariant ? getVariantMeals(plan) : [
-                { type: 'Breakfast', icon: 'sun', content: getMealName(plan.breakfast), img: getMealImg(plan.breakfast, 'Breakfast') },
-                { type: 'Lunch', icon: 'cpu', content: getMealName(plan.lunch), img: getMealImg(plan.lunch, 'Lunch') },
-                { type: 'Snacks', icon: 'coffee', content: MEAL_POOL.Snacks[0], img: MEAL_IMAGES.Snacks },
-                { type: 'Dinner', icon: 'moon', content: getMealName(plan.dinner), img: getMealImg(plan.dinner, 'Dinner') }
-            ];
-            const container = document.getElementById('meals-container');
-            container.innerHTML = '';
-            meals.forEach(meal => {
-                const cals = Math.round(tdee * (meal.type === 'Snacks' ? 0.15 : 0.28));
-                const card = document.createElement('div');
-                card.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm hover-scale flex flex-col';
-                card.innerHTML = `
-                    <img src="${meal.img}" alt="${meal.type}" class="w-full h-36 object-cover bg-gray-100 dark:bg-gray-900">
-                    <div class="p-5 flex-1 flex flex-col">
-                        <div class="flex items-center gap-2 mb-3">
-                            <i data-feather="${meal.icon}" class="w-4 h-4 text-primary-500"></i>
-                            <h3 class="font-bold text-gray-900 dark:text-white uppercase tracking-wider text-sm">${meal.type}</h3>
-                        </div>
-                        <p class="text-gray-700 dark:text-gray-300 font-medium mb-4 flex-1 text-sm leading-relaxed">${meal.content}</p>
-                        <div class="border-t border-gray-100 dark:border-gray-700 pt-3 mt-auto">
-                            <div class="flex justify-between items-center text-sm mb-1">
-                                <span class="text-gray-500">Calories</span>
-                                <span class="font-bold text-primary-600 dark:text-primary-400">${cals} kcal</span>
-                            </div>
-                            <div class="flex justify-between text-xs text-gray-400">
-                                <span>P: ${Math.round((cals * 0.3) / 4)}g</span>
-                                <span>C: ${Math.round((cals * 0.45) / 4)}g</span>
-                                <span>F: ${Math.round((cals * 0.25) / 9)}g</span>
-                            </div>
-                        </div>
-                    </div>`;
-                container.appendChild(card);
-            });
-            feather.replace();
-        }
-
-        function renderWeek(weeklyPlan, tdee) {
-            const container = document.getElementById('week-container');
-            container.innerHTML = '';
-            weeklyPlan.forEach((day, i) => {
-                const row = document.createElement('div');
-                row.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4';
-                row.innerHTML = `
-                    <h4 class="font-bold text-primary-500 uppercase tracking-widest text-xs mb-3">${DAYS[i]}</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
-                        <div><span class="text-gray-400 text-xs uppercase font-bold">Breakfast</span><p class="text-gray-800 dark:text-gray-200 mt-1">${day.breakfast}</p></div>
-                        <div><span class="text-gray-400 text-xs uppercase font-bold">Lunch</span><p class="text-gray-800 dark:text-gray-200 mt-1">${day.lunch}</p></div>
-                        <div><span class="text-gray-400 text-xs uppercase font-bold">Dinner</span><p class="text-gray-800 dark:text-gray-200 mt-1">${day.dinner}</p></div>
-                    </div>`;
-                container.appendChild(row);
-            });
-        }
-
-        function switchDay(tab) {
-            // Update tab styles
-            document.querySelectorAll('.day-tab').forEach(btn => {
-                btn.classList.remove('bg-primary-500', 'text-black');
-                btn.classList.add('bg-gray-100', 'dark:bg-gray-800', 'text-gray-600', 'dark:text-gray-300');
-            });
-            const activeBtn = document.getElementById(`tab-${tab}`);
-            activeBtn.classList.remove('bg-gray-100', 'dark:bg-gray-800', 'text-gray-600', 'dark:text-gray-300');
-            activeBtn.classList.add('bg-primary-500', 'text-black');
-
-            if (!allData) return;
-
-            if (tab === 'week') {
-                document.getElementById('view-day').classList.add('hidden');
-                document.getElementById('view-week').classList.remove('hidden');
-                renderWeek(allData.weekly_plan, allData.metrics.tdee);
-            } else {
-                document.getElementById('view-week').classList.add('hidden');
-                document.getElementById('view-day').classList.remove('hidden');
-                const offset = tab === 'tomorrow' ? 1 : 0;
-                const idx = (getTodayIndex() + offset) % 7;
-                renderMeals(allData.weekly_plan[idx], allData.metrics.tdee);
-            }
-        }
-
-        function generateNewPlan() {
-            if (!allData) return;
-            planVariantIndex++;
-            const btn = document.getElementById('gen-btn');
-            btn.innerHTML = '<i data-feather="loader" class="w-4 h-4 animate-spin inline-block mr-2"></i>Generating...';
-            btn.disabled = true;
-            feather.replace();
-
-            setTimeout(() => {
-                const idx = getTodayIndex();
-                const tdee = allData.metrics.tdee;
-                const poolIdx = planVariantIndex % MEAL_POOL.Breakfast.length;
-
-                // Check which tab is active
-                const activeTab = document.querySelector('.day-tab.bg-primary-500');
-                const activeTabId = activeTab ? activeTab.id : 'tab-today';
-
-                if (activeTabId === 'tab-week') {
-                    // Regenerate full week with varied meals per day
-                    const container = document.getElementById('week-container');
-                    container.innerHTML = '';
-                    const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-                    allData.weekly_plan.forEach((day, i) => {
-                        const dayPoolIdx = (planVariantIndex + i) % MEAL_POOL.Breakfast.length;
-                        const breakfast = planVariantIndex === 1 ? day.breakfast : MEAL_POOL.Breakfast[dayPoolIdx];
-                        const lunch = planVariantIndex === 1 ? day.lunch : MEAL_POOL.Lunch[dayPoolIdx];
-                        const dinner = planVariantIndex === 1 ? day.dinner : MEAL_POOL.Dinner[dayPoolIdx];
-                        const row = document.createElement('div');
-                        row.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4';
-                        row.innerHTML = `
-                            <h4 class="font-bold text-primary-500 uppercase tracking-widest text-xs mb-3">${DAYS[i]}</h4>
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
-                                <div><span class="text-gray-400 text-xs uppercase font-bold">Breakfast</span><p class="text-gray-800 dark:text-gray-200 mt-1">${breakfast}</p></div>
-                                <div><span class="text-gray-400 text-xs uppercase font-bold">Lunch</span><p class="text-gray-800 dark:text-gray-200 mt-1">${lunch}</p></div>
-                                <div><span class="text-gray-400 text-xs uppercase font-bold">Dinner</span><p class="text-gray-800 dark:text-gray-200 mt-1">${dinner}</p></div>
-                            </div>`;
-                        container.appendChild(row);
-                    });
-                } else {
-                    // Regenerate today/tomorrow meals
-                    const offset = activeTabId === 'tab-tomorrow' ? 1 : 0;
-                    const dayIdx = (getTodayIndex() + offset) % 7;
-                    renderMeals(allData.weekly_plan[dayIdx], tdee, true);
-                }
-
-                btn.innerHTML = '<i data-feather="refresh-cw" class="w-4 h-4 inline-block mr-2"></i>Generate New Plan';
-                btn.disabled = false;
-                feather.replace();
-            }, 800);
-        }
-
-        document.addEventListener('DOMContentLoaded', async () => {
-            const userId = getUserId();
-            if (!userId) { window.location.href = 'auth.html'; return; }
-
-            try {
-                const res = await fetch(`${API_BASE_URL}/dashboard?user_id=${userId}`);
-                if (!res.ok) throw new Error('Need profile');
-                const data = await res.json();
-                allData = data;
-
-                const tdee = data.metrics.tdee;
-                document.getElementById('macro-p').textContent = Math.round((tdee * 0.3) / 4) + 'g';
-                document.getElementById('macro-c').textContent = Math.round((tdee * 0.45) / 4) + 'g';
-                document.getElementById('macro-f').textContent = Math.round((tdee * 0.25) / 9) + 'g';
-                document.getElementById('macro-kcal').textContent = tdee;
-
-                // Render today's meals
-                const todayIdx = getTodayIndex();
-                renderMeals(data.weekly_plan[todayIdx], tdee);
-
-                document.getElementById('loading').classList.add('hidden');
-                document.getElementById('diet-content').classList.remove('hidden');
-                feather.replace();
-
-            } catch (err) {
-                console.error("Diet Init Error:", err);
-                if (err.message === 'Need profile') {
-                    window.location.href = 'profile.html';
-                }
-            }
-        });
-    </script>
+      }
+    });
+  </script>
 </body>
 
 </html>

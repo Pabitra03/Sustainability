@@ -1,276 +1,296 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BalancedBody AI | Progress Tracking</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: { extend: { colors: { primary: { 50: '#f7fee7', 100: '#ecfccb', 500: '#84cc16', 600: '#65a30d', 900: '#365314' }, secondary: { 500: '#3b82f6' } }, fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] } } }
-        }
-    </script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <script src="https://unpkg.com/feather-icons"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>if(localStorage.theme==="dark"||(!localStorage.theme&&window.matchMedia("(prefers-color-scheme: dark)").matches)){document.documentElement.classList.add("dark")}</script>
+    <style>
+        html { background-color: #050505 !important; }
+        html:not(.dark) { background-color: #fafafa !important; }
+    </style>
+
+
+
+
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sustainability | Progress Tracking</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { colors: { primary: { 50: '#f7fee7', 100: '#ecfccb', 500: '#84cc16', 600: '#65a30d', 900: '#365314' }, secondary: { 500: '#3b82f6' } }, fontFamily: { sans: ['Outfit', 'system-ui', 'sans-serif'] } } }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://unpkg.com/feather-icons"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-200">
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen ">
 
-    <div id="app-shell" class="w-full h-full">
 
-        <!-- Header -->
-        <div class="mb-6">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Progress Tracking</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Monitor your biological adaptation over time</p>
-        </div>
+  <div id="app-shell" class="w-full h-full">
 
-        <!-- Quick Stats -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-xl shadow-sm">
-                <p class="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1">Current Weight</p>
-                <p class="text-2xl font-black text-gray-900 dark:text-white" id="stat-weight">--</p>
-                <p class="text-xs text-primary-500 font-semibold mt-1">kg</p>
-            </div>
-            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-xl shadow-sm">
-                <p class="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1">BMI</p>
-                <p class="text-2xl font-black text-gray-900 dark:text-white" id="stat-bmi">--</p>
-                <p class="text-xs text-blue-500 font-semibold mt-1" id="stat-bmi-label">Loading...</p>
-            </div>
-            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-xl shadow-sm">
-                <p class="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1">Daily Calories</p>
-                <p class="text-2xl font-black text-gray-900 dark:text-white" id="stat-kcal">--</p>
-                <p class="text-xs text-amber-500 font-semibold mt-1">kcal target</p>
-            </div>
-            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-xl shadow-sm">
-                <p class="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1">Active Days</p>
-                <p class="text-2xl font-black text-gray-900 dark:text-white">5</p>
-                <p class="text-xs text-primary-500 font-semibold mt-1">This week</p>
-            </div>
-        </div>
-
-        <!-- Charts -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-
-            <!-- Weight Chart -->
-            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-5 rounded-xl shadow-sm">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                        <i data-feather="trending-down" class="w-4 h-4 text-primary-500"></i> Body Mass (kg)
-                    </h3>
-                    <select onchange="updatePeriod(this.value)" class="text-xs bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-2 py-1 dark:text-white">
-                        <option value="month">Last 30 Days</option>
-                        <option value="3months">Last 3 Months</option>
-                    </select>
-                </div>
-                <div class="h-56 w-full">
-                    <canvas id="weightChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Calories Chart -->
-            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-5 rounded-xl shadow-sm">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                        <i data-feather="zap" class="w-4 h-4 text-primary-500"></i> Daily Calories
-                    </h3>
-                </div>
-                <div class="h-56 w-full">
-                    <canvas id="calChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Workout Completion -->
-            <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-5 rounded-xl shadow-sm lg:col-span-2">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                        <i data-feather="activity" class="w-4 h-4 text-primary-500"></i> Weekly Active Minutes
-                    </h3>
-                    <span class="text-xs text-primary-500 font-bold bg-primary-50 dark:bg-primary-900/20 px-3 py-1 rounded-full">This Week</span>
-                </div>
-                <div class="h-56 w-full">
-                    <canvas id="workoutChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Weekly Plan Table -->
-        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden">
-            <div class="p-5 border-b border-gray-100 dark:border-gray-700">
-                <h3 class="font-bold text-gray-900 dark:text-white">Weekly Workout Schedule</h3>
-            </div>
-            <div id="weekly-table" class="divide-y divide-gray-100 dark:divide-gray-700"></div>
-        </div>
+    <!-- Header -->
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Progress Tracking</h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Monitor your biological adaptation over time</p>
     </div>
 
-    <script src="js/app.js?v=2"></script>
-    <script>
-        let weightChartInstance = null;
-        const isDark = () => document.documentElement.classList.contains('dark');
-        const gridColor = () => isDark() ? '#374151' : '#e5e7eb';
-        const labelColor = () => isDark() ? '#94a3b8' : '#64748b';
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-xl shadow-sm">
+        <p class="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1">Current Weight</p>
+        <p class="text-2xl font-black text-gray-900 dark:text-white" id="stat-weight">--</p>
+        <p class="text-xs text-primary-500 font-semibold mt-1">kg</p>
+      </div>
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-xl shadow-sm">
+        <p class="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1">BMI</p>
+        <p class="text-2xl font-black text-gray-900 dark:text-white" id="stat-bmi">--</p>
+        <p class="text-xs text-blue-500 font-semibold mt-1" id="stat-bmi-label">Loading...</p>
+      </div>
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-xl shadow-sm">
+        <p class="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1">Daily Calories</p>
+        <p class="text-2xl font-black text-gray-900 dark:text-white" id="stat-kcal">--</p>
+        <p class="text-xs text-amber-500 font-semibold mt-1">kcal target</p>
+      </div>
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-xl shadow-sm">
+        <p class="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1">Active Days</p>
+        <p class="text-2xl font-black text-gray-900 dark:text-white">5</p>
+        <p class="text-xs text-primary-500 font-semibold mt-1">This week</p>
+      </div>
+    </div>
 
-        Chart.defaults.font.family = 'Inter';
+    <!-- Charts -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 
-        function buildWeightData(base, period) {
-            if (period === '3months') {
-                return {
-                    labels: ['Jan W1','Jan W2','Jan W3','Jan W4','Feb W1','Feb W2','Feb W3','Feb W4','Mar W1','Mar W2','Mar W3','Now'],
-                    data: [base+3.2, base+2.9, base+2.5, base+2.1, base+1.8, base+1.5, base+1.2, base+0.9, base+0.6, base+0.3, base+0.1, base]
-                };
-            }
-            return {
-                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Now'],
-                data: [base+1.2, base+0.8, base+0.5, base+0.1, base]
-            };
+      <!-- Weight Chart -->
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-5 rounded-xl shadow-sm">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <i data-feather="trending-down" class="w-4 h-4 text-primary-500"></i> Body Mass (kg)
+          </h3>
+          <select onchange="updatePeriod(this.value)" class="text-xs bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-2 py-1 dark:text-white">
+            <option value="month">Last 30 Days</option>
+            <option value="3months">Last 3 Months</option>
+          </select>
+        </div>
+        <div class="h-56 w-full">
+          <canvas id="weightChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Calories Chart -->
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-5 rounded-xl shadow-sm">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <i data-feather="zap" class="w-4 h-4 text-primary-500"></i> Daily Calories
+          </h3>
+        </div>
+        <div class="h-56 w-full">
+          <canvas id="calChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Workout Completion -->
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-5 rounded-xl shadow-sm lg:col-span-2">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+            <i data-feather="activity" class="w-4 h-4 text-primary-500"></i> Weekly Active Minutes
+          </h3>
+          <span class="text-xs text-primary-500 font-bold bg-primary-50 dark:bg-primary-900/20 px-3 py-1 rounded-full">This Week</span>
+        </div>
+        <div class="h-56 w-full">
+          <canvas id="workoutChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Weekly Plan Table -->
+    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden">
+      <div class="p-5 border-b border-gray-100 dark:border-gray-700">
+        <h3 class="font-bold text-gray-900 dark:text-white">Weekly Workout Schedule</h3>
+      </div>
+      <div id="weekly-table" class="divide-y divide-gray-100 dark:divide-gray-700"></div>
+    </div>
+  </div>
+
+  <script src="js/app.js?v=2"></script>
+  <script>
+    let weightChartInstance = null;
+    const isDark = () => document.documentElement.classList.contains('dark');
+    const gridColor = () => isDark() ? '#374151' : '#e5e7eb';
+    const labelColor = () => isDark() ? '#94a3b8' : '#64748b';
+
+    Chart.defaults.font.family = 'Inter';
+
+    function buildWeightData(base, period) {
+      if (period === '3months') {
+        return {
+          labels: ['Jan W1','Jan W2','Jan W3','Jan W4','Feb W1','Feb W2','Feb W3','Feb W4','Mar W1','Mar W2','Mar W3','Now'],
+          data: [base+3.2, base+2.9, base+2.5, base+2.1, base+1.8, base+1.5, base+1.2, base+0.9, base+0.6, base+0.3, base+0.1, base]
+        };
+      }
+      return {
+        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Now'],
+        data: [base+1.2, base+0.8, base+0.5, base+0.1, base]
+      };
+    }
+
+    function updatePeriod(period) {
+      if (!weightChartInstance) return;
+      const base = parseFloat(document.getElementById('stat-weight').textContent) || 75;
+      const { labels, data } = buildWeightData(base, period);
+      weightChartInstance.data.labels = labels;
+      weightChartInstance.data.datasets[0].data = data;
+      weightChartInstance.update();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const userId = getUserId();
+      if (!userId) { window.location.href = 'auth.html'; return; }
+
+      let baseWeight = 75;
+      let targetKcal = 2100;
+
+      const GREEN     = '#84cc16';
+      const GREEN_LIGHT  = 'rgba(132,204,22,0.15)';
+      const BLUE     = '#3b82f6';
+      const BLUE_LIGHT  = 'rgba(59,130,246,0.15)';
+
+      // Render charts immediately with defaults
+      const { labels: wLabels, data: wData } = buildWeightData(baseWeight, 'month');
+      const ctxW = document.getElementById('weightChart').getContext('2d');
+      weightChartInstance = new Chart(ctxW, {
+        type: 'line',
+        data: {
+          labels: wLabels,
+          datasets: [{
+            label: 'Weight (kg)',
+            data: wData,
+            borderColor: GREEN,
+            backgroundColor: GREEN_LIGHT,
+            borderWidth: 3, tension: 0.4, fill: true,
+            pointBackgroundColor: GREEN, pointRadius: 5
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { grid: { color: gridColor() }, ticks: { color: labelColor() } },
+            x: { grid: { display: false }, ticks: { color: labelColor() } }
+          }
         }
+      });
 
-        function updatePeriod(period) {
-            if (!weightChartInstance) return;
-            const base = parseFloat(document.getElementById('stat-weight').textContent) || 75;
-            const { labels, data } = buildWeightData(base, period);
-            weightChartInstance.data.labels = labels;
-            weightChartInstance.data.datasets[0].data = data;
-            weightChartInstance.update();
+      const calData = [targetKcal-50, targetKcal+100, targetKcal, targetKcal-120, targetKcal+200, targetKcal-60, targetKcal];
+      const ctxC = document.getElementById('calChart').getContext('2d');
+      const calChartInstance = new Chart(ctxC, {
+        type: 'bar',
+        data: {
+          labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+          datasets: [{
+            label: 'Calories',
+            data: calData,
+            backgroundColor: calData.map(v => v > targetKcal ? 'rgba(239,68,68,0.7)' : 'rgba(132,204,22,0.7)'),
+            borderRadius: 6
+          },{
+            label: 'Target',
+            data: Array(7).fill(targetKcal),
+            type: 'line',
+            borderColor: GREEN,
+            borderDash: [5,5],
+            borderWidth: 2,
+            pointRadius: 0,
+            fill: false
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { grid: { color: gridColor() }, ticks: { color: labelColor() } },
+            x: { grid: { display: false }, ticks: { color: labelColor() } }
+          }
         }
+      });
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            const userId = getUserId();
-            if (!userId) { window.location.href = 'auth.html'; return; }
+      const ctxWO = document.getElementById('workoutChart').getContext('2d');
+      new Chart(ctxWO, {
+        type: 'line',
+        data: {
+          labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+          datasets: [{
+            label: 'Active Minutes',
+            data: [45, 0, 60, 45, 30, 0, 90],
+            borderColor: BLUE,
+            backgroundColor: BLUE_LIGHT,
+            borderWidth: 3, tension: 0.4, fill: true,
+            pointBackgroundColor: BLUE, pointRadius: 5
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, grid: { color: gridColor() }, ticks: { color: labelColor() } },
+            x: { grid: { display: false }, ticks: { color: labelColor() } }
+          }
+        }
+      });
 
-            let baseWeight = 75;
-            let targetKcal = 2100;
+      feather.replace();
 
-            try {
-                const profReq = await fetch(`${API_BASE_URL}/user/profile?user_id=${userId}`);
-                if (profReq.ok) {
-                    const prof = await profReq.json();
-                    baseWeight = parseFloat(prof.weight);
-                    document.getElementById('stat-weight').textContent = baseWeight;
-                }
-                const dashReq = await fetch(`${API_BASE_URL}/dashboard?user_id=${userId}`);
-                if (dashReq.ok) {
-                    const dash = await dashReq.json();
-                    targetKcal = parseInt(dash.metrics.tdee);
+      // Fetch data in background and update DOM/Charts
+      Promise.all([
+        fetch(`${API_BASE_URL}/user/profile?user_id=${userId}`).then(res => res.ok ? res.json() : null),
+        fetch(`${API_BASE_URL}/dashboard?user_id=${userId}`).then(res => res.ok ? res.json() : null)
+      ]).then(([prof, dash]) => {
+        if (prof) {
+          baseWeight = parseFloat(prof.weight);
+          document.getElementById('stat-weight').textContent = baseWeight;
+          // Update weight chart data
+          const selectEl = document.querySelector('select');
+          updatePeriod(selectEl ? selectEl.value : 'month');
+        }
+        if (dash) {
+          targetKcal = parseInt(dash.metrics.tdee);
 
-                    document.getElementById('stat-bmi').textContent  = dash.metrics.bmi;
-                    document.getElementById('stat-kcal').textContent = targetKcal;
-                    const bmi = parseFloat(dash.metrics.bmi);
-                    const label = bmi < 18.5 ? 'Underweight' : bmi < 25 ? 'Healthy' : 'Overweight';
-                    const col   = bmi < 18.5 ? 'text-amber-500' : bmi < 25 ? 'text-green-500' : 'text-red-500';
-                    const el = document.getElementById('stat-bmi-label');
-                    el.textContent = label;
-                    el.className = `text-xs font-semibold mt-1 ${col}`;
+          document.getElementById('stat-bmi').textContent = dash.metrics.bmi;
+          document.getElementById('stat-kcal').textContent = targetKcal;
+          const bmi = parseFloat(dash.metrics.bmi);
+          const label = bmi < 18.5 ? 'Underweight' : bmi < 25 ? 'Healthy' : 'Overweight';
+          const col  = bmi < 18.5 ? 'text-amber-500' : bmi < 25 ? 'text-green-500' : 'text-red-500';
+          const el = document.getElementById('stat-bmi-label');
+          el.textContent = label;
+          el.className = `text-xs font-semibold mt-1 ${col}`;
+          
+          const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+          const table = document.getElementById('weekly-table');
+          table.innerHTML = '';
+          dash.weekly_plan.forEach((day, i) => {
+            const row = document.createElement('div');
+            row.className = 'flex flex-col sm:flex-row sm:items-center gap-2 p-4 text-sm';
+            row.innerHTML = `
+              <span class="font-bold text-primary-500 w-28 shrink-0">${days[i]}</span>
+              <span class="text-gray-700 dark:text-gray-300 flex-1">${day.workout}</span>
+              <span class="text-xs text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full shrink-0">${day.breakfast.split(',')[0]}</span>
+            `;
+            table.appendChild(row);
+          });
 
-                    
-                    const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-                    const table = document.getElementById('weekly-table');
-                    dash.weekly_plan.forEach((day, i) => {
-                        const row = document.createElement('div');
-                        row.className = 'flex flex-col sm:flex-row sm:items-center gap-2 p-4 text-sm';
-                        row.innerHTML = `
-                            <span class="font-bold text-primary-500 w-28 shrink-0">${days[i]}</span>
-                            <span class="text-gray-700 dark:text-gray-300 flex-1">${day.workout}</span>
-                            <span class="text-xs text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full shrink-0">${day.breakfast.split(',')[0]}</span>
-                        `;
-                        table.appendChild(row);
-                    });
-                }
-            } catch(e) {}
-
-            
-            const GREEN         = '#84cc16';
-            const GREEN_LIGHT   = 'rgba(132,204,22,0.15)';
-            const BLUE          = '#3b82f6';
-            const BLUE_LIGHT    = 'rgba(59,130,246,0.15)';
-
-            
-            const { labels: wLabels, data: wData } = buildWeightData(baseWeight, 'month');
-            const ctxW = document.getElementById('weightChart').getContext('2d');
-            weightChartInstance = new Chart(ctxW, {
-                type: 'line',
-                data: {
-                    labels: wLabels,
-                    datasets: [{
-                        label: 'Weight (kg)',
-                        data: wData,
-                        borderColor: GREEN,
-                        backgroundColor: GREEN_LIGHT,
-                        borderWidth: 3, tension: 0.4, fill: true,
-                        pointBackgroundColor: GREEN, pointRadius: 5
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { grid: { color: gridColor() }, ticks: { color: labelColor() } },
-                        x: { grid: { display: false }, ticks: { color: labelColor() } }
-                    }
-                }
-            });
-
-            
-            const calData = [targetKcal-50, targetKcal+100, targetKcal, targetKcal-120, targetKcal+200, targetKcal-60, targetKcal];
-            const ctxC = document.getElementById('calChart').getContext('2d');
-            new Chart(ctxC, {
-                type: 'bar',
-                data: {
-                    labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
-                    datasets: [{
-                        label: 'Calories',
-                        data: calData,
-                        backgroundColor: calData.map(v => v > targetKcal ? 'rgba(239,68,68,0.7)' : 'rgba(132,204,22,0.7)'),
-                        borderRadius: 6
-                    },{
-                        label: 'Target',
-                        data: Array(7).fill(targetKcal),
-                        type: 'line',
-                        borderColor: GREEN,
-                        borderDash: [5,5],
-                        borderWidth: 2,
-                        pointRadius: 0,
-                        fill: false
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { grid: { color: gridColor() }, ticks: { color: labelColor() } },
-                        x: { grid: { display: false }, ticks: { color: labelColor() } }
-                    }
-                }
-            });
-
-            
-            const ctxWO = document.getElementById('workoutChart').getContext('2d');
-            new Chart(ctxWO, {
-                type: 'line',
-                data: {
-                    labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
-                    datasets: [{
-                        label: 'Active Minutes',
-                        data: [45, 0, 60, 45, 30, 0, 90],
-                        borderColor: BLUE,
-                        backgroundColor: BLUE_LIGHT,
-                        borderWidth: 3, tension: 0.4, fill: true,
-                        pointBackgroundColor: BLUE, pointRadius: 5
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { beginAtZero: true, grid: { color: gridColor() }, ticks: { color: labelColor() } },
-                        x: { grid: { display: false }, ticks: { color: labelColor() } }
-                    }
-                }
-            });
-
-            feather.replace();
-        });
-    </script>
+          // Update Calorie chart with real targetKcal
+          const newCalData = [targetKcal-50, targetKcal+100, targetKcal, targetKcal-120, targetKcal+200, targetKcal-60, targetKcal];
+          calChartInstance.data.datasets[0].data = newCalData;
+          calChartInstance.data.datasets[0].backgroundColor = newCalData.map(v => v > targetKcal ? 'rgba(239,68,68,0.7)' : 'rgba(132,204,22,0.7)');
+          calChartInstance.data.datasets[1].data = Array(7).fill(targetKcal);
+          calChartInstance.update();
+        }
+      }).catch(e => console.error("Error fetching progress data:", e));
+    });
+  </script>
 </body>
 </html>

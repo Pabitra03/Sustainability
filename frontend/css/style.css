@@ -1,9 +1,17 @@
 /* Base Variables */
 :root {
     --bg-light: #fafafa;
-    --bg-dark: #0a0a0a;
+    --bg-dark: #050505;
     --primary-orange: #f97316;
     --primary-hover: #ea580c;
+}
+
+/* Prevent white flash between page navigations */
+html {
+    background-color: var(--bg-light);
+}
+html.dark {
+    background-color: var(--bg-dark);
 }
 
 body {
@@ -16,26 +24,33 @@ html.dark body {
     background-color: var(--bg-dark);
 }
 
-/* Micro Animations - Requested by User */
-.hover-scale {
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+/* Global Interaction Smoothness */
+button, a, .day-tab, .workout-tab, input, select, .hover-scale {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    outline: none;
+}
+
+/* Tactile feedback when clicking buttons */
+button:active, a:active, .day-tab:active {
+    transform: scale(0.96);
 }
 
 .hover-scale:hover {
-    transform: translateY(-5px) scale(1.02);
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.15);
 }
 
 button.hover-scale:hover {
-    transform: scale(1.05); /* User exactly requested this scale */
+    transform: translateY(-2px) scale(1.03);
 }
 
-/* Smooth Scrolling for Hero Section */
+/* Smooth Scrolling */
 html {
     scroll-behavior: smooth;
 }
 
-/* Loading Skeleton - Requested by User */
+/* Loading Skeleton */
 .skeleton {
     background: #e2e8f0;
     background-image: linear-gradient(90deg, #e2e8f0 0px, #f8fafc 40px, #e2e8f0 80px);
@@ -53,3 +68,4 @@ html.dark .skeleton {
     0% { background-position: -100% 0; }
     100% { background-position: 100% 0; }
 }
+

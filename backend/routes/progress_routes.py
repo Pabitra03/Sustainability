@@ -48,6 +48,7 @@ def mark_complete():
         return jsonify({"error": str(e)}), 500
     finally:
         cursor.close()
+        conn.close()
 
 @progress_routes.route('/status/<int:user_id>', methods=['GET'])
 def get_progress_status(user_id):
@@ -90,14 +91,53 @@ def get_progress_status(user_id):
             else:
                 yesterday_completed = True # New user, don't warn
             
+        # Calculate streak
+        cursor.execute("SELECT entry_date, diet_completed, workout_completed FROM user_progress WHERE user_id = %s ORDER BY entry_date DESC", (user_id,))
+        progress_history = cursor.fetchall()
+        
+        streak = 0
+        current_date = date.today()
+        check_date = current_date - timedelta(days=1)
+        
+        # Check today first
+        for p in progress_history:
+            # Handle both string and date objects
+            p_date = p['entry_date']
+            if isinstance(p_date, str):
+                p_date = datetime.strptime(p_date, "%Y-%m-%d").date()
+                
+            if p_date == current_date:
+                if p['diet_completed'] and p['workout_completed']:
+                    streak += 1
+                break
+                
+        # Now count backwards from yesterday
+        for p in progress_history:
+            p_date = p['entry_date']
+            if isinstance(p_date, str):
+                p_date = datetime.strptime(p_date, "%Y-%m-%d").date()
+                
+            if p_date > check_date:
+                continue
+            if p_date == check_date:
+                if p['diet_completed'] and p['workout_completed']:
+                    streak += 1
+                    check_date -= timedelta(days=1)
+                else:
+                    break
+            else:
+                break
+            
         return jsonify({
             "diet_completed": bool(status['diet_completed']),
             "workout_completed": bool(status['workout_completed']),
             "yesterday_completed": yesterday_completed,
             "days_planned": 30, # Target
-            "days_active": days_active
+            "days_active": days_active,
+            "streak": streak
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     finally:
         cursor.close()
+        conn.close()

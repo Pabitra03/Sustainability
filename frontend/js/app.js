@@ -1,6 +1,6 @@
 // In local dev, always call Flask directly at port 5001.
 // On Vercel (production), use relative /api since both are on the same domain.
-const IS_LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+const IS_LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.protocol === 'file:';
 const API_BASE_URL = IS_LOCAL ? 'http://127.0.0.1:5001/api' : '/api';
 
 function initTheme() {
@@ -70,12 +70,12 @@ function renderAppShell(activePath) {
     });
 
     const shellHTML = `
-        <div class="flex h-screen bg-background dark:bg-gray-900 transition-colors duration-200">
+        <div class="flex h-screen bg-background dark:bg-gray-900">
             <!-- Desktop Sidebar -->
             <aside class="hidden md:flex flex-col w-64 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
                 <div class="p-6 flex items-center gap-2">
                     <i data-feather="activity" class="text-primary-500"></i>
-                    <span class="text-xl font-bold tracking-tight text-gray-900 dark:text-white">BalancedBody AI</span>
+                    <span class="text-xl font-bold tracking-tight text-gray-900 dark:text-white">Sustainability</span>
                 </div>
                 <nav class="flex-1 px-4 py-4 space-y-1">
                     ${sidebarLinks}
@@ -102,7 +102,7 @@ function renderAppShell(activePath) {
                 <header class="md:hidden flex items-center justify-between px-4 py-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-20">
                     <div class="flex items-center gap-2">
                         <i data-feather="activity" class="text-primary-500 h-5 w-5"></i>
-                        <span class="text-lg font-bold text-gray-900 dark:text-white">BalancedBody AI</span>
+                        <span class="text-lg font-bold text-gray-900 dark:text-white">Sustainability</span>
                     </div>
                     <div class="flex items-center gap-2">
                         <button onclick="toggleTheme()" class="p-2 text-gray-500">
@@ -144,4 +144,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (typeof feather !== 'undefined') feather.replace();
+
+    // ── Page Transition: Standard Nav ──────────────────
+    // We removed the fade-out to ensure 100% reliability.
+    // The background-color lock in the head still prevents the white blink.
 });

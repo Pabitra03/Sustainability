@@ -1,188 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BalancedBody AI | Profile Settings</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: { extend: { colors: { primary: { 50: '#f7fee7', 500: '#84cc16', 600: '#65a30d' }, secondary: { 500: '#3b82f6' } }, fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] } } }
-        }
-    </script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <script src="https://unpkg.com/feather-icons"></script>
+
+  <script>if(localStorage.theme==="dark"||(!localStorage.theme&&window.matchMedia("(prefers-color-scheme: dark)").matches)){document.documentElement.classList.add("dark")}</script>
+    <style>
+        html { background-color: #050505 !important; }
+        html:not(.dark) { background-color: #fafafa !important; }
+    </style>
+
+
+
+
+
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sustainability | Profile Settings</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { colors: { primary: { 50: '#f7fee7', 100: '#ecfccb', 500: '#84cc16', 600: '#65a30d', 900: '#365314' }, secondary: { 500: '#3b82f6' } }, fontFamily: { sans: ['Outfit', 'system-ui', 'sans-serif'] } } }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://unpkg.com/feather-icons"></script>
 </head>
-<body class="bg-background dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen transition-colors duration-200">
+<body class="bg-[#fafafa] dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen ">
 
-    <div id="app-shell" class="w-full h-full">
-        <div class="mb-6 flex justify-between items-center">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Profile Configuration</h1>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Update biometrics to recalculate ML baselines</p>
-            </div>
-        </div>
 
-        <!-- Notification Banner -->
-        <div id="success-banner" class="hidden bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-6 flex items-start gap-4 transition-all">
-            <i data-feather="check-circle" class="text-green-500 mt-1"></i>
-            <div>
-                <p class="text-sm text-green-800 dark:text-green-200 font-medium">Profile successfully updated. Engine metrics recalculated.</p>
-            </div>
-        </div>
-
-        <div class="bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden max-w-3xl">
-            <form id="profile-form" class="p-6 sm:p-8">
-                
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-6 border-b border-gray-100 dark:border-gray-700 pb-2">Biological Parameters</h3>
-                
-                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Age</label>
-                        <input type="number" id="age" placeholder="e.g. 25" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Gender</label>
-                        <select id="gender" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 appearance-none">
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Weight (kg)</label>
-                        <input type="number" step="0.1" id="weight" placeholder="e.g. 70.5" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Height (cm)</label>
-                        <input type="number" step="0.1" id="height" placeholder="e.g. 175.0" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
-                    </div>
-                </div>
-
-                <h3 class="text-lg font-medium text-gray-900 dark:text-white mt-10 mb-6 border-b border-gray-100 dark:border-gray-700 pb-2">Lifestyle & Objectives</h3>
-                
-                <div class="space-y-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Baseline Activity Level</label>
-                        <select id="activity_level" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 appearance-none">
-                            <option value="sedentary">Sedentary (Little or no exercise)</option>
-                            <option value="lightly_active">Lightly Active (Exercise 1-3 days/week)</option>
-                            <option value="moderately_active">Moderately Active (Exercise 3-5 days/week)</option>
-                            <option value="very_active">Very Active (Exercise 6-7 days/week)</option>
-                            <option value="super_active">Super Active (Physical job / Athlete)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Primary Trajectory</label>
-                        <select id="goal" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 appearance-none">
-                            <option value="loss">Weight Loss (Caloric Deficit)</option>
-                            <option value="gain">Muscle Gain (Caloric Surplus)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dietary Preference</label>
-                        <select id="diet_type" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 appearance-none">
-                            <option value="non_vegetarian">Non-Vegetarian</option>
-                            <option value="vegetarian">Vegetarian</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row gap-4 justify-end">
-                    <button type="submit" id="submit-btn" class="hover-scale w-full sm:w-auto flex justify-center items-center gap-2 py-2 px-6 text-sm font-medium rounded-lg text-white bg-primary-500 hover:bg-primary-600 focus:outline-none transition-colors">
-                        <span>Save Profile Data</span>
-                    </button>
-                </div>
-            </form>
-        </div>
+  <div id="app-shell" class="w-full h-full">
+    <div class="mb-6 flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Profile Configuration</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Update biometrics to recalculate ML baselines</p>
+      </div>
     </div>
 
-    <script src="js/app.js?v=2"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            const userId = getUserId();
-            if (!userId) { window.location.href = 'auth.html'; return; }
+    <!-- Notification Banner -->
+    <div id="success-banner" class="hidden bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-6 flex items-start gap-4 transition-all">
+      <i data-feather="check-circle" class="text-green-500 mt-1"></i>
+      <div>
+        <p class="text-sm text-green-800 dark:text-green-200 font-medium">Profile successfully updated. Engine metrics recalculated.</p>
+      </div>
+    </div>
 
-            
-            try {
-                const res = await fetch(`${API_BASE_URL}/user/profile?user_id=${getUserId()}`);
-                if (res.status === 404) {
-                    const data = await res.json();
-                    if (data.error === "User not found") {
-                        alert("Your account was not found. Please register again.");
-                        logout();
-                        return;
-                    }
-                }
-                if (res.ok) {
-                    const data = await res.json();
-                    document.getElementById('age').value = data.age;
-                    document.getElementById('gender').value = data.gender;
-                    document.getElementById('weight').value = data.weight;
-                    document.getElementById('height').value = data.height;
-                    document.getElementById('activity_level').value = data.activity_level;
-                    document.getElementById('goal').value = data.goal;
-                    document.getElementById('diet_type').value = data.diet_type || 'non_vegetarian';
-                }
-            } catch (err) {
-                console.log("No existing profile found. User must fill it out.");
-            }
+    <div class="bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden max-w-3xl">
+      <form id="profile-form" class="p-6 sm:p-8">
+        
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-6 border-b border-gray-100 dark:border-gray-700 pb-2">Biological Parameters</h3>
+        
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Age</label>
+            <input type="number" id="age" placeholder="e.g. 25" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Gender</label>
+            <select id="gender" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 appearance-none">
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Weight (kg)</label>
+            <input type="number" step="0.1" id="weight" placeholder="e.g. 70.5" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Height (cm)</label>
+            <input type="number" step="0.1" id="height" placeholder="e.g. 175.0" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500">
+          </div>
+        </div>
 
-            document.getElementById('profile-form').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const btn = document.getElementById('submit-btn');
-                btn.disabled = true;
-                btn.innerHTML = '<i data-feather="loader" class="animate-spin"></i> Saving...';
-                if (typeof feather !== 'undefined') feather.replace();
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white mt-10 mb-6 border-b border-gray-100 dark:border-gray-700 pb-2">Lifestyle & Objectives</h3>
+        
+        <div class="space-y-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Baseline Activity Level</label>
+            <select id="activity_level" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 appearance-none">
+              <option value="sedentary">Sedentary (Little or no exercise)</option>
+              <option value="lightly_active">Lightly Active (Exercise 1-3 days/week)</option>
+              <option value="moderately_active">Moderately Active (Exercise 3-5 days/week)</option>
+              <option value="very_active">Very Active (Exercise 6-7 days/week)</option>
+              <option value="super_active">Super Active (Physical job / Athlete)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Primary Trajectory</label>
+            <select id="goal" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 appearance-none">
+              <option value="loss">Weight Loss (Caloric Deficit)</option>
+              <option value="gain">Muscle Gain (Caloric Surplus)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Dietary Preference</label>
+            <select id="diet_type" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 appearance-none">
+              <option value="non_vegetarian">Non-Vegetarian</option>
+              <option value="vegetarian">Vegetarian</option>
+            </select>
+          </div>
+        </div>
 
-                const age = document.getElementById('age').value;
-                const weight = document.getElementById('weight').value;
-                const height = document.getElementById('height').value;
+        <div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row gap-4 justify-end">
+          <button type="submit" id="submit-btn" class="hover-scale w-full sm:w-auto flex justify-center items-center gap-2 py-2 px-6 text-sm font-medium rounded-lg text-white bg-primary-500 hover:bg-primary-600 focus:outline-none transition-colors">
+            <span>Save Profile Data</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-                if (!age || !weight || !height) {
-                    alert("Please fill in Age, Weight, and Height. These are required for the AI to calculate your plan!");
-                    btn.disabled = false;
-                    btn.innerHTML = '<span>Save Profile Data</span>';
-                    return;
-                }
+  <script src="js/app.js?v=2"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const userId = getUserId();
+      if (!userId) { window.location.href = 'auth.html'; return; }
 
-                const payload = {
-                    user_id: getUserId(),
-                    age: age,
-                    gender: document.getElementById('gender').value,
-                    weight: weight,
-                    height: height,
-                    activity_level: document.getElementById('activity_level').value,
-                    goal: document.getElementById('goal').value,
-                    diet_type: document.getElementById('diet_type').value
-                };
+      
+      try {
+        const res = await fetch(`${API_BASE_URL}/user/profile?user_id=${getUserId()}`);
+        if (res.status === 404) {
+          const data = await res.json();
+          if (data.error === "User not found") {
+            alert("Your account was not found. Please register again.");
+            logout();
+            return;
+          }
+        }
+        if (res.ok) {
+          const data = await res.json();
+          document.getElementById('age').value = data.age;
+          document.getElementById('gender').value = data.gender;
+          document.getElementById('weight').value = data.weight;
+          document.getElementById('height').value = data.height;
+          document.getElementById('activity_level').value = data.activity_level;
+          document.getElementById('goal').value = data.goal;
+          document.getElementById('diet_type').value = data.diet_type || 'non_vegetarian';
+        }
+      } catch (err) {
+        console.log("No existing profile found. User must fill it out.");
+      }
 
-                try {
-                    const res = await fetch(`${API_BASE_URL}/user/profile`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
+      document.getElementById('profile-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('submit-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<i data-feather="loader" class="animate-spin"></i> Saving...';
+        if (typeof feather !== 'undefined') feather.replace();
 
-                    if (!res.ok) {
-                        const err = await res.json();
-                        throw new Error(err.error || 'Failed to save profile');
-                    }
+        const age = document.getElementById('age').value;
+        const weight = document.getElementById('weight').value;
+        const height = document.getElementById('height').value;
 
-                    document.getElementById('success-banner').classList.remove('hidden');
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 1500);
-                } catch (err) {
-                    alert(err.message);
-                } finally {
-                    btn.disabled = false;
-                    btn.innerHTML = '<span>Save Profile Data</span>';
-                }
-            });
-        });
-    </script>
+        if (!age || !weight || !height) {
+          alert("Please fill in Age, Weight, and Height. These are required for the AI to calculate your plan!");
+          btn.disabled = false;
+          btn.innerHTML = '<span>Save Profile Data</span>';
+          return;
+        }
+
+        const payload = {
+          user_id: getUserId(),
+          age: age,
+          gender: document.getElementById('gender').value,
+          weight: weight,
+          height: height,
+          activity_level: document.getElementById('activity_level').value,
+          goal: document.getElementById('goal').value,
+          diet_type: document.getElementById('diet_type').value
+        };
+
+        try {
+          const res = await fetch(`${API_BASE_URL}/user/profile`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || 'Failed to save profile');
+          }
+
+          document.getElementById('success-banner').classList.remove('hidden');
+          setTimeout(() => {
+            window.location.href = 'dashboard.html';
+          }, 1500);
+        } catch (err) {
+          alert(err.message);
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<span>Save Profile Data</span>';
+        }
+      });
+    });
+  </script>
 </body>
 </html>
