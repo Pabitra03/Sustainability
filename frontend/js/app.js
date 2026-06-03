@@ -28,10 +28,26 @@ function setSession(userId, name) {
     localStorage.setItem('user_name', name);
 }
 function logout() {
+    // Clear session
     localStorage.removeItem('user_id');
     localStorage.removeItem('user_name');
+
+    // Clear AI Coach chat data (frontend-only cache)
+    // This prevents previous user's chat from showing for everyone.
+    localStorage.removeItem('ai_coach_messages');
+    localStorage.removeItem('ai_coach_last_user_id');
+
+    // Also clear the currently rendered messages (if on AI coach page)
+    try {
+        const coachMessagesEl = document.getElementById('coach-messages');
+        if (coachMessagesEl) coachMessagesEl.innerHTML = '';
+    } catch (e) {
+        // ignore
+    }
+
     window.location.href = 'index.html';
 }
+
 
 // Inject App Shell (Sidebar & Mobile Bottom Nav) into authenticated pages
 function renderAppShell(activePath) {
@@ -43,6 +59,9 @@ function renderAppShell(activePath) {
         { path: 'diet.html', icon: 'coffee', label: 'Diet Plan' },
         { path: 'workout.html', icon: 'activity', label: 'Workout Plan' },
         { path: 'progress.html', icon: 'trending-up', label: 'Progress' },
+        { path: 'hostel.html', icon: 'home', label: 'Hostel Mode' },
+        { path: 'ai-coach.html', icon: 'message-circle', label: 'AI Coach' },
+        { path: 'reports.html', icon: 'file-text', label: 'Reports' },
         { path: 'profile.html', icon: 'user', label: 'Profile' }
     ];
 
