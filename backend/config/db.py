@@ -2,6 +2,7 @@ import pymysql
 import os
 import time
 from dotenv import load_dotenv
+from utils.schema import ensure_app_schema
 
 load_dotenv(override=True)
 
@@ -29,8 +30,7 @@ def get_db_connection(with_db=True, retries=3, retry_delay=2):
 
     ssl_ca = os.getenv('DB_SSL_CA')
     if ssl_ca:
-        config['ssl_verify_cert'] = True
-        config['ssl_verify_identity'] = True
+        config['ssl'] = {'ca': ssl_ca}
 
     if with_db:
         config['database'] = os.getenv('DB_NAME', 'fitness_db')
@@ -112,8 +112,9 @@ def init_db():
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )
     """)
-    
+
     conn.commit()
     cursor.close()
+    ensure_app_schema(conn)
     conn.close()
     print("Database initialized successfully.")

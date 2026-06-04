@@ -99,7 +99,7 @@
     </div>
   </div>
 
-  <script src="js/app.js?v=2"></script>
+  <script src="js/app.js?v=3"></script>
   <script>
     
     let timerInterval = null;
@@ -210,32 +210,19 @@
       if (!userId) { window.location.href = 'auth.html'; return; }
 
       try {
-        const res = await fetch(`${API_BASE_URL}/dashboard?user_id=${userId}`);
+        const res = await fetch(`${API_BASE_URL}/ai/workout-recommendation?user_id=${userId}`);
         if (!res.ok) throw new Error('Need profile');
         const data = await res.json();
-        
-        const dayIndex = new Date().getDay();
-        const adjustedIndex = dayIndex === 0 ? 6 : dayIndex - 1; 
-        const todayRoutineText = data.weekly_plan[adjustedIndex].workout;
+        const todayRoutineText = data.today.routine;
         
         document.getElementById('today-routine').textContent = todayRoutineText;
 
-        const exercises = [];
-        if (todayRoutineText.toLowerCase().includes('cardio') || todayRoutineText.toLowerCase().includes('rest')) {
-          exercises.push({ name: 'Running / Light Jog', duration: '20 min', difficulty: 'Beginner', burn: '200 kcal' });
-          exercises.push({ name: 'Active Stretching', duration: '15 min', difficulty: 'Beginner', burn: '50 kcal' });
-        } else if (todayRoutineText.toLowerCase().includes('upper')) {
-          exercises.push({ name: 'Push Ups', duration: '3 sets × 12 reps', difficulty: 'Intermediate', burn: '120 kcal' });
-          exercises.push({ name: 'Pull Ups', duration: '3 sets × 8 reps', difficulty: 'Advanced', burn: '150 kcal' });
-          exercises.push({ name: 'Dumbbell Rows', duration: '3 sets × 12 reps', difficulty: 'Intermediate', burn: '100 kcal' });
-        } else if (todayRoutineText.toLowerCase().includes('lower')) {
-          exercises.push({ name: 'Squats', duration: '4 sets × 15 reps', difficulty: 'Intermediate', burn: '200 kcal' });
-          exercises.push({ name: 'Lunges', duration: '3 sets × 12 reps', difficulty: 'Intermediate', burn: '150 kcal' });
-          exercises.push({ name: 'Calf Raises', duration: '4 sets × 20 reps', difficulty: 'Beginner', burn: '80 kcal' });
-        } else {
-          exercises.push({ name: 'Push Ups', duration: '3 sets × 12 reps', difficulty: 'Intermediate', burn: '120 kcal' });
-          exercises.push({ name: 'Core Plank', duration: '3 sets × 60 sec', difficulty: 'Intermediate', burn: '100 kcal' });
-        }
+        const exercises = (data.today.exercises || []).map(ex => ({
+          name: ex.name,
+          duration: ex.duration,
+          difficulty: ex.difficulty,
+          burn: `${ex.burn_kcal} kcal`
+        }));
 
         const container = document.getElementById('exercises-container');
         const diffColors = {

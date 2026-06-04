@@ -1,21 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
   <script>if(localStorage.theme==="dark"||(!localStorage.theme&&window.matchMedia("(prefers-color-scheme: dark)").matches)){document.documentElement.classList.add("dark")}</script>
-    <style>
-        html { background-color: #050505 !important; }
-        html:not(.dark) { background-color: #fafafa !important; }
-    </style>
-
-
-
-
-
-
+  <style>
+    html { background-color: #050505 !important; }
+    html:not(.dark) { background-color: #fafafa !important; }
+  </style>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sustainability | Progress Tracking</title>
+  <title>Sustainability | Analytics</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -28,269 +21,480 @@
   <script src="https://unpkg.com/feather-icons"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen ">
-
-
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">
   <div id="app-shell" class="w-full h-full">
-
-    <!-- Header -->
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Progress Tracking</h1>
-      <p class="text-sm text-gray-500 dark:text-gray-400">Monitor your biological adaptation over time</p>
-    </div>
-
-    <!-- Quick Stats -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-xl shadow-sm">
-        <p class="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1">Current Weight</p>
-        <p class="text-2xl font-black text-gray-900 dark:text-white" id="stat-weight">--</p>
-        <p class="text-xs text-primary-500 font-semibold mt-1">kg</p>
+    <div class="flex flex-col xl:flex-row xl:items-start justify-between gap-5 mb-6">
+      <div>
+        <p class="text-xs uppercase tracking-widest font-black text-primary-500 mb-2">Real Data Analytics</p>
+        <h1 class="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white">Progress Intelligence</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Charts update from logged meals, workouts, water, sleep, and weight.</p>
       </div>
-      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-xl shadow-sm">
-        <p class="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1">BMI</p>
-        <p class="text-2xl font-black text-gray-900 dark:text-white" id="stat-bmi">--</p>
-        <p class="text-xs text-blue-500 font-semibold mt-1" id="stat-bmi-label">Loading...</p>
-      </div>
-      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-xl shadow-sm">
-        <p class="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1">Daily Calories</p>
-        <p class="text-2xl font-black text-gray-900 dark:text-white" id="stat-kcal">--</p>
-        <p class="text-xs text-amber-500 font-semibold mt-1">kcal target</p>
-      </div>
-      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-xl shadow-sm">
-        <p class="text-xs text-gray-400 uppercase font-bold tracking-wider mb-1">Active Days</p>
-        <p class="text-2xl font-black text-gray-900 dark:text-white">5</p>
-        <p class="text-xs text-primary-500 font-semibold mt-1">This week</p>
+      <div class="flex flex-wrap gap-2" id="range-filters">
+        <button data-range="7" class="range-btn">7 Days</button>
+        <button data-range="30" class="range-btn active">30 Days</button>
+        <button data-range="90" class="range-btn">90 Days</button>
+        <button data-range="180" class="range-btn">180 Days</button>
+        <button data-range="all" class="range-btn">All Time</button>
       </div>
     </div>
 
-    <!-- Charts -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-
-      <!-- Weight Chart -->
-      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-5 rounded-xl shadow-sm">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <i data-feather="trending-down" class="w-4 h-4 text-primary-500"></i> Body Mass (kg)
-          </h3>
-          <select onchange="updatePeriod(this.value)" class="text-xs bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-2 py-1 dark:text-white">
-            <option value="month">Last 30 Days</option>
-            <option value="3months">Last 3 Months</option>
-          </select>
-        </div>
-        <div class="h-56 w-full">
-          <canvas id="weightChart"></canvas>
-        </div>
-      </div>
-
-      <!-- Calories Chart -->
-      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-5 rounded-xl shadow-sm">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <i data-feather="zap" class="w-4 h-4 text-primary-500"></i> Daily Calories
-          </h3>
-        </div>
-        <div class="h-56 w-full">
-          <canvas id="calChart"></canvas>
-        </div>
-      </div>
-
-      <!-- Workout Completion -->
-      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-5 rounded-xl shadow-sm lg:col-span-2">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <i data-feather="activity" class="w-4 h-4 text-primary-500"></i> Weekly Active Minutes
-          </h3>
-          <span class="text-xs text-primary-500 font-bold bg-primary-50 dark:bg-primary-900/20 px-3 py-1 rounded-full">This Week</span>
-        </div>
-        <div class="h-56 w-full">
-          <canvas id="workoutChart"></canvas>
-        </div>
-      </div>
+    <div id="analytics-loading" class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-10 flex items-center justify-center gap-3 text-sm font-bold text-gray-500 dark:text-gray-400">
+      <i data-feather="loader" class="w-5 h-5 animate-spin text-primary-500"></i>
+      Loading analytics from your database...
     </div>
 
-    <!-- Weekly Plan Table -->
-    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-sm overflow-hidden">
-      <div class="p-5 border-b border-gray-100 dark:border-gray-700">
-        <h3 class="font-bold text-gray-900 dark:text-white">Weekly Workout Schedule</h3>
-      </div>
-      <div id="weekly-table" class="divide-y divide-gray-100 dark:divide-gray-700"></div>
+    <div id="analytics-error" class="hidden rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-4 text-sm text-red-700 dark:text-red-200 mb-6"></div>
+
+    <div id="analytics-content" class="hidden">
+      <section class="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-6">
+        <div class="xl:col-span-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5 shadow-sm">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 rounded-lg bg-primary-50 dark:bg-primary-900/20 text-primary-500"><i data-feather="sparkles" class="w-5 h-5"></i></div>
+            <div>
+              <h2 class="font-black text-gray-900 dark:text-white">AI Analytics Summary</h2>
+              <p id="tracked-days" class="text-xs text-gray-500 dark:text-gray-400">--</p>
+            </div>
+          </div>
+          <div id="insight-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5 shadow-sm">
+          <h2 class="font-black text-gray-900 dark:text-white mb-4">Predictions</h2>
+          <div id="prediction-list" class="space-y-3"></div>
+        </div>
+      </section>
+
+      <section class="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+        <div class="metric-card">
+          <p>Current Weight</p>
+          <strong id="stat-weight">--</strong>
+          <span id="stat-goal-weight">Goal --</span>
+        </div>
+        <div class="metric-card">
+          <p>Weight Loss Rate</p>
+          <strong id="stat-rate">--</strong>
+          <span id="stat-weight-trend">--</span>
+        </div>
+        <div class="metric-card">
+          <p>Health Score</p>
+          <strong id="stat-health">--</strong>
+          <span id="stat-health-trend">--</span>
+        </div>
+        <div class="metric-card">
+          <p>Workout Completion</p>
+          <strong id="stat-workout">--</strong>
+          <span id="stat-workout-sub">--</span>
+        </div>
+      </section>
+
+      <section class="grid grid-cols-1 2xl:grid-cols-2 gap-6 mb-6">
+        <article class="analytics-panel">
+          <div class="panel-head">
+            <div>
+              <h3>Weight Progress</h3>
+              <p>Actual, predicted, and goal trajectory</p>
+            </div>
+            <i data-feather="trending-up" class="w-5 h-5 text-primary-500"></i>
+          </div>
+          <div class="h-80"><canvas id="weightChart"></canvas></div>
+        </article>
+
+        <article class="analytics-panel">
+          <div class="panel-head">
+            <div>
+              <h3>Calorie Analytics</h3>
+              <p>Consumed calories vs target with 7/30 day averages</p>
+            </div>
+            <div class="text-right text-xs font-black">
+              <p id="cal-over" class="text-red-500">-- over</p>
+              <p id="cal-under" class="text-green-500">-- under</p>
+            </div>
+          </div>
+          <div class="h-80"><canvas id="calorieChart"></canvas></div>
+        </article>
+
+        <article class="analytics-panel">
+          <div class="panel-head">
+            <div>
+              <h3>Protein Intake</h3>
+              <p>Daily protein, target line, deficit and surplus</p>
+            </div>
+            <div class="text-right text-xs">
+              <p id="protein-target" class="font-black text-blue-500">Target --</p>
+              <p id="protein-gap" class="text-gray-500 dark:text-gray-400">--</p>
+            </div>
+          </div>
+          <div class="h-72"><canvas id="proteinChart"></canvas></div>
+        </article>
+
+        <article class="analytics-panel">
+          <div class="panel-head">
+            <div>
+              <h3>Water Intake</h3>
+              <p>Daily hydration with weekly and monthly averages</p>
+            </div>
+            <div class="text-right text-xs">
+              <p id="water-achievement" class="font-black text-cyan-500">--</p>
+              <p id="water-averages" class="text-gray-500 dark:text-gray-400">--</p>
+            </div>
+          </div>
+          <div class="h-72"><canvas id="waterChart"></canvas></div>
+        </article>
+
+        <article class="analytics-panel">
+          <div class="panel-head">
+            <div>
+              <h3>Sleep Analytics</h3>
+              <p>Daily sleep, rolling averages, deficiency and consistency</p>
+            </div>
+            <div class="text-right text-xs">
+              <p id="sleep-deficiency" class="font-black text-violet-500">--</p>
+              <p id="sleep-consistency" class="text-gray-500 dark:text-gray-400">--</p>
+            </div>
+          </div>
+          <div class="h-72"><canvas id="sleepChart"></canvas></div>
+        </article>
+
+        <article class="analytics-panel">
+          <div class="panel-head">
+            <div>
+              <h3>Workout Consistency</h3>
+              <p>Completed vs missed workout days</p>
+            </div>
+            <div class="text-right text-xs">
+              <p id="workout-week" class="font-black text-orange-500">--</p>
+              <p id="workout-month" class="text-gray-500 dark:text-gray-400">--</p>
+            </div>
+          </div>
+          <div class="h-72"><canvas id="workoutChart"></canvas></div>
+        </article>
+
+        <article class="analytics-panel 2xl:col-span-2">
+          <div class="panel-head">
+            <div>
+              <h3>Health Score Trend</h3>
+              <p>Daily health score trend across 7, 30, and 90 day windows</p>
+            </div>
+            <div id="health-windows" class="flex flex-wrap justify-end gap-2 text-xs font-black"></div>
+          </div>
+          <div class="h-80"><canvas id="healthChart"></canvas></div>
+        </article>
+      </section>
+
+      <section class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
+        <article class="analytics-panel">
+          <div class="panel-head">
+            <div>
+              <h3>Habit Consistency</h3>
+              <p>Protein, calories, water, sleep, workout</p>
+            </div>
+          </div>
+          <div class="h-72"><canvas id="radarChart"></canvas></div>
+        </article>
+        <article class="analytics-panel xl:col-span-2">
+          <div class="panel-head">
+            <div>
+              <h3>Goal Achievement Dashboard</h3>
+              <p>Current progress toward the goals that matter most</p>
+            </div>
+          </div>
+          <div id="goal-rings" class="grid grid-cols-2 lg:grid-cols-4 gap-4"></div>
+        </article>
+      </section>
+
+      <section class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm overflow-hidden">
+        <div class="p-5 border-b border-gray-100 dark:border-gray-700">
+          <h3 class="font-black text-gray-900 dark:text-white">Weekly Workout Schedule</h3>
+        </div>
+        <div id="weekly-table" class="divide-y divide-gray-100 dark:divide-gray-700"></div>
+      </section>
     </div>
   </div>
 
-  <script src="js/app.js?v=2"></script>
+  <script src="js/app.js?v=3"></script>
   <script>
-    let weightChartInstance = null;
-    const isDark = () => document.documentElement.classList.contains('dark');
-    const gridColor = () => isDark() ? '#374151' : '#e5e7eb';
-    const labelColor = () => isDark() ? '#94a3b8' : '#64748b';
+    const chartInstances = {};
+    let activeRange = '30';
 
-    Chart.defaults.font.family = 'Inter';
+    Chart.defaults.font.family = 'Outfit';
+    Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(15,23,42,0.92)';
+    Chart.defaults.plugins.tooltip.padding = 12;
+    Chart.defaults.plugins.tooltip.cornerRadius = 8;
 
-    function buildWeightData(base, period) {
-      if (period === '3months') {
-        return {
-          labels: ['Jan W1','Jan W2','Jan W3','Jan W4','Feb W1','Feb W2','Feb W3','Feb W4','Mar W1','Mar W2','Mar W3','Now'],
-          data: [base+3.2, base+2.9, base+2.5, base+2.1, base+1.8, base+1.5, base+1.2, base+0.9, base+0.6, base+0.3, base+0.1, base]
-        };
-      }
+    function isDark() { return document.documentElement.classList.contains('dark'); }
+    function gridColor() { return isDark() ? '#334155' : '#e5e7eb'; }
+    function labelColor() { return isDark() ? '#94a3b8' : '#64748b'; }
+    function formatDateLabels(labels) {
+      return labels.map(label => new Date(label).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+    }
+    function compact(value, suffix = '') {
+      if (value === null || value === undefined || Number.isNaN(Number(value))) return '--';
+      return `${Number(value).toLocaleString(undefined, { maximumFractionDigits: 1 })}${suffix}`;
+    }
+    function trendText(trend) {
+      if (!trend) return '--';
+      return `${trend.label}${trend.delta ? ` (${trend.delta})` : ''}`;
+    }
+    function hasData(values) {
+      return (values || []).some(value => value !== null && value !== undefined);
+    }
+    function emptyPlugin(text) {
       return {
-        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Now'],
-        data: [base+1.2, base+0.8, base+0.5, base+0.1, base]
+        id: `empty-${text.replace(/\W/g, '')}`,
+        afterDraw(chart) {
+          const datasets = chart.data.datasets || [];
+          const available = datasets.some(dataset => hasData(dataset.data));
+          if (available) return;
+          const { ctx, chartArea } = chart;
+          if (!chartArea) return;
+          ctx.save();
+          ctx.fillStyle = labelColor();
+          ctx.font = '600 13px Outfit';
+          ctx.textAlign = 'center';
+          ctx.fillText(text, (chartArea.left + chartArea.right) / 2, (chartArea.top + chartArea.bottom) / 2);
+          ctx.restore();
+        }
       };
     }
-
-    function updatePeriod(period) {
-      if (!weightChartInstance) return;
-      const base = parseFloat(document.getElementById('stat-weight').textContent) || 75;
-      const { labels, data } = buildWeightData(base, period);
-      weightChartInstance.data.labels = labels;
-      weightChartInstance.data.datasets[0].data = data;
-      weightChartInstance.update();
+    function chartOptions(beginAtZero = false, stacked = false) {
+      return {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        hover: { mode: 'nearest', intersect: false },
+        plugins: {
+          legend: { labels: { color: labelColor(), boxWidth: 10, usePointStyle: true } },
+        },
+        scales: {
+          y: { beginAtZero, stacked, grid: { color: gridColor() }, ticks: { color: labelColor() } },
+          x: { stacked, grid: { display: false }, ticks: { color: labelColor(), maxTicksLimit: 9 } }
+        }
+      };
     }
+    function renderChart(id, type, labels, datasets, options = {}) {
+      if (chartInstances[id]) chartInstances[id].destroy();
+      const chartLabels = type === 'radar' ? labels : formatDateLabels(labels);
+      const chartConfigOptions = type === 'radar'
+        ? { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: labelColor(), boxWidth: 10, usePointStyle: true } } }, scales: { r: { min: 0, max: 100, grid: { color: gridColor() }, angleLines: { color: gridColor() }, pointLabels: { color: labelColor(), font: { weight: 800 } }, ticks: { color: labelColor(), backdropColor: 'transparent' } } } }
+        : chartOptions(options.beginAtZero, options.stacked);
+      chartInstances[id] = new Chart(document.getElementById(id), {
+        type,
+        data: { labels: chartLabels, datasets },
+        options: chartConfigOptions,
+        plugins: [emptyPlugin('No logged data for this range')]
+      });
+    }
+    function ringMarkup(item) {
+      const pct = Math.max(0, Math.min(100, Number(item.percent || 0)));
+      return `
+        <div class="rounded-lg bg-gray-50 dark:bg-gray-900 p-4">
+          <div class="progress-ring mx-auto mb-3" style="--p:${pct}">
+            <span>${pct}%</span>
+          </div>
+          <p class="text-sm font-black text-gray-900 dark:text-white text-center">${item.label}</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 text-center mt-1">${item.value}</p>
+        </div>
+      `;
+    }
+    function setRangeButtons() {
+      document.querySelectorAll('.range-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.range === activeRange);
+      });
+    }
+    function showLoading(isLoading) {
+      document.getElementById('analytics-loading').classList.toggle('hidden', !isLoading);
+      document.getElementById('analytics-content').classList.toggle('hidden', isLoading);
+    }
+    function predictionRow(label, value, confidence, unit) {
+      return `
+        <div class="rounded-lg bg-gray-50 dark:bg-gray-900 p-3 flex items-center justify-between gap-3">
+          <div>
+            <p class="text-xs text-gray-400 uppercase font-black">${label}</p>
+            <p class="font-black text-gray-900 dark:text-white">${value}</p>
+          </div>
+          <span class="text-xs font-black text-primary-600 dark:text-primary-400">${confidence}% ${unit}</span>
+        </div>
+      `;
+    }
+    function renderInsights(data) {
+      document.getElementById('tracked-days').textContent = `${data.analytics.tracked_days} tracked days in this range`;
+      document.getElementById('insight-list').innerHTML = (data.analytics.insights || []).map(item => `
+        <div class="rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 p-3 flex gap-2">
+          <i data-feather="check-circle" class="w-4 h-4 text-primary-500 shrink-0 mt-0.5"></i>
+          <p class="text-sm text-gray-700 dark:text-gray-300">${item}</p>
+        </div>
+      `).join('');
+    }
+    function renderSummary(data) {
+      const current = data.current;
+      const analytics = data.analytics;
+      const predictions = data.predictions;
+      document.getElementById('stat-weight').textContent = compact(current.weight_kg, ' kg');
+      document.getElementById('stat-goal-weight').textContent = `Goal ${compact(current.goal_weight_kg, ' kg')}`;
+      document.getElementById('stat-rate').textContent = `${compact(Math.abs(analytics.weight_loss_rate_kg_per_week), ' kg/week')}`;
+      document.getElementById('stat-weight-trend').textContent = trendText(analytics.trend_indicators.weight);
+      document.getElementById('stat-health').textContent = `${current.health_score.score} ${current.health_score.label}`;
+      document.getElementById('stat-health-trend').textContent = trendText(analytics.trend_indicators.health_score);
+      document.getElementById('stat-workout').textContent = `${analytics.workout.completion_percent}%`;
+      document.getElementById('stat-workout-sub').textContent = `${analytics.workout.completed} completed, ${analytics.workout.missed} missed`;
 
-    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('prediction-list').innerHTML = [
+        predictionRow('Weight in 7 days', `${compact(predictions.weight.after_7_days, ' kg')}`, predictions.weight.confidence, 'confidence'),
+        predictionRow('Weight in 30 days', `${compact(predictions.weight.after_30_days, ' kg')}`, predictions.weight.confidence, 'confidence'),
+        predictionRow('Weight in 90 days', `${compact(predictions.weight.after_90_days, ' kg')}`, predictions.weight.confidence, 'confidence'),
+        predictionRow('Health in 7 days', `${compact(predictions.health_score.after_7_days.value)}`, predictions.health_score.after_7_days.confidence, 'confidence'),
+        predictionRow('Goal date', predictions.weight.goal_completion_date || 'Needs more data', predictions.weight.confidence, 'confidence')
+      ].join('');
+    }
+    function renderMetricText(data) {
+      const a = data.analytics;
+      document.getElementById('cal-over').textContent = `${a.calories.days_over_target} days over`;
+      document.getElementById('cal-under').textContent = `${a.calories.days_under_target} days under`;
+      document.getElementById('protein-target').textContent = `Target ${compact(a.protein.target, 'g')}`;
+      document.getElementById('protein-gap').textContent = a.protein.deficit !== null
+        ? `Average ${compact(a.protein.average, 'g')} | Deficit ${compact(a.protein.deficit, 'g')} | Surplus ${compact(a.protein.surplus, 'g')}`
+        : 'Log protein to calculate deficit.';
+      document.getElementById('water-achievement').textContent = `${a.water.achievement_percent}% goal achievement`;
+      document.getElementById('water-averages').textContent = `7d ${compact(a.water.weekly_average, 'ml')} | 30d ${compact(a.water.monthly_average, 'ml')}`;
+      document.getElementById('sleep-deficiency').textContent = a.sleep.deficiency_hours === null ? 'Sleep not logged' : `${compact(a.sleep.deficiency_hours, 'h')} deficiency`;
+      document.getElementById('sleep-consistency').textContent = a.sleep.consistency_percent === null ? '--' : `${a.sleep.consistency_percent}% consistency`;
+      document.getElementById('workout-week').textContent = `Weekly ${a.workout.weekly_performance}%`;
+      document.getElementById('workout-month').textContent = `Monthly ${a.workout.monthly_performance}%`;
+      document.getElementById('health-windows').innerHTML = [
+        ['7d', a.health_score.last_7_days],
+        ['30d', a.health_score.last_30_days],
+        ['90d', a.health_score.last_90_days]
+      ].map(([label, value]) => `<span class="px-2 py-1 rounded bg-gray-100 dark:bg-gray-900 text-gray-600 dark:text-gray-300">${label}: ${compact(value)}</span>`).join('');
+      document.getElementById('goal-rings').innerHTML = a.goal_rings.map(ringMarkup).join('');
+    }
+    function renderCharts(data) {
+      const labels = data.labels;
+      const s = data.series;
+      const green = '#65a30d';
+      const blue = '#2563eb';
+      const cyan = '#0891b2';
+      const violet = '#7c3aed';
+      const orange = '#ea580c';
+      const red = '#dc2626';
+
+      renderChart('weightChart', 'line', labels, [
+        { label: 'Actual Progress', data: s.weight, borderColor: green, backgroundColor: 'rgba(101,163,13,0.16)', fill: true, tension: 0.35, spanGaps: true, borderWidth: 3, pointRadius: 3 },
+        { label: 'Predicted Progress', data: s.weight_prediction, borderColor: blue, borderDash: [6, 5], fill: false, tension: 0.25, spanGaps: true, borderWidth: 2, pointRadius: 0 },
+        { label: 'Goal Line', data: s.weight_goal, borderColor: orange, borderDash: [2, 4], fill: false, borderWidth: 2, pointRadius: 0 }
+      ]);
+      renderChart('calorieChart', 'bar', labels, [
+        { label: 'Calories Consumed', data: s.calories, backgroundColor: s.calories.map((value, index) => value > s.calorie_target[index] ? 'rgba(220,38,38,0.72)' : 'rgba(101,163,13,0.72)'), borderRadius: 5 },
+        { label: 'Calories Target', data: s.calorie_target, type: 'line', borderColor: orange, borderDash: [4, 4], borderWidth: 2, pointRadius: 0 },
+        { label: 'Weekly Average', data: s.calorie_weekly_average, type: 'line', borderColor: blue, borderWidth: 2, pointRadius: 0, tension: 0.35 },
+        { label: 'Monthly Average', data: s.calorie_monthly_average, type: 'line', borderColor: violet, borderWidth: 2, pointRadius: 0, tension: 0.35 }
+      ], { beginAtZero: true });
+      renderChart('proteinChart', 'line', labels, [
+        { label: 'Daily Protein', data: s.protein, borderColor: blue, backgroundColor: 'rgba(37,99,235,0.15)', fill: true, tension: 0.35, spanGaps: true, borderWidth: 3 },
+        { label: 'Target Protein', data: s.protein_target, borderColor: orange, borderDash: [5, 5], pointRadius: 0, borderWidth: 2 }
+      ], { beginAtZero: true });
+      renderChart('waterChart', 'line', labels, [
+        { label: 'Daily Water', data: s.water, borderColor: cyan, backgroundColor: 'rgba(8,145,178,0.15)', fill: true, tension: 0.35, spanGaps: true, borderWidth: 3 },
+        { label: 'Weekly Average', data: s.water_weekly_average, borderColor: blue, pointRadius: 0, borderWidth: 2, tension: 0.35 },
+        { label: 'Monthly Average', data: s.water_monthly_average, borderColor: violet, pointRadius: 0, borderWidth: 2, tension: 0.35 },
+        { label: 'Water Target', data: s.water_target, borderColor: orange, borderDash: [5, 5], pointRadius: 0, borderWidth: 2 }
+      ], { beginAtZero: true });
+      renderChart('sleepChart', 'line', labels, [
+        { label: 'Daily Sleep', data: s.sleep, borderColor: violet, backgroundColor: 'rgba(124,58,237,0.15)', fill: true, tension: 0.35, spanGaps: true, borderWidth: 3 },
+        { label: 'Weekly Average', data: s.sleep_weekly_average, borderColor: blue, pointRadius: 0, borderWidth: 2, tension: 0.35 },
+        { label: 'Monthly Average', data: s.sleep_monthly_average, borderColor: green, pointRadius: 0, borderWidth: 2, tension: 0.35 },
+        { label: 'Sleep Target', data: s.sleep_target, borderColor: orange, borderDash: [5, 5], pointRadius: 0, borderWidth: 2 }
+      ], { beginAtZero: true });
+      renderChart('workoutChart', 'bar', labels, [
+        { label: 'Completed Workouts', data: s.workout_completion, backgroundColor: 'rgba(101,163,13,0.78)', borderRadius: 5 },
+        { label: 'Missed Workouts', data: s.workout_missed, backgroundColor: 'rgba(220,38,38,0.62)', borderRadius: 5 }
+      ], { beginAtZero: true, stacked: true });
+      renderChart('healthChart', 'line', labels, [
+        { label: 'Daily Health Score', data: s.health_score, borderColor: orange, backgroundColor: 'rgba(234,88,12,0.15)', fill: true, tension: 0.35, borderWidth: 3 }
+      ], { beginAtZero: true });
+      renderChart('radarChart', 'radar', data.analytics.radar.labels, [
+        { label: 'Habit Score', data: data.analytics.radar.scores, borderColor: green, backgroundColor: 'rgba(101,163,13,0.2)', pointBackgroundColor: green, borderWidth: 2 }
+      ], { beginAtZero: true });
+    }
+    function renderWeeklyPlan(dashboard) {
+      const table = document.getElementById('weekly-table');
+      table.innerHTML = '';
+      if (!dashboard || !dashboard.weekly_plan) {
+        table.innerHTML = '<div class="p-4 text-sm text-gray-500 dark:text-gray-400">Workout schedule unavailable.</div>';
+        return;
+      }
+      dashboard.weekly_plan.forEach(day => {
+        const row = document.createElement('div');
+        row.className = 'flex flex-col sm:flex-row sm:items-center gap-2 p-4 text-sm';
+        row.innerHTML = `
+          <span class="font-black text-primary-600 dark:text-primary-400 w-28 shrink-0">${day.day}</span>
+          <span class="text-gray-700 dark:text-gray-300 flex-1">${day.workout}</span>
+          <span class="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-900 px-2 py-1 rounded shrink-0">${day.breakfast}</span>
+        `;
+        table.appendChild(row);
+      });
+    }
+    async function loadAnalytics(range = activeRange) {
+      activeRange = range;
+      setRangeButtons();
+      showLoading(true);
+      document.getElementById('analytics-error').classList.add('hidden');
       const userId = getUserId();
-      if (!userId) { window.location.href = 'auth.html'; return; }
-
-      let baseWeight = 75;
-      let targetKcal = 2100;
-
-      const GREEN     = '#84cc16';
-      const GREEN_LIGHT  = 'rgba(132,204,22,0.15)';
-      const BLUE     = '#3b82f6';
-      const BLUE_LIGHT  = 'rgba(59,130,246,0.15)';
-
-      // Render charts immediately with defaults
-      const { labels: wLabels, data: wData } = buildWeightData(baseWeight, 'month');
-      const ctxW = document.getElementById('weightChart').getContext('2d');
-      weightChartInstance = new Chart(ctxW, {
-        type: 'line',
-        data: {
-          labels: wLabels,
-          datasets: [{
-            label: 'Weight (kg)',
-            data: wData,
-            borderColor: GREEN,
-            backgroundColor: GREEN_LIGHT,
-            borderWidth: 3, tension: 0.4, fill: true,
-            pointBackgroundColor: GREEN, pointRadius: 5
-          }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: { grid: { color: gridColor() }, ticks: { color: labelColor() } },
-            x: { grid: { display: false }, ticks: { color: labelColor() } }
-          }
-        }
-      });
-
-      const calData = [targetKcal-50, targetKcal+100, targetKcal, targetKcal-120, targetKcal+200, targetKcal-60, targetKcal];
-      const ctxC = document.getElementById('calChart').getContext('2d');
-      const calChartInstance = new Chart(ctxC, {
-        type: 'bar',
-        data: {
-          labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
-          datasets: [{
-            label: 'Calories',
-            data: calData,
-            backgroundColor: calData.map(v => v > targetKcal ? 'rgba(239,68,68,0.7)' : 'rgba(132,204,22,0.7)'),
-            borderRadius: 6
-          },{
-            label: 'Target',
-            data: Array(7).fill(targetKcal),
-            type: 'line',
-            borderColor: GREEN,
-            borderDash: [5,5],
-            borderWidth: 2,
-            pointRadius: 0,
-            fill: false
-          }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: { grid: { color: gridColor() }, ticks: { color: labelColor() } },
-            x: { grid: { display: false }, ticks: { color: labelColor() } }
-          }
-        }
-      });
-
-      const ctxWO = document.getElementById('workoutChart').getContext('2d');
-      new Chart(ctxWO, {
-        type: 'line',
-        data: {
-          labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
-          datasets: [{
-            label: 'Active Minutes',
-            data: [45, 0, 60, 45, 30, 0, 90],
-            borderColor: BLUE,
-            backgroundColor: BLUE_LIGHT,
-            borderWidth: 3, tension: 0.4, fill: true,
-            pointBackgroundColor: BLUE, pointRadius: 5
-          }]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: { beginAtZero: true, grid: { color: gridColor() }, ticks: { color: labelColor() } },
-            x: { grid: { display: false }, ticks: { color: labelColor() } }
-          }
-        }
-      });
-
+      const query = range === 'all' ? 'period=all' : `days=${range}`;
+      const [analyticsRes, dashboardRes] = await Promise.all([
+        fetch(`${API_BASE_URL}/progress/analytics?user_id=${userId}&${query}`),
+        fetch(`${API_BASE_URL}/dashboard?user_id=${userId}`)
+      ]);
+      const analytics = await analyticsRes.json();
+      if (!analyticsRes.ok) throw new Error(analytics.error || 'Failed to load analytics');
+      const dashboard = dashboardRes.ok ? await dashboardRes.json() : null;
+      renderInsights(analytics);
+      renderSummary(analytics);
+      renderMetricText(analytics);
+      renderCharts(analytics);
+      renderWeeklyPlan(dashboard);
+      showLoading(false);
       feather.replace();
-
-      // Fetch data in background and update DOM/Charts
-      Promise.all([
-        fetch(`${API_BASE_URL}/user/profile?user_id=${userId}`).then(res => res.ok ? res.json() : null),
-        fetch(`${API_BASE_URL}/dashboard?user_id=${userId}`).then(res => res.ok ? res.json() : null)
-      ]).then(([prof, dash]) => {
-        if (prof) {
-          baseWeight = parseFloat(prof.weight);
-          document.getElementById('stat-weight').textContent = baseWeight;
-          // Update weight chart data
-          const selectEl = document.querySelector('select');
-          updatePeriod(selectEl ? selectEl.value : 'month');
-        }
-        if (dash) {
-          targetKcal = parseInt(dash.metrics.tdee);
-
-          document.getElementById('stat-bmi').textContent = dash.metrics.bmi;
-          document.getElementById('stat-kcal').textContent = targetKcal;
-          const bmi = parseFloat(dash.metrics.bmi);
-          const label = bmi < 18.5 ? 'Underweight' : bmi < 25 ? 'Healthy' : 'Overweight';
-          const col  = bmi < 18.5 ? 'text-amber-500' : bmi < 25 ? 'text-green-500' : 'text-red-500';
-          const el = document.getElementById('stat-bmi-label');
-          el.textContent = label;
-          el.className = `text-xs font-semibold mt-1 ${col}`;
-          
-          const days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-          const table = document.getElementById('weekly-table');
-          table.innerHTML = '';
-          dash.weekly_plan.forEach((day, i) => {
-            const row = document.createElement('div');
-            row.className = 'flex flex-col sm:flex-row sm:items-center gap-2 p-4 text-sm';
-            row.innerHTML = `
-              <span class="font-bold text-primary-500 w-28 shrink-0">${days[i]}</span>
-              <span class="text-gray-700 dark:text-gray-300 flex-1">${day.workout}</span>
-              <span class="text-xs text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full shrink-0">${day.breakfast.split(',')[0]}</span>
-            `;
-            table.appendChild(row);
-          });
-
-          // Update Calorie chart with real targetKcal
-          const newCalData = [targetKcal-50, targetKcal+100, targetKcal, targetKcal-120, targetKcal+200, targetKcal-60, targetKcal];
-          calChartInstance.data.datasets[0].data = newCalData;
-          calChartInstance.data.datasets[0].backgroundColor = newCalData.map(v => v > targetKcal ? 'rgba(239,68,68,0.7)' : 'rgba(132,204,22,0.7)');
-          calChartInstance.data.datasets[1].data = Array(7).fill(targetKcal);
-          calChartInstance.update();
-        }
-      }).catch(e => console.error("Error fetching progress data:", e));
+    }
+    document.addEventListener('DOMContentLoaded', async () => {
+      const style = document.createElement('style');
+      style.textContent = `
+        .range-btn { border: 1px solid rgb(229 231 235); background: white; color: rgb(75 85 99); border-radius: 8px; padding: 0.55rem 0.8rem; font-size: 0.75rem; font-weight: 900; }
+        html.dark .range-btn { border-color: rgb(55 65 81); background: rgb(31 41 55); color: rgb(209 213 219); }
+        .range-btn.active { background: #84cc16; border-color: #84cc16; color: #111827; }
+        .metric-card { background: white; border: 1px solid rgb(229 231 235); border-radius: 8px; padding: 1rem; box-shadow: 0 1px 2px rgba(15,23,42,0.04); }
+        html.dark .metric-card { background: rgb(31 41 55); border-color: rgb(55 65 81); }
+        .metric-card p { color: rgb(156 163 175); text-transform: uppercase; letter-spacing: .06em; font-size: .68rem; font-weight: 900; margin-bottom: .35rem; }
+        .metric-card strong { display:block; font-size: clamp(1.3rem, 3vw, 1.8rem); line-height: 1.15; font-weight: 900; color: rgb(17 24 39); }
+        html.dark .metric-card strong { color: white; }
+        .metric-card span { display:block; margin-top:.35rem; color: rgb(100 116 139); font-size:.76rem; font-weight:700; }
+        .analytics-panel { background:white; border:1px solid rgb(229 231 235); border-radius:8px; padding:1.25rem; box-shadow:0 1px 2px rgba(15,23,42,.04); }
+        html.dark .analytics-panel { background:rgb(31 41 55); border-color:rgb(55 65 81); }
+        .panel-head { display:flex; justify-content:space-between; gap:1rem; align-items:flex-start; margin-bottom:1rem; }
+        .panel-head h3 { font-weight:900; color:rgb(17 24 39); }
+        html.dark .panel-head h3 { color:white; }
+        .panel-head p { margin-top:.2rem; color:rgb(100 116 139); font-size:.8rem; }
+        .progress-ring { width:112px; height:112px; border-radius:50%; display:grid; place-items:center; background:conic-gradient(#65a30d calc(var(--p) * 1%), rgb(226 232 240) 0); }
+        html.dark .progress-ring { background:conic-gradient(#84cc16 calc(var(--p) * 1%), rgb(51 65 85) 0); }
+        .progress-ring span { width:78px; height:78px; border-radius:50%; background:white; display:grid; place-items:center; font-weight:900; color:rgb(17 24 39); }
+        html.dark .progress-ring span { background:rgb(17 24 39); color:white; }
+      `;
+      document.head.appendChild(style);
+      if (!getUserId()) { window.location.href = 'auth.html'; return; }
+      document.querySelectorAll('.range-btn').forEach(btn => btn.addEventListener('click', () => loadAnalytics(btn.dataset.range).catch(showError)));
+      try {
+        await loadAnalytics('30');
+      } catch (err) {
+        showError(err);
+      }
+      feather.replace();
     });
+    function showError(err) {
+      document.getElementById('analytics-loading').classList.add('hidden');
+      document.getElementById('analytics-content').classList.add('hidden');
+      const el = document.getElementById('analytics-error');
+      el.textContent = err.message || 'Unable to load analytics.';
+      el.classList.remove('hidden');
+      console.error(err);
+    }
   </script>
 </body>
 </html>

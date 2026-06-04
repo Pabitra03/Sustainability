@@ -101,6 +101,125 @@
       </div>
     </div>
 
+    <!-- AI Daily Briefing -->
+    <div id="ai-briefing-card" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 sm:p-6 shadow-sm mb-6">
+      <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-5">
+        <div class="flex-1">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="p-2 bg-primary-50 dark:bg-primary-900/20 text-primary-500 rounded-lg"><i data-feather="sparkles" class="w-5 h-5"></i></div>
+            <div>
+              <h2 id="briefing-greeting" class="text-xl font-black text-gray-900 dark:text-white">AI Daily Briefing</h2>
+              <p id="briefing-date" class="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">Loading...</p>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3" id="briefing-summary"></div>
+        </div>
+        <div class="grid grid-cols-3 gap-3 w-full lg:w-auto lg:min-w-[320px]">
+          <div class="bg-primary-50 dark:bg-primary-900/20 rounded-lg p-3 text-center">
+            <p class="text-[10px] text-primary-600 dark:text-primary-400 uppercase font-black">Calories</p>
+            <p id="goal-calories" class="text-xl font-black text-gray-900 dark:text-white">--</p>
+          </div>
+          <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 text-center">
+            <p class="text-[10px] text-blue-600 dark:text-blue-400 uppercase font-black">Protein</p>
+            <p id="goal-protein" class="text-xl font-black text-gray-900 dark:text-white">--</p>
+          </div>
+          <div class="bg-cyan-50 dark:bg-cyan-900/20 rounded-lg p-3 text-center">
+            <p class="text-[10px] text-cyan-600 dark:text-cyan-400 uppercase font-black">Water</p>
+            <p id="goal-water" class="text-xl font-black text-gray-900 dark:text-white">--</p>
+          </div>
+        </div>
+      </div>
+      <div class="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div id="briefing-hostel-block">
+          <p class="text-xs text-gray-400 uppercase font-black tracking-widest mb-2">Hostel Recommendation</p>
+          <ul id="briefing-recommendations" class="space-y-2 text-sm text-gray-700 dark:text-gray-300"></ul>
+        </div>
+        <div>
+          <p class="text-xs text-gray-400 uppercase font-black tracking-widest mb-2">Today Warnings</p>
+          <ul id="briefing-warnings" class="space-y-2 text-sm text-gray-700 dark:text-gray-300"></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI Action & Analysis -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-8">
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-black text-gray-900 dark:text-white">What Should I Do Right Now?</h3>
+          <i data-feather="compass" class="w-5 h-5 text-primary-500"></i>
+        </div>
+        <div class="flex items-end gap-2 mb-4">
+          <span id="health-score-now" class="text-4xl font-black text-gray-900 dark:text-white">--</span>
+          <span class="text-gray-400 font-bold mb-1">to</span>
+          <span id="health-score-potential" class="text-4xl font-black text-primary-500">--</span>
+        </div>
+        <div id="action-list" class="space-y-3"></div>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-black text-gray-900 dark:text-white">Nutrient Deficiencies</h3>
+          <i data-feather="pie-chart" class="w-5 h-5 text-primary-500"></i>
+        </div>
+        <div id="nutrient-list" class="space-y-3"></div>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-black text-gray-900 dark:text-white">Notification Center</h3>
+          <i data-feather="bell" class="w-5 h-5 text-primary-500"></i>
+        </div>
+        <div id="smart-notifications" class="space-y-3"></div>
+      </div>
+    </div>
+
+    <!-- Habit Tracker -->
+    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 sm:p-6 shadow-sm mb-8">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-5">
+        <div>
+          <h2 class="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2">
+            <i data-feather="check-square" class="w-5 h-5 text-primary-500"></i>
+            Habit Tracker
+          </h2>
+        </div>
+        <div id="habit-save-status" class="text-xs font-bold text-gray-500 dark:text-gray-400"></div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div class="rounded-lg bg-gray-50 dark:bg-gray-900 p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-black text-gray-900 dark:text-white">Water</span>
+            <span id="habit-water-label" class="text-xs text-cyan-500 font-bold">-- / -- ml</span>
+          </div>
+          <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-3"><div id="habit-water-bar" class="h-full bg-cyan-500"></div></div>
+          <button onclick="logMetric({ water_ml: 500 }, 'add')" class="w-full bg-cyan-500/15 text-cyan-600 dark:text-cyan-300 rounded-lg py-2 text-xs font-black">+500 ml</button>
+        </div>
+        <div class="rounded-lg bg-gray-50 dark:bg-gray-900 p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-black text-gray-900 dark:text-white">Protein</span>
+            <span id="habit-protein-label" class="text-xs text-blue-500 font-bold">-- / -- g</span>
+          </div>
+          <div class="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden mb-3"><div id="habit-protein-bar" class="h-full bg-blue-500"></div></div>
+          <button onclick="logMetric({ protein_g: 10 }, 'add')" class="w-full bg-blue-500/15 text-blue-600 dark:text-blue-300 rounded-lg py-2 text-xs font-black">+10 g</button>
+        </div>
+        <div class="rounded-lg bg-gray-50 dark:bg-gray-900 p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-black text-gray-900 dark:text-white">Sleep</span>
+            <span id="habit-sleep-label" class="text-xs text-violet-500 font-bold">-- / -- h</span>
+          </div>
+          <input id="sleep-input" type="number" min="0" max="14" step="0.5" placeholder="Hours" class="w-full mb-3 px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm">
+          <button onclick="saveSleep()" class="w-full bg-violet-500/15 text-violet-600 dark:text-violet-300 rounded-lg py-2 text-xs font-black">Save Sleep</button>
+        </div>
+        <div class="rounded-lg bg-gray-50 dark:bg-gray-900 p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-black text-gray-900 dark:text-white">Weight</span>
+            <span id="habit-weight-label" class="text-xs text-primary-500 font-bold">-- kg</span>
+          </div>
+          <input id="weight-input" type="number" min="20" max="250" step="0.1" placeholder="kg" class="w-full mb-3 px-3 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm">
+          <button onclick="saveWeight()" class="w-full bg-primary-500/15 text-primary-600 dark:text-primary-300 rounded-lg py-2 text-xs font-black">Save Weight</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Metric Cards Grid -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
       
@@ -131,11 +250,11 @@
       <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-xl shadow-sm hover-scale">
         <div class="flex items-center gap-3 mb-2">
           <div class="p-2 bg-purple-50 dark:bg-purple-900/20 text-purple-500 rounded-lg"><i data-feather="clock" class="w-4 h-4"></i></div>
-          <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Workout Today</span>
+          <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Exercises Today</span>
         </div>
         <div class="flex items-baseline gap-1 mb-1">
-          <h3 id="metric-time" class="text-2xl font-bold text-gray-900 dark:text-white">45</h3>
-          <span class="text-sm text-gray-500">min</span>
+          <h3 id="metric-time" class="text-2xl font-bold text-gray-900 dark:text-white">--</h3>
+          <span class="text-sm text-gray-500">items</span>
         </div>
         <p class="text-xs font-medium text-purple-500">Recommended</p>
       </div>
@@ -263,9 +382,10 @@
     </div>
   </div>
 
-  <script src="js/app.js?v=2"></script>
+  <script src="js/app.js?v=3"></script>
   <script>
     const userId = getUserId();
+    let dashboardData = null;
     
     async function markTaskComplete(taskType) {
       try {
@@ -339,13 +459,165 @@
       }
     }
 
+    function renderDailyBriefing(data) {
+      const briefing = data.daily_briefing || null;
+      const goals = briefing ? briefing.today_goals : data.metrics;
+      document.getElementById('briefing-greeting').textContent = briefing ? briefing.greeting : `Good Morning ${data.name}`;
+      document.getElementById('briefing-date').textContent = briefing ? briefing.today_date : data.today_date;
+      document.getElementById('goal-calories').textContent = goals.calories || data.metrics.daily_calories;
+      document.getElementById('goal-protein').textContent = `${goals.protein_g || data.metrics.protein_g}g`;
+      document.getElementById('goal-water').textContent = `${Math.round((goals.water_ml || data.metrics.hydration_ml) / 1000 * 10) / 10}L`;
+
+      const summary = briefing ? briefing.yesterday_summary : [];
+      document.getElementById('briefing-summary').innerHTML = summary.map(item => `
+        <div class="rounded-lg border ${item.completed ? 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20' : 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20'} p-3">
+          <p class="text-xs font-black uppercase ${item.completed ? 'text-green-700 dark:text-green-300' : 'text-red-700 dark:text-red-300'}">${item.completed ? 'Done' : 'Missed'}</p>
+          <p class="text-sm font-bold text-gray-900 dark:text-white">${item.label}</p>
+        </div>
+      `).join('');
+
+      const recommendations = briefing ? briefing.hostel_recommendations : [];
+      const hostelBlock = document.getElementById('briefing-hostel-block');
+      hostelBlock.classList.toggle('hidden', !data.uses_hostel);
+      if (data.uses_hostel) {
+        document.getElementById('briefing-recommendations').innerHTML = recommendations.length
+          ? recommendations.map(item => `<li class="flex gap-2"><i data-feather="check-circle" class="w-4 h-4 text-primary-500 shrink-0 mt-0.5"></i><span>${item}</span></li>`).join('')
+          : '<li class="text-gray-500 dark:text-gray-400">Add today\'s hostel menu to receive mess-specific guidance.</li>';
+      }
+
+      const warnings = briefing ? briefing.today_warnings : [];
+      document.getElementById('briefing-warnings').innerHTML = warnings.length
+        ? warnings.map(item => `<li class="flex gap-2"><i data-feather="alert-triangle" class="w-4 h-4 text-orange-500 shrink-0 mt-0.5"></i><span>${item}</span></li>`).join('')
+        : '<li class="text-gray-500 dark:text-gray-400">No warnings right now.</li>';
+    }
+
+    function renderActionCenter(actionCenter) {
+      if (!actionCenter) return;
+      document.getElementById('health-score-now').textContent = actionCenter.current_health_score;
+      document.getElementById('health-score-potential').textContent = actionCenter.potential_health_score;
+      document.getElementById('action-list').innerHTML = (actionCenter.actions || []).map((item, idx) => `
+        <div class="flex items-start gap-3 rounded-lg bg-gray-50 dark:bg-gray-900 p-3">
+          <span class="w-6 h-6 rounded-full bg-primary-500 text-black flex items-center justify-center text-xs font-black shrink-0">${idx + 1}</span>
+          <div>
+            <p class="text-sm font-black text-gray-900 dark:text-white">${item.action}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">${item.reason}</p>
+          </div>
+        </div>
+      `).join('') || '<p class="text-sm text-gray-500 dark:text-gray-400">All immediate actions are clear.</p>';
+    }
+
+    function renderNutrients(nutrients) {
+      if (!nutrients) return;
+      const labels = { protein: 'Protein', fiber: 'Fiber', water: 'Water' };
+      const suffix = { protein: 'g', fiber: 'g', water: 'ml' };
+      document.getElementById('nutrient-list').innerHTML = Object.entries(nutrients).map(([key, item]) => {
+        const pct = item.target ? Math.min(100, Math.round((item.actual / item.target) * 100)) : 0;
+        return `
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="font-bold text-gray-900 dark:text-white">${labels[key]}</span>
+              <span class="text-gray-500 dark:text-gray-400">${item.needed}${suffix[key]} needed</span>
+            </div>
+            <div class="h-2 bg-gray-100 dark:bg-gray-900 rounded-full overflow-hidden">
+              <div class="h-full bg-primary-500 rounded-full" style="width:${pct}%"></div>
+            </div>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Try: ${(item.foods || []).slice(0, 3).join(', ')}</p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderNotifications(notifications) {
+      const items = notifications ? notifications.items || [] : [];
+      document.getElementById('smart-notifications').innerHTML = items.length ? items.map(item => `
+        <div class="rounded-lg bg-gray-50 dark:bg-gray-900 p-3 border border-gray-100 dark:border-gray-700">
+          <p class="text-sm font-black text-gray-900 dark:text-white">${item.title}</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">${item.message}</p>
+        </div>
+      `).join('') : '<p class="text-sm text-gray-500 dark:text-gray-400">No smart notifications right now.</p>';
+    }
+
+    function renderHabits(data) {
+      const metrics = data.today_metrics || {};
+      const targets = data.metrics || {};
+      const water = Number(metrics.water_ml || 0);
+      const protein = Number(metrics.protein_g || 0);
+      const sleep = metrics.sleep_hours !== null && metrics.sleep_hours !== undefined ? Number(metrics.sleep_hours) : 0;
+      const weight = metrics.weight_kg || (data.weight_forecast && data.weight_forecast.current_weight);
+      const waterTarget = Number(targets.hydration_ml || 0);
+      const proteinTarget = Number(targets.protein_g || 0);
+      const sleepTarget = Number(targets.sleep_hours || 8);
+      const pct = (actual, target) => target ? Math.min(100, Math.round((actual / target) * 100)) : 0;
+
+      document.getElementById('habit-water-label').textContent = `${water} / ${waterTarget} ml`;
+      document.getElementById('habit-water-bar').style.width = `${pct(water, waterTarget)}%`;
+      document.getElementById('habit-protein-label').textContent = `${protein} / ${proteinTarget} g`;
+      document.getElementById('habit-protein-bar').style.width = `${pct(protein, proteinTarget)}%`;
+      document.getElementById('habit-sleep-label').textContent = `${sleep || 0} / ${sleepTarget} h`;
+      document.getElementById('habit-weight-label').textContent = weight ? `${weight} kg` : '-- kg';
+      document.getElementById('sleep-input').value = sleep || '';
+      document.getElementById('weight-input').value = weight || '';
+    }
+
+    async function refreshDashboardPanels() {
+      const res = await fetch(`${API_BASE_URL}/dashboard?user_id=${userId}`);
+      if (!res.ok) return;
+      dashboardData = await res.json();
+      renderDailyBriefing(dashboardData);
+      renderActionCenter(dashboardData.action_center);
+      renderNutrients(dashboardData.nutrient_analysis);
+      renderNotifications(dashboardData.notifications);
+      renderHabits(dashboardData);
+      feather.replace();
+    }
+
+    async function logMetric(metrics, mode = 'set') {
+      const status = document.getElementById('habit-save-status');
+      status.textContent = 'Saving...';
+      const res = await fetch(`${API_BASE_URL}/progress/metrics`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, mode, ...metrics })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        status.textContent = data.error || 'Save failed';
+        status.className = 'text-xs font-bold text-red-500';
+        return;
+      }
+      status.textContent = 'Saved';
+      status.className = 'text-xs font-bold text-primary-500';
+      await refreshDashboardPanels();
+      setTimeout(() => { status.textContent = ''; }, 1600);
+    }
+
+    function saveSleep() {
+      const value = document.getElementById('sleep-input').value;
+      if (value === '') return;
+      logMetric({ sleep_hours: Number(value) }, 'set');
+    }
+
+    function saveWeight() {
+      const value = document.getElementById('weight-input').value;
+      if (value === '') return;
+      logMetric({ weight_kg: Number(value) }, 'set');
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
       if (!userId) { window.location.href = 'auth.html'; return; }
 
       try {
+        showAppLoading('Loading your dashboard...');
         const res = await fetch(`${API_BASE_URL}/dashboard?user_id=${userId}`);
         if (!res.ok) throw new Error('Need onboarding');
         const data = await res.json();
+        dashboardData = data;
+        try {
+          const briefingRes = await fetch(`${API_BASE_URL}/dashboard/daily-briefing?user_id=${userId}`);
+          if (briefingRes.ok) data.daily_briefing = await briefingRes.json();
+        } catch (e) {
+          console.error("Daily briefing unavailable:", e);
+        }
         
         document.getElementById('display-name').textContent = data.name;
         document.getElementById('display-name').classList.remove('skeleton', 'text-transparent');
@@ -356,14 +628,24 @@
         document.getElementById('metric-bmi').classList.remove('skeleton', 'w-20', 'h-8');
         document.getElementById('metric-bmi-label').textContent = (data.metrics.bmi > 25) ? 'Overweight' : 'Healthy';
         document.getElementById('metric-bmi-label').classList.remove('skeleton', 'w-24', 'h-4');
-        document.getElementById('metric-cal').textContent = data.metrics.tdee;
+        document.getElementById('metric-cal').textContent = data.metrics.daily_calories;
         document.getElementById('metric-cal').classList.remove('skeleton', 'w-20', 'h-8');
         document.getElementById('cal-unit').classList.remove('hidden');
+        const exerciseCount = data.workout_recommendation && data.workout_recommendation.exercises
+          ? data.workout_recommendation.exercises.length
+          : 0;
+        document.getElementById('metric-time').textContent = exerciseCount || '--';
 
         const goalEl = document.getElementById('metric-goal');
         goalEl.textContent = data.metrics.goal === 'loss' ? 'Weight Loss' : 
                   data.metrics.goal === 'gain' ? 'Muscle Gain' : 'Maintenance';
         goalEl.classList.remove('skeleton', 'w-24', 'h-8');
+
+        renderDailyBriefing(data);
+        renderActionCenter(data.action_center);
+        renderNutrients(data.nutrient_analysis);
+        renderNotifications(data.notifications);
+        renderHabits(data);
 
         // Correctly get lowercase weekday (e.g., 'monday')
         const weekday = new Date().toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
@@ -395,6 +677,8 @@
         }
         // If it's a JS error (like the one we just fixed), we stay on the page 
         // but log the error so we can see it in console.
+      } finally {
+        hideAppLoading();
       }
     });
   </script>

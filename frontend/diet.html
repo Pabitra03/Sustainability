@@ -105,7 +105,7 @@
     </div>
   </div>
 
-  <script src="js/app.js?v=2"></script>
+  <script src="js/app.js?v=3"></script>
   <script>
     let allData = null;
     let currentDayOffset = 0; // 0=today, 1=tomorrow
@@ -114,7 +114,7 @@
       Breakfast: '/assets/img/veg_breakfast.png',
       Lunch: '/assets/img/veg_main.png',
       Dinner: '/assets/img/veg_main.png',
-      Snacks: 'https://images.unsplash.com/photo-1582515073490-39981397c445?auto=format&fit=crop&w=500&q=60'
+      Snacks: '/assets/img/veg_breakfast.png'
     };
     const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -123,68 +123,18 @@
       return d === 0 ? 6 : d - 1;
     }
 
-    // Pool of meal alternatives for Generate New Plan
-    const MEAL_POOL = {
-      Breakfast: [
-        'Poha with peanuts & sprouts, boiled eggs, green tea',
-        'Besan Chilla with mint chutney, boiled eggs, orange juice',
-        'Dahi (curd) with fruits, mixed nuts & seeds',
-        'Masala omelette with whole wheat roti, black coffee',
-        'Moong dal chilla with paneer filling, almond milk'
-      ],
-      Lunch: [
-        'Chicken Tikka, brown rice, side salad',
-        'Rajma Chawal (kidney beans & rice) with cucumber raita',
-        'Chicken Kathi Roll with whole wheat paratha & mint chutney',
-        'Dal Tadka with whole grain roti & mixed greens salad',
-        'Fish Curry with rice, side of roasted veggies'
-      ],
-      Dinner: [
-        'Tandoori Fish with sweet potato mash & green beans',
-        'Grilled paneer tikka with dal and basmati rice',
-        'Chicken Curry with bell peppers, cauliflower & brown rice',
-        'Soya Chunks Pulao with cucumber raita & spinach',
-        'Egg curry with whole wheat roti and cucumber raita'
-      ],
-      Snacks: [
-        'Mixed nuts (almonds, walnuts) & Dahi',
-        'Apple slices with peanut butter',
-        'Roasted Makhana (fox nuts) & green tea',
-        'Sprouted moong chaat with cucumber & tomatoes',
-        'Paneer cubes with roasted cumin powder'
-      ]
-    };
-
-    let planVariantIndex = 0;
-
-    function getVariantMeals(dayPlan) {
-      // Use the backend plan as option 0, pool options for subsequent generations
-      const idx = planVariantIndex % MEAL_POOL.Breakfast.length;
-      if (planVariantIndex === 0) {
-        return [
-          { type: 'Breakfast', icon: 'sun', content: dayPlan.breakfast, img: MEAL_IMAGES.Breakfast },
-          { type: 'Lunch', icon: 'cpu', content: dayPlan.lunch, img: MEAL_IMAGES.Lunch },
-          { type: 'Snacks', icon: 'coffee', content: MEAL_POOL.Snacks[0], img: MEAL_IMAGES.Snacks },
-          { type: 'Dinner', icon: 'moon', content: dayPlan.dinner, img: MEAL_IMAGES.Dinner }
-        ];
-      }
-      return [
-        { type: 'Breakfast', icon: 'sun', content: MEAL_POOL.Breakfast[idx], img: MEAL_IMAGES.Breakfast },
-        { type: 'Lunch', icon: 'cpu', content: MEAL_POOL.Lunch[idx], img: MEAL_IMAGES.Lunch },
-        { type: 'Snacks', icon: 'coffee', content: MEAL_POOL.Snacks[idx], img: MEAL_IMAGES.Snacks },
-        { type: 'Dinner', icon: 'moon', content: MEAL_POOL.Dinner[idx], img: MEAL_IMAGES.Dinner }
-      ];
-    }
-
     function renderMeals(plan, tdee, useVariant = false) {
       // Check if plan is the new object structure or old string structure
       const getMealName = (m) => typeof m === 'object' ? m.item : m;
       const getMealImg = (m, type) => (typeof m === 'object' && m.image) ? m.image : MEAL_IMAGES[type];
+      const aiSnack = allData && allData.diet_recommendation && allData.diet_recommendation.today
+        ? allData.diet_recommendation.today.snack
+        : null;
 
-      const meals = useVariant ? getVariantMeals(plan) : [
+      const meals = [
         { type: 'Breakfast', icon: 'sun', content: getMealName(plan.breakfast), img: getMealImg(plan.breakfast, 'Breakfast') },
         { type: 'Lunch', icon: 'cpu', content: getMealName(plan.lunch), img: getMealImg(plan.lunch, 'Lunch') },
-        { type: 'Snacks', icon: 'coffee', content: MEAL_POOL.Snacks[0], img: MEAL_IMAGES.Snacks },
+        { type: 'Snacks', icon: 'coffee', content: aiSnack ? aiSnack.item : 'Protein add-on from your recommendation', img: aiSnack && aiSnack.image ? aiSnack.image : MEAL_IMAGES.Snacks },
         { type: 'Dinner', icon: 'moon', content: getMealName(plan.dinner), img: getMealImg(plan.dinner, 'Dinner') }
       ];
       const container = document.getElementById('meals-container');
@@ -250,65 +200,45 @@
       if (tab === 'week') {
         document.getElementById('view-day').classList.add('hidden');
         document.getElementById('view-week').classList.remove('hidden');
-        renderWeek(allData.weekly_plan, allData.metrics.tdee);
+        renderWeek(allData.weekly_plan, allData.metrics.daily_calories);
       } else {
         document.getElementById('view-week').classList.add('hidden');
         document.getElementById('view-day').classList.remove('hidden');
         const offset = tab === 'tomorrow' ? 1 : 0;
         const idx = (getTodayIndex() + offset) % 7;
-        renderMeals(allData.weekly_plan[idx], allData.metrics.tdee);
+        renderMeals(allData.weekly_plan[idx], allData.metrics.daily_calories);
       }
     }
 
-    function generateNewPlan() {
+    async function generateNewPlan() {
       if (!allData) return;
-      planVariantIndex++;
       const btn = document.getElementById('gen-btn');
-      btn.innerHTML = '<i data-feather="loader" class="w-4 h-4 animate-spin inline-block mr-2"></i>Generating...';
+      btn.innerHTML = '<i data-feather="loader" class="w-4 h-4 animate-spin inline-block mr-2"></i>Refreshing...';
       btn.disabled = true;
       feather.replace();
 
-      setTimeout(() => {
+      try {
+        const recRes = await fetch(`${API_BASE_URL}/ai/diet-recommendation?user_id=${getUserId()}`);
+        if (recRes.ok) allData.diet_recommendation = await recRes.json();
         const idx = getTodayIndex();
-        const tdee = allData.metrics.tdee;
-        const poolIdx = planVariantIndex % MEAL_POOL.Breakfast.length;
+        const tdee = allData.metrics.daily_calories;
 
         // Check which tab is active
         const activeTab = document.querySelector('.day-tab.bg-primary-500');
         const activeTabId = activeTab ? activeTab.id : 'tab-today';
 
         if (activeTabId === 'tab-week') {
-          // Regenerate full week with varied meals per day
-          const container = document.getElementById('week-container');
-          container.innerHTML = '';
-          const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-          allData.weekly_plan.forEach((day, i) => {
-            const dayPoolIdx = (planVariantIndex + i) % MEAL_POOL.Breakfast.length;
-            const breakfast = planVariantIndex === 1 ? day.breakfast : MEAL_POOL.Breakfast[dayPoolIdx];
-            const lunch = planVariantIndex === 1 ? day.lunch : MEAL_POOL.Lunch[dayPoolIdx];
-            const dinner = planVariantIndex === 1 ? day.dinner : MEAL_POOL.Dinner[dayPoolIdx];
-            const row = document.createElement('div');
-            row.className = 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4';
-            row.innerHTML = `
-              <h4 class="font-bold text-primary-500 uppercase tracking-widest text-xs mb-3">${DAYS[i]}</h4>
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
-                <div><span class="text-gray-400 text-xs uppercase font-bold">Breakfast</span><p class="text-gray-800 dark:text-gray-200 mt-1">${breakfast}</p></div>
-                <div><span class="text-gray-400 text-xs uppercase font-bold">Lunch</span><p class="text-gray-800 dark:text-gray-200 mt-1">${lunch}</p></div>
-                <div><span class="text-gray-400 text-xs uppercase font-bold">Dinner</span><p class="text-gray-800 dark:text-gray-200 mt-1">${dinner}</p></div>
-              </div>`;
-            container.appendChild(row);
-          });
+          renderWeek(allData.weekly_plan, tdee);
         } else {
-          // Regenerate today/tomorrow meals
           const offset = activeTabId === 'tab-tomorrow' ? 1 : 0;
           const dayIdx = (getTodayIndex() + offset) % 7;
-          renderMeals(allData.weekly_plan[dayIdx], tdee, true);
+          renderMeals(allData.weekly_plan[dayIdx], tdee);
         }
-
+      } finally {
         btn.innerHTML = '<i data-feather="refresh-cw" class="w-4 h-4 inline-block mr-2"></i>Generate New Plan';
         btn.disabled = false;
         feather.replace();
-      }, 800);
+      }
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
@@ -320,8 +250,14 @@
         if (!res.ok) throw new Error('Need profile');
         const data = await res.json();
         allData = data;
+        try {
+          const recRes = await fetch(`${API_BASE_URL}/ai/diet-recommendation?user_id=${userId}`);
+          if (recRes.ok) allData.diet_recommendation = await recRes.json();
+        } catch (e) {
+          console.error("Diet recommendation unavailable:", e);
+        }
 
-        const tdee = data.metrics.tdee;
+        const tdee = data.metrics.daily_calories;
         document.getElementById('macro-p').textContent = Math.round((tdee * 0.3) / 4) + 'g';
         document.getElementById('macro-c').textContent = Math.round((tdee * 0.45) / 4) + 'g';
         document.getElementById('macro-f').textContent = Math.round((tdee * 0.25) / 9) + 'g';

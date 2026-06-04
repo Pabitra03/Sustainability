@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script>if(localStorage.theme==="dark"||(!localStorage.theme&&window.matchMedia("(prefers-color-scheme: dark)").matches)){document.documentElement.classList.add("dark")}</script>
+  <style>
+    html { background-color: #050505 !important; }
+    html:not(.dark) { background-color: #fafafa !important; }
+    @media print {
+      aside, nav, header, .no-print { display: none !important; }
+      #main-view { padding: 0 !important; }
+      body, .print-surface { background: white !important; color: #111827 !important; }
+      .print-card { border: 1px solid #d1d5db !important; box-shadow: none !important; break-inside: avoid; border-radius: 10px !important; }
+      .print-title { color: #365314 !important; }
+      @page { margin: 14mm; }
+    }
+  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sustainability | Reports</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { colors: { primary: { 50: '#f7fee7', 100: '#ecfccb', 500: '#84cc16', 600: '#65a30d', 900: '#365314' }, secondary: { 500: '#3b82f6' } }, fontFamily: { sans: ['Outfit', 'system-ui', 'sans-serif'] } } }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body class="bg-[#fafafa] dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">
+  <div id="app-shell" class="w-full h-full">
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 no-print">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Reports</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Professional health, nutrition, workout, and forecast summary.</p>
+      </div>
+      <button onclick="window.print()" class="bg-primary-500 hover:bg-primary-600 text-black px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 self-start sm:self-auto">
+        <i data-feather="download" class="w-4 h-4"></i>
+        Export PDF
+      </button>
+    </div>
+
+    <div id="loading" class="flex justify-center items-center py-20">
+      <i data-feather="loader" class="w-8 h-8 animate-spin text-primary-500"></i>
+    </div>
+
+    <div id="report-content" class="hidden print-surface max-w-6xl">
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 shadow-sm mb-6 print-card">
+        <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
+          <div>
+            <p class="text-xs uppercase font-black tracking-widest text-primary-500 mb-2">Sustainability Fitness Report</p>
+            <h2 id="report-name" class="print-title text-3xl font-black text-gray-900 dark:text-white">--</h2>
+            <p id="report-meta" class="text-sm text-gray-500 dark:text-gray-400 mt-1">Generated today</p>
+          </div>
+          <div class="text-left md:text-right">
+            <p id="report-goal" class="text-lg font-black text-gray-900 dark:text-white">--</p>
+            <p id="report-hostel" class="text-sm text-gray-500 dark:text-gray-400">--</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm print-card">
+          <p class="text-xs uppercase font-black tracking-wider text-gray-400">BMI</p>
+          <p id="r-bmi" class="text-3xl font-black text-gray-900 dark:text-white">--</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm print-card">
+          <p class="text-xs uppercase font-black tracking-wider text-gray-400">BMR</p>
+          <p id="r-bmr" class="text-3xl font-black text-gray-900 dark:text-white">--</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm print-card">
+          <p class="text-xs uppercase font-black tracking-wider text-gray-400">TDEE</p>
+          <p id="r-tdee" class="text-3xl font-black text-gray-900 dark:text-white">--</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 shadow-sm print-card">
+          <p class="text-xs uppercase font-black tracking-wider text-gray-400">Health Score</p>
+          <p id="r-score" class="text-3xl font-black text-primary-500">--</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm print-card">
+          <h3 class="font-black text-gray-900 dark:text-white mb-4">Goal & Forecast</h3>
+          <div class="grid grid-cols-2 gap-3 text-sm" id="forecast-grid"></div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm print-card">
+          <h3 class="font-black text-gray-900 dark:text-white mb-4">Completion</h3>
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between text-sm mb-1"><span>Workout</span><strong id="workout-rate">--</strong></div>
+              <div class="h-2 bg-gray-100 dark:bg-gray-900 rounded-full overflow-hidden"><div id="workout-bar" class="h-full bg-primary-500"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1"><span>Diet</span><strong id="diet-rate">--</strong></div>
+              <div class="h-2 bg-gray-100 dark:bg-gray-900 rounded-full overflow-hidden"><div id="diet-bar" class="h-full bg-primary-500"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm print-card">
+          <h3 class="font-black text-gray-900 dark:text-white mb-4">Achievements</h3>
+          <div id="achievements" class="flex flex-wrap gap-2"></div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm print-card">
+          <h3 class="font-black text-gray-900 dark:text-white mb-4">AI Recommendations</h3>
+          <ul id="recommendations" class="space-y-2 text-sm text-gray-700 dark:text-gray-300"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js?v=3"></script>
+  <script>
+    function goalLabel(goal) {
+      return goal === 'loss' ? 'Weight Loss' : goal === 'gain' ? 'Muscle Gain' : 'Maintenance';
+    }
+
+    function stat(label, value) {
+      return `
+        <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-3">
+          <p class="text-xs uppercase font-black text-gray-400">${label}</p>
+          <p class="text-xl font-black text-gray-900 dark:text-white">${value}</p>
+        </div>
+      `;
+    }
+
+    function renderReport(data) {
+      document.getElementById('report-name').textContent = data.user.name;
+      document.getElementById('report-meta').textContent = `Generated ${new Date(data.generated_at).toLocaleString()}`;
+      document.getElementById('report-goal').textContent = goalLabel(data.user.goal);
+      const hostelLine = document.getElementById('report-hostel');
+      if (data.user.uses_hostel) {
+        hostelLine.textContent = [data.user.hostel_name, data.user.mess_type].filter(Boolean).join(' | ') || 'Hostel details enabled';
+        hostelLine.classList.remove('hidden');
+      } else {
+        hostelLine.classList.add('hidden');
+      }
+      document.getElementById('r-bmi').textContent = data.metrics.bmi;
+      document.getElementById('r-bmr').textContent = data.metrics.bmr;
+      document.getElementById('r-tdee').textContent = data.metrics.tdee;
+      document.getElementById('r-score').textContent = `${data.health_score.score} ${data.health_score.label}`;
+
+      const forecast = data.weight_forecast.predicted_weight || {};
+      document.getElementById('forecast-grid').innerHTML = [
+        stat('Current Weight', `${data.metrics.current_weight} kg`),
+        stat('Goal Weight', `${data.metrics.goal_weight} kg`),
+        stat('30 Days', `${forecast['30']} kg`),
+        stat('90 Days', `${forecast['90']} kg`)
+      ].join('');
+
+      document.getElementById('workout-rate').textContent = `${data.completion.workout}%`;
+      document.getElementById('diet-rate').textContent = `${data.completion.diet}%`;
+      document.getElementById('workout-bar').style.width = `${data.completion.workout}%`;
+      document.getElementById('diet-bar').style.width = `${data.completion.diet}%`;
+
+      document.getElementById('achievements').innerHTML = (data.achievements || []).length
+        ? data.achievements.map(item => `<span class="px-3 py-1 rounded-full bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300 text-xs font-black">${item}</span>`).join('')
+        : '<p class="text-sm text-gray-500 dark:text-gray-400">No achievements yet. Complete diet and workout tasks to unlock badges.</p>';
+
+      document.getElementById('recommendations').innerHTML = (data.ai_recommendations || []).map(item => `
+        <li class="flex gap-2"><i data-feather="check-circle" class="w-4 h-4 text-primary-500 shrink-0 mt-0.5"></i><span>${item}</span></li>
+      `).join('');
+
+      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('report-content').classList.remove('hidden');
+      feather.replace();
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const userId = getUserId();
+      if (!userId) { window.location.href = 'auth.html'; return; }
+      try {
+        const res = await fetch(`${API_BASE_URL}/reports/summary?user_id=${userId}`);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed to load report');
+        renderReport(data);
+      } catch (err) {
+        document.getElementById('loading').innerHTML = `<p class="text-sm text-red-500">${err.message}</p>`;
+      }
+      feather.replace();
+    });
+  </script>
+</body>
+</html>

@@ -22,20 +22,20 @@
     <div class="max-w-5xl mx-auto h-[calc(100vh-7rem)] flex flex-col">
       <div class="mb-5">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">AI Coach</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400">Personal coaching from BMI, BMR, TDEE, goal, budget, hostel menu, and diet preference.</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Personal coaching from BMI, BMR, TDEE, goal, progress, and diet preference.</p>
       </div>
 
       <div id="coach-messages" class="flex-1 overflow-y-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 sm:p-6 space-y-4 shadow-sm">
         <div class="max-w-[85%] bg-gray-100 dark:bg-gray-900 rounded-xl p-4 text-sm text-gray-700 dark:text-gray-300">
-          Ask me about today's mess choices, protein, calories, budget, or weight prediction.
+          Ask me about today's food choices, protein, calories, water, or weight prediction.
         </div>
       </div>
 
       <div class="mt-3 flex gap-2 overflow-x-auto pb-1">
         <button type="button" onclick="sendQuickPrompt('What should I do right now?')" class="shrink-0 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3 py-2 rounded-lg text-xs font-bold text-gray-700 dark:text-gray-300">Right now</button>
-        <button type="button" onclick="sendQuickPrompt('Analyze today mess lunch')" class="shrink-0 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3 py-2 rounded-lg text-xs font-bold text-gray-700 dark:text-gray-300">Mess lunch</button>
         <button type="button" onclick="sendQuickPrompt('Am I under protein today?')" class="shrink-0 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3 py-2 rounded-lg text-xs font-bold text-gray-700 dark:text-gray-300">Protein</button>
         <button type="button" onclick="sendQuickPrompt('How much water should I drink?')" class="shrink-0 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3 py-2 rounded-lg text-xs font-bold text-gray-700 dark:text-gray-300">Water</button>
+        <button type="button" onclick="sendQuickPrompt('Forecast my weight')" class="shrink-0 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3 py-2 rounded-lg text-xs font-bold text-gray-700 dark:text-gray-300">Weight</button>
         <button type="button" onclick="sendQuickPrompt('Make a cheap high protein day')" class="shrink-0 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-3 py-2 rounded-lg text-xs font-bold text-gray-700 dark:text-gray-300">Budget plan</button>
       </div>
 
@@ -48,7 +48,7 @@
     </div>
   </div>
 
-  <script src="js/app.js?v=2"></script>
+  <script src="js/app.js?v=3"></script>
   <script>
     function addMessage(role, message) {
       const wrap = document.createElement('div');
@@ -59,8 +59,9 @@
           ${escapeHtml(message)}
         </div>
       `;
-      document.getElementById('coach-messages').appendChild(wrap);
-      document.getElementById('coach-messages').scrollTop = document.getElementById('coach-messages').scrollHeight;
+      const messages = document.getElementById('coach-messages');
+      messages.appendChild(wrap);
+      messages.scrollTop = messages.scrollHeight;
     }
 
     function escapeHtml(value) {
@@ -76,7 +77,6 @@
       const userId = getUserId();
       if (!userId) { window.location.href = 'auth.html'; return; }
 
-      // Clear previous messages if user switched (or after logout)
       const lastUser = localStorage.getItem('ai_coach_last_user_id');
       if (!lastUser || lastUser !== String(userId)) {
         document.getElementById('coach-messages').innerHTML = "";
@@ -85,21 +85,18 @@
       localStorage.setItem('ai_coach_last_user_id', String(userId));
 
       try {
-        const res = await fetch(`${API_BASE_URL}/wellness/coach/history?user_id=${userId}`);
+        const res = await fetch(`${API_BASE_URL}/ai/history?user_id=${userId}`);
         if (!res.ok) return;
         const data = await res.json();
         const msgs = data.messages || [];
-
-        // cache (frontend only)
         localStorage.setItem('ai_coach_messages', JSON.stringify(msgs));
 
-        document.getElementById('coach-messages').innerHTML = `<div class="max-w-[85%] bg-gray-100 dark:bg-gray-900 rounded-xl p-4 text-sm text-gray-700 dark:text-gray-300">Ask me about today\'s mess choices, protein, calories, budget, or weight prediction.</div>`;
+        document.getElementById('coach-messages').innerHTML = `<div class="max-w-[85%] bg-gray-100 dark:bg-gray-900 rounded-xl p-4 text-sm text-gray-700 dark:text-gray-300">Ask me about today's food choices, protein, calories, water, or weight prediction.</div>`;
         msgs.forEach(item => addMessage(item.role, item.message));
       } catch (e) {
         console.error("Coach history unavailable:", e);
       }
     }
-
 
     function sendQuickPrompt(message) {
       const input = document.getElementById('coach-input');
@@ -120,14 +117,14 @@
         const last = document.querySelector('#coach-messages').lastElementChild;
 
         try {
-          const res = await fetch(`${API_BASE_URL}/wellness/coach`, {
+          const res = await fetch(`${API_BASE_URL}/ai/chat`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ user_id: getUserId(), message })
           });
           const data = await res.json();
           last.remove();
-          addMessage('assistant', data.reply || 'I could not generate a coach response right now.');
+          addMessage('assistant', data.reply || data.error || 'I could not generate a coach response right now.');
         } catch (err) {
           last.remove();
           addMessage('assistant', 'Coach service is unavailable right now. Try again after the backend is running.');

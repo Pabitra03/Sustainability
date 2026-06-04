@@ -1,97 +1,114 @@
 from flask import Blueprint, request, jsonify
 from config.db import get_db_connection
-from models.recommender import recommender
-from utils.plans import get_diet_plan_details, get_workout_plan_details, get_weekly_plan
 from datetime import datetime
+from utils.ai_engine import (
+    action_center,
+    calculate_health_score,
+    daily_briefing,
+    diet_recommendation,
+    fetch_user_context,
+    motivation_message,
+    notifications,
+    nutrient_analysis,
+    weekly_recommendation,
+    weight_forecast,
+    workout_recommendation,
+)
 
 dashboard_bp = Blueprint('dashboard', __name__)
+
+def load_context_response(user_id):
+    if not user_id:
+        return None, (jsonify({"error": "User ID is required"}), 400)
+
+    conn = get_db_connection()
+    if not conn:
+        return None, (jsonify({"error": "Database connection failed"}), 500)
+
+    try:
+        context = fetch_user_context(conn, user_id)
+        if not context:
+            return None, (jsonify({"error": "Profile not found"}), 404)
+        return context, None
+    finally:
+        conn.close()
 
 @dashboard_bp.route('/', methods=['GET'])
 def get_dashboard():
     user_id = request.args.get('user_id')
-    
-    conn = get_db_connection()
-    if not conn:
-        return jsonify({"error": "Database connection failed"}), 500
-        
-    cursor = conn.cursor()
-    try:
-        cursor.execute("SELECT p.*, u.name as user_name FROM profiles p JOIN users u ON p.user_id = u.id WHERE p.user_id = %s", (user_id,))
-        user = cursor.fetchone()
-        
-        if not user:
-            return jsonify({"error": "Profile not found"}), 404
-            
-        # Nutritional Rule-Based Logic
-        weight_kg = float(user['weight'])
-        height_cm = float(user['height'])
-        age = int(user['age'])
-        
-        # Calculate BMI
-        height_m = height_cm / 100
-        bmi = round(weight_kg / (height_m ** 2), 1)
-        
-        # Calculate BMR (Mifflin-St Jeor)
-        if user['gender'] == 'male':
-            bmr = round(10 * weight_kg + 6.25 * height_cm - 5 * age + 5)
-        else:
-            bmr = round(10 * weight_kg + 6.25 * height_cm - 5 * age - 161)
-            
-        # Activity Multiplier
-        activity_multipliers = {
-            'sedentary': 1.2,
-            'lightly_active': 1.375,
-            'moderately_active': 1.55,
-            'very_active': 1.725,
-            'super_active': 1.9
-        }
-        
-        tdee = round(bmr * activity_multipliers.get(user['activity_level'], 1.2))
-        
-        # Goal adjustments
-        if user['goal'] == 'loss':
-            daily_calories = tdee - 500
-        elif user['goal'] == 'gain':
-            daily_calories = tdee + 500
-        else:
-            daily_calories = tdee
 
-        # Machine Learning Predictions
-        diet_plan_id, workout_plan_id = recommender.predict(
-            age=age,
-            weight=weight_kg,
-            height=height_cm,
-            activity_level_str=user['activity_level'],
-            goal_str=user['goal']
-        )
-                 
-        diet_plan = get_diet_plan_details(diet_plan_id, user.get('diet_type', 'non_vegetarian'))
-        workout_plan = get_workout_plan_details(workout_plan_id)
-        weekly_plan = get_weekly_plan(diet_plan_id, workout_plan_id, user.get('diet_type', 'non_vegetarian'))
-        
-        # Hydration logic
-        hydration = round((weight_kg * 0.033) * 1000) # ml
-        
+    context, error = load_context_response(user_id)
+    if error:
+        return error
+
+    try:
+        core = context["core"]
         response_data = {
-            "name": user['user_name'],
+            "name": context["user"]['user_name'],
             "today_date": datetime.now().strftime("%A, %B %d"),
             "active_days": 0, # Initial value before fetchProgressStatus updates it
             "metrics": {
-                "bmi": bmi,
-                "bmr": bmr,
-                "tdee": tdee,
-                "daily_calories": daily_calories,
-                "hydration_ml": hydration,
-                "goal": user['goal']
+                "bmi": core["bmi"],
+                "bmr": core["bmr"],
+                "tdee": core["tdee"],
+                "daily_calories": core["daily_calories"],
+                "protein_g": core["protein_g"],
+                "fiber_g": core["fiber_g"],
+                "hydration_ml": core["hydration_ml"],
+                "sleep_hours": core["sleep_hours"],
+                "goal": core["goal"]
             },
-            "diet": diet_plan,
-            "workout": workout_plan,
-            "weekly_plan": weekly_plan
+            "uses_hostel": bool(context["user"].get("uses_hostel")),
+            "diet": context["diet_plan"],
+            "workout": context["workout_plan"],
+            "weekly_plan": context["weekly_plan"],
+            "health_score": calculate_health_score(context),
+            "action_center": action_center(context),
+            "nutrient_analysis": nutrient_analysis(context),
+            "notifications": notifications(context),
+            "daily_briefing": daily_briefing(context),
+            "diet_recommendation": diet_recommendation(context),
+            "workout_recommendation": workout_recommendation(context),
+            "weekly_recommendation": weekly_recommendation(context),
+            "today_metrics": context["today_metrics"],
+            "weight_forecast": weight_forecast(context),
+            "motivation": motivation_message(context)
         }
         return jsonify(response_data), 200
-        
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    finally:
-        cursor.close()
-        conn.close()
+
+@dashboard_bp.route('/daily-briefing', methods=['GET'])
+def get_daily_briefing():
+    context, error = load_context_response(request.args.get('user_id'))
+    if error:
+        return error
+    return jsonify(daily_briefing(context)), 200
+
+@dashboard_bp.route('/action-center', methods=['GET'])
+def get_action_center():
+    context, error = load_context_response(request.args.get('user_id'))
+    if error:
+        return error
+    return jsonify(action_center(context)), 200
+
+@dashboard_bp.route('/health-score', methods=['GET'])
+def get_health_score():
+    context, error = load_context_response(request.args.get('user_id'))
+    if error:
+        return error
+    return jsonify(calculate_health_score(context)), 200
+
+@dashboard_bp.route('/nutrient-analysis', methods=['GET'])
+def get_nutrient_analysis():
+    context, error = load_context_response(request.args.get('user_id'))
+    if error:
+        return error
+    return jsonify(nutrient_analysis(context)), 200
+
+@dashboard_bp.route('/notifications', methods=['GET'])
+def get_notifications():
+    context, error = load_context_response(request.args.get('user_id'))
+    if error:
+        return error
+    return jsonify(notifications(context)), 200

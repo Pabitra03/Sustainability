@@ -10,7 +10,10 @@ An intelligent health optimization web app that analyzes your biological metrics
 - **📋 Smart Onboarding** — Collects age, gender, weight, height, activity level, and goal to personalize everything
 - **🥗 Personalized Diet Plans** — AI-generated meal plans (breakfast, lunch, dinner) with exact macro breakdowns tailored to your caloric goal
 - **💪 Workout Plans** — Metabolic routines built to burn fat or build muscle based on your profile
-- **📊 Progress Tracking** — Visual charts (weekly streaks, diet vs workout completion) that load instantly with async rendering
+- **📊 Production Analytics** — Chart.js dashboards for weight, calories, protein, water, sleep, workouts, health score trends, radar scoring, progress rings, and predictions
+- **📈 Predictive Insights** — Data-driven weight and health score forecasts with confidence indicators from logged user history
+- **🏠 Optional Hostel Mode** — Hostel mess tracking is fully opt-in and hidden from navigation, dashboard, profile details, and reports when skipped
+- **📄 PDF Reports** — Print-ready health reports with polished cards, completion metrics, forecasts, and recommendations
 - **🧮 Health Insights** — Auto-calculates BMI, BMR, and TDEE from your profile data
 - **🌙 Dark Mode** — Fully themed light/dark UI with smooth transitions
 - **☁️ Cloud Database** — Powered by TiDB Cloud Serverless (MySQL-compatible) with SSL and auto-retry on wake-up
@@ -40,7 +43,10 @@ Sustainability/
 │   ├── dashboard.html  # Main dashboard
 │   ├── diet.html       # Diet plan page
 │   ├── workout.html    # Workout plan page
-│   ├── progress.html   # Progress tracking & charts
+│   ├── progress.html   # Advanced analytics dashboard with real logged data
+│   ├── hostel.html     # Hostel mess menu tracking and analysis
+│   ├── ai-coach.html   # AI coaching chat
+│   ├── reports.html    # Professional report and PDF export view
 │   ├── profile.html    # Profile settings
 │   ├── css/            # Stylesheets
 │   └── js/app.js       # Shared JS utilities & API config
@@ -52,8 +58,12 @@ Sustainability/
     │   ├── auth_routes.py
     │   ├── profile_routes.py
     │   ├── dashboard_routes.py
-    │   └── progress_routes.py
+    │   ├── progress_routes.py
+    │   ├── hostel_routes.py
+    │   ├── reports_routes.py
+    │   └── ai_routes.py
     ├── models/         # AI/ML recommendation models
+    ├── utils/          # Plan generation, AI engine, schema helpers
     ├── setup_db.py     # DB initializer script
     ├── isrgrootx1.pem  # TiDB SSL certificate
     └── requirements.txt
@@ -100,6 +110,16 @@ Initialize the database tables (run once):
 ```bash
 python setup_db.py
 ```
+
+The app also runs a safe schema check from live API routes. A fresh database is created with all required tables:
+
+- `users`
+- `profiles` with goal weight, hostel opt-in, and AI memory fields
+- `user_progress`
+- `user_daily_metrics`
+- `ai_chat_messages`
+- `hostel_menus`
+- `hostel_consumption`
 
 Start the backend server (runs on port **5001**):
 
@@ -149,12 +169,34 @@ Then open your browser and go to: **[http://localhost:3000](http://localhost:300
 | POST | `/api/user/profile` | Save user profile |
 | GET | `/api/user/profile?user_id=` | Get user profile |
 | GET | `/api/dashboard/?user_id=` | Get personalized dashboard data |
+| GET | `/api/dashboard/daily-briefing?user_id=` | Get AI daily briefing |
+| GET | `/api/dashboard/action-center?user_id=` | Get right-now actions |
+| GET | `/api/dashboard/health-score?user_id=` | Get health score engine output |
+| GET | `/api/dashboard/nutrient-analysis?user_id=` | Get protein/fiber/water gaps |
+| GET | `/api/dashboard/notifications?user_id=` | Get smart notifications |
 | GET | `/api/progress/status/<user_id>` | Get progress tracking data |
 | POST | `/api/progress/mark-complete` | Mark diet/workout as done |
+| POST | `/api/progress/metrics` | Log daily weight, calories, protein, water, sleep, and steps |
+| GET | `/api/progress/analytics?user_id=&days=30` | Get real progress analytics, trend indicators, radar scores, progress rings, and predictions |
+| GET | `/api/progress/analytics?user_id=&period=all` | Get all-time analytics from the user's stored history |
+| GET | `/api/progress/health-score?user_id=` | Get current health score |
+| GET | `/api/progress/forecast?user_id=` | Get 7/30/90 day weight forecast with confidence |
+| GET | `/api/hostel/menu?user_id=` | Get today's hostel menu |
+| POST | `/api/hostel/menu` | Save breakfast/lunch/dinner mess menu |
+| POST | `/api/hostel/analyze-menu` | Analyze hostel meal macros and suggestions |
+| GET | `/api/ai/diet-recommendation?user_id=` | Get personalized daily AI diet plan |
+| GET | `/api/ai/workout-recommendation?user_id=` | Get personalized daily AI workout plan |
+| GET | `/api/ai/weekly-recommendation?user_id=` | Get weekly AI health recommendations |
+| POST | `/api/ai/chat` | Chat with AI coach |
+| GET | `/api/ai/history?user_id=` | Get last AI coach messages |
+| GET | `/api/reports/summary?user_id=` | Get professional report data |
 
 ---
 
 ## 💡 Notes
 
+- **No sample chart data**: Analytics charts use `user_daily_metrics`, `user_progress`, and optional `hostel_consumption` rows. Empty ranges render as empty states instead of dummy values.
+- **Goal weight**: Users can save an optional `goal_weight_kg`; if they skip it, the app derives a safe target from their profile metrics.
+- **Hostel opt-out**: `uses_hostel` controls whether hostel pages, recommendations, API data, and report lines appear.
 - **TiDB Auto-Pause**: TiDB Serverless free clusters may auto-pause after inactivity. The backend automatically retries connection up to 3 times, and the frontend shows a friendly `"Database is waking up..."` message during retry. To disable auto-pause permanently, go to your TiDB Cloud Console → Cluster Settings → Auto Pause → Disable.
 - **SSL**: The `isrgrootx1.pem` certificate file must be present in the `backend/` directory for secure connection to TiDB Cloud.

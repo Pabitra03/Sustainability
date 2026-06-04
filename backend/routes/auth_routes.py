@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 import bcrypt
 import pymysql
 from config.db import get_db_connection
+from utils.schema import ensure_app_schema
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -23,6 +24,7 @@ def register():
         
     cursor = conn.cursor()
     try:
+        ensure_app_schema(conn)
         cursor.execute("INSERT INTO users (name, email, password) VALUES (%s, %s, %s)", (name, email, hashed_password))
         conn.commit()
         user_id = cursor.lastrowid
@@ -47,6 +49,7 @@ def login():
         
     cursor = conn.cursor()
     try:
+        ensure_app_schema(conn)
         cursor.execute("SELECT id, name, password FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()
         

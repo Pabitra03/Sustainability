@@ -33,11 +33,9 @@ function logout() {
     localStorage.removeItem('user_name');
 
     // Clear AI Coach chat data (frontend-only cache)
-    // This prevents previous user's chat from showing for everyone.
     localStorage.removeItem('ai_coach_messages');
     localStorage.removeItem('ai_coach_last_user_id');
 
-    // Also clear the currently rendered messages (if on AI coach page)
     try {
         const coachMessagesEl = document.getElementById('coach-messages');
         if (coachMessagesEl) coachMessagesEl.innerHTML = '';
@@ -48,6 +46,38 @@ function logout() {
     window.location.href = 'index.html';
 }
 
+function showAppLoading(message = 'Loading your workspace...') {
+    const overlay = document.getElementById('app-loading-overlay');
+    if (!overlay) return;
+    const text = overlay.querySelector('[data-loading-text]');
+    if (text) text.textContent = message;
+    overlay.classList.remove('hidden');
+}
+
+function hideAppLoading() {
+    const overlay = document.getElementById('app-loading-overlay');
+    if (overlay) overlay.classList.add('hidden');
+}
+
+async function updateHostelModeVisibility(activePath) {
+    const userId = getUserId();
+    if (!userId) return;
+    try {
+        const res = await fetch(`${API_BASE_URL}/user/profile?user_id=${userId}`);
+        if (!res.ok) return;
+        const profile = await res.json();
+        const usesHostel = Boolean(profile.uses_hostel);
+        localStorage.setItem('uses_hostel', usesHostel ? 'true' : 'false');
+        document.querySelectorAll('[data-hostel-nav="true"]').forEach(link => {
+            link.classList.toggle('hidden', !usesHostel);
+        });
+        if (!usesHostel && activePath === 'hostel.html') {
+            window.location.href = 'dashboard.html';
+        }
+    } catch (e) {
+        // Keep navigation usable if the profile fetch is unavailable.
+    }
+}
 
 // Inject App Shell (Sidebar & Mobile Bottom Nav) into authenticated pages
 function renderAppShell(activePath) {
@@ -59,7 +89,7 @@ function renderAppShell(activePath) {
         { path: 'diet.html', icon: 'coffee', label: 'Diet Plan' },
         { path: 'workout.html', icon: 'activity', label: 'Workout Plan' },
         { path: 'progress.html', icon: 'trending-up', label: 'Progress' },
-        { path: 'hostel.html', icon: 'home', label: 'Hostel Mode' },
+        { path: 'hostel.html', icon: 'home', label: 'Hostel Mode', requiresHostel: true },
         { path: 'ai-coach.html', icon: 'message-circle', label: 'AI Coach' },
         { path: 'reports.html', icon: 'file-text', label: 'Reports' },
         { path: 'profile.html', icon: 'user', label: 'Profile' }
@@ -74,14 +104,14 @@ function renderAppShell(activePath) {
         const activeClassBottom = isActive ? 'text-primary-600 dark:text-primary-400' : 'text-gray-500 dark:text-gray-400';
 
         sidebarLinks += `
-            <a href="${item.path}" class="flex items-center px-4 py-3 mb-2 rounded-lg transition-colors ${activeClassSidebar}">
+            <a href="${item.path}" data-hostel-nav="${item.requiresHostel ? 'true' : 'false'}" class="flex items-center px-4 py-3 mb-2 rounded-lg transition-colors ${activeClassSidebar}">
                 <i data-feather="${item.icon}" class="w-5 h-5 mr-3"></i>
                 <span class="font-medium">${item.label}</span>
             </a>
         `;
 
         bottomNavLinks += `
-            <a href="${item.path}" class="flex flex-col items-center justify-center w-full py-1 ${activeClassBottom}">
+            <a href="${item.path}" data-hostel-nav="${item.requiresHostel ? 'true' : 'false'}" class="flex flex-col items-center justify-center w-full py-1 ${activeClassBottom}">
                 <i data-feather="${item.icon}" class="w-5 h-5 mb-0.5"></i>
                 <span class="text-[8px] sm:text-[10px] uppercase font-black tracking-tighter sm:tracking-wider text-center px-1 leading-none">${item.label}</span>
             </a>
@@ -137,6 +167,15 @@ function renderAppShell(activePath) {
                 <main class="flex-1 p-4 sm:p-6 lg:p-8" id="main-view">
                     <!-- Page content injected below -->
                 </main>
+                <div id="app-loading-overlay" class="hidden fixed inset-0 z-[120] bg-white/90 dark:bg-gray-950/90 backdrop-blur-sm flex items-center justify-center p-6">
+                    <div class="w-full max-w-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 shadow-xl text-center">
+                        <div class="w-12 h-12 rounded-full bg-primary-500/15 text-primary-500 grid place-items-center mx-auto mb-4">
+                            <i data-feather="loader" class="w-6 h-6 animate-spin"></i>
+                        </div>
+                        <p data-loading-text class="text-sm font-black text-gray-900 dark:text-white">Loading your workspace...</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Pulling fresh data from your account.</p>
+                    </div>
+                </div>
             </div>
 
             <!-- Mobile Bottom Nav -->
@@ -150,6 +189,11 @@ function renderAppShell(activePath) {
     const existingContent = shellContainer.innerHTML;
     shellContainer.innerHTML = shellHTML;
     document.getElementById('main-view').innerHTML = existingContent;
+    const cachedHostel = localStorage.getItem('uses_hostel');
+    if (cachedHostel === 'false') {
+        document.querySelectorAll('[data-hostel-nav="true"]').forEach(link => link.classList.add('hidden'));
+    }
+    updateHostelModeVisibility(activePath);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
