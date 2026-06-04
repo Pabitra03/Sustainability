@@ -81,6 +81,55 @@ def ensure_app_schema(conn):
     """)
 
     cursor.execute("""
+    CREATE TABLE IF NOT EXISTS hostels (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(150) NOT NULL,
+        hostel_type VARCHAR(50) DEFAULT NULL,
+        mess_type VARCHAR(50) DEFAULT NULL,
+        monthly_budget FLOAT DEFAULT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY hostel_name_type (name, hostel_type, mess_type)
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS mess_menus (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        hostel_id INT DEFAULT NULL,
+        user_id INT DEFAULT NULL,
+        menu_date DATE NOT NULL,
+        meal_type VARCHAR(30) NOT NULL,
+        menu_text TEXT NOT NULL,
+        calories INT DEFAULT 0,
+        protein_g FLOAT DEFAULT 0,
+        carbs_g FLOAT DEFAULT 0,
+        fat_g FLOAT DEFAULT 0,
+        quality_score INT DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_mess_menus_user_date (user_id, menu_date),
+        INDEX idx_mess_menus_hostel_date (hostel_id, menu_date)
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS mess_food_items (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        mess_menu_id INT DEFAULT NULL,
+        food_name VARCHAR(120) NOT NULL,
+        meal_type VARCHAR(30) DEFAULT NULL,
+        calories INT DEFAULT 0,
+        protein_g FLOAT DEFAULT 0,
+        carbs_g FLOAT DEFAULT 0,
+        fat_g FLOAT DEFAULT 0,
+        estimated_cost FLOAT DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_mess_food_items_menu (mess_menu_id),
+        INDEX idx_mess_food_items_food (food_name)
+    )
+    """)
+
+    cursor.execute("""
     CREATE TABLE IF NOT EXISTS hostel_menus (
         id INT AUTO_INCREMENT PRIMARY KEY,
         user_id INT NOT NULL,
@@ -118,6 +167,7 @@ def ensure_app_schema(conn):
         "food_allergies": "TEXT DEFAULT NULL",
         "budget": "FLOAT DEFAULT NULL",
         "hostel_name": "VARCHAR(150) DEFAULT NULL",
+        "hostel_id": "INT DEFAULT NULL",
         "hostel_type": "VARCHAR(50) DEFAULT NULL",
         "mess_type": "VARCHAR(50) DEFAULT NULL",
         "uses_hostel": "BOOLEAN DEFAULT FALSE",

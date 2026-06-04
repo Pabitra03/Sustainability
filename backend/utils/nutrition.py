@@ -254,6 +254,21 @@ FOOD_FACTS = {
     },
 }
 
+FOOD_PRICES = {
+    "egg": {"unit": "piece", "cost": 7},
+    "milk": {"unit": "200ml", "cost": 12},
+    "fruit": {"unit": "piece", "cost": 8},
+    "peanuts": {"unit": "50g", "cost": 10, "protein_g": 13, "calories": 285},
+    "soya": {"unit": "50g", "cost": 12},
+    "curd": {"unit": "100g", "cost": 10},
+    "paneer": {"unit": "100g", "cost": 45},
+    "chana": {"unit": "bowl", "cost": 18},
+    "dal": {"unit": "bowl", "cost": 15},
+    "chicken": {"unit": "100g", "cost": 45},
+    "fish": {"unit": "100g", "cost": 50},
+    "sprouts": {"unit": "100g", "cost": 15},
+}
+
 
 NUMBER_WORDS = {
     "half": 0.5,
@@ -333,3 +348,32 @@ def estimate_menu_food(items_text):
         }
 
     return totals, sorted(set(matches))
+
+
+def food_catalog(diet_type=None):
+    is_veg = diet_type == "vegetarian"
+    blocked = {"egg", "chicken", "fish"} if is_veg else set()
+    items = []
+    for key, price in FOOD_PRICES.items():
+        if key in blocked:
+            continue
+        facts = FOOD_FACTS.get(key, {})
+        protein = price.get("protein_g", facts.get("protein_g", 0))
+        calories = price.get("calories", facts.get("calories", 0))
+        cost = float(price["cost"])
+        items.append({
+            "food": key,
+            "unit": price["unit"],
+            "cost": round(cost, 1),
+            "protein_g": round(float(protein), 1),
+            "calories": round(float(calories)),
+            "protein_per_rupee": round(float(protein) / cost, 2) if cost else 0,
+        })
+    return sorted(items, key=lambda item: item["protein_per_rupee"], reverse=True)
+
+
+def estimate_food_cost(food_name, servings=1):
+    price = FOOD_PRICES.get(food_name)
+    if not price:
+        return 0
+    return round(float(price["cost"]) * servings, 1)

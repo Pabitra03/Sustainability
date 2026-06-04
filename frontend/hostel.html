@@ -98,6 +98,75 @@
         </div>
       </div>
     </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-black text-gray-900 dark:text-white">Hostel Health</h2>
+          <a href="hostel-insights.html" class="text-xs font-black text-primary-600 dark:text-primary-400">Insights</a>
+        </div>
+        <div class="flex items-end gap-3">
+          <p id="hostel-health-score" class="text-4xl font-black text-primary-500">--</p>
+          <p id="hostel-health-label" class="pb-1 text-sm font-bold text-gray-500 dark:text-gray-400">Loading</p>
+        </div>
+        <div id="hostel-health-components" class="mt-4 space-y-2 text-sm text-gray-600 dark:text-gray-300"></div>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm">
+        <h2 class="text-lg font-black text-gray-900 dark:text-white mb-4">Protein Gap</h2>
+        <div class="grid grid-cols-3 gap-2 text-center">
+          <div class="rounded-lg bg-gray-50 dark:bg-gray-900 p-3">
+            <p class="text-[10px] uppercase font-black text-gray-400">Target</p>
+            <p id="protein-target" class="text-lg font-black text-gray-900 dark:text-white">--</p>
+          </div>
+          <div class="rounded-lg bg-gray-50 dark:bg-gray-900 p-3">
+            <p class="text-[10px] uppercase font-black text-gray-400">Consumed</p>
+            <p id="protein-consumed" class="text-lg font-black text-gray-900 dark:text-white">--</p>
+          </div>
+          <div class="rounded-lg bg-gray-50 dark:bg-gray-900 p-3">
+            <p class="text-[10px] uppercase font-black text-gray-400">Left</p>
+            <p id="protein-left" class="text-lg font-black text-primary-500">--</p>
+          </div>
+        </div>
+        <div id="protein-suggestions" class="mt-4 flex flex-wrap gap-2"></div>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm">
+        <h2 class="text-lg font-black text-gray-900 dark:text-white mb-4">Budget Diet</h2>
+        <div class="grid grid-cols-3 gap-2 text-center">
+          <div class="rounded-lg bg-gray-50 dark:bg-gray-900 p-3">
+            <p class="text-[10px] uppercase font-black text-gray-400">Daily</p>
+            <p id="budget-daily" class="text-lg font-black text-gray-900 dark:text-white">--</p>
+          </div>
+          <div class="rounded-lg bg-gray-50 dark:bg-gray-900 p-3">
+            <p class="text-[10px] uppercase font-black text-gray-400">Weekly</p>
+            <p id="budget-weekly" class="text-lg font-black text-gray-900 dark:text-white">--</p>
+          </div>
+          <div class="rounded-lg bg-gray-50 dark:bg-gray-900 p-3">
+            <p class="text-[10px] uppercase font-black text-gray-400">Monthly</p>
+            <p id="budget-monthly" class="text-lg font-black text-gray-900 dark:text-white">--</p>
+          </div>
+        </div>
+        <p id="budget-status" class="mt-3 text-sm font-bold text-gray-500 dark:text-gray-400"></p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm">
+        <h2 class="text-lg font-black text-gray-900 dark:text-white mb-4">Weekly Grocery Planner</h2>
+        <div id="grocery-list" class="space-y-2"></div>
+        <div class="mt-4 rounded-lg bg-gray-50 dark:bg-gray-900 p-3 text-sm text-gray-600 dark:text-gray-300">
+          <span class="font-black">Estimated weekly cost:</span>
+          <span id="grocery-weekly-cost">--</span>
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm">
+        <h2 class="text-lg font-black text-gray-900 dark:text-white mb-4">Survival Mode</h2>
+        <p id="survival-budget" class="text-sm font-bold text-gray-500 dark:text-gray-400 mb-3">--</p>
+        <div id="survival-list" class="space-y-2"></div>
+      </div>
+    </div>
   </div>
 
   <script src="js/app.js?v=3"></script>
@@ -142,6 +211,7 @@
       });
       const data = await res.json();
       if (!res.ok) { alert(data.error || 'Failed to save menu'); return; }
+      loadAssistant();
     }
 
     async function analyzeMeal(mealType, markConsumed) {
@@ -156,6 +226,7 @@
       if (!res.ok) { alert(data.error || 'Analysis failed'); return; }
       renderAnalysis(data);
       if (markConsumed) saveMenu();
+      loadAssistant();
     }
 
     function pill(text, color) {
@@ -179,8 +250,63 @@
       feather.replace();
     }
 
+    function renderListItem(left, right, subtext = '') {
+      return `
+        <div class="flex items-center justify-between gap-3 rounded-lg bg-gray-50 dark:bg-gray-900 p-3">
+          <div>
+            <p class="text-sm font-black text-gray-900 dark:text-white">${left}</p>
+            ${subtext ? `<p class="text-xs text-gray-500 dark:text-gray-400">${subtext}</p>` : ''}
+          </div>
+          <p class="text-sm font-black text-primary-500">${right}</p>
+        </div>
+      `;
+    }
+
+    async function loadAssistant() {
+      if (!userId) return;
+      try {
+        const res = await fetch(`${API_BASE_URL}/hostel/assistant?user_id=${userId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const health = data.hostel_health_score || {};
+        document.getElementById('hostel-health-score').textContent = health.score ?? '--';
+        document.getElementById('hostel-health-label').textContent = health.label || 'Not ready';
+        document.getElementById('hostel-health-components').innerHTML = Object.entries(health.components || {}).map(([key, value]) =>
+          renderListItem(key.replaceAll('_', ' '), `${value}/100`)
+        ).join('');
+
+        const gap = data.protein_gap || {};
+        document.getElementById('protein-target').textContent = gap.target_protein_g ? `${gap.target_protein_g}g` : '--';
+        document.getElementById('protein-consumed').textContent = `${gap.consumed_protein_g || 0}g`;
+        document.getElementById('protein-left').textContent = `${gap.remaining_protein_g || 0}g`;
+        document.getElementById('protein-suggestions').innerHTML = (gap.suggestions || []).map(item =>
+          pill(`${item.servings} x ${item.food} (${item.total_protein_g}g)`, 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300')
+        ).join('') || pill('Log meals for suggestions', 'bg-gray-100 text-gray-600 dark:bg-gray-900 dark:text-gray-300');
+
+        const budget = data.budget_plan || {};
+        document.getElementById('budget-daily').textContent = budget.daily_cost !== undefined ? `Rs ${budget.daily_cost}` : '--';
+        document.getElementById('budget-weekly').textContent = budget.weekly_cost !== undefined ? `Rs ${budget.weekly_cost}` : '--';
+        document.getElementById('budget-monthly').textContent = budget.monthly_cost !== undefined ? `Rs ${budget.monthly_cost}` : '--';
+        document.getElementById('budget-status').textContent = budget.budget_status || '';
+
+        const grocery = data.grocery_plan || {};
+        document.getElementById('grocery-weekly-cost').textContent = grocery.estimated_weekly_cost !== undefined ? `Rs ${grocery.estimated_weekly_cost}` : '--';
+        document.getElementById('grocery-list').innerHTML = (grocery.items || []).map(item =>
+          renderListItem(`${item.food} x ${item.quantity}`, `Rs ${item.estimated_cost}`, `${item.protein_g}g protein | ${item.unit}`)
+        ).join('') || '<p class="text-sm text-gray-500 dark:text-gray-400">Set budget and log meals to generate groceries.</p>';
+
+        const survival = data.survival_mode || {};
+        document.getElementById('survival-budget').textContent = survival.budget_remaining !== undefined ? `Budget basis: Rs ${survival.budget_remaining}` : '--';
+        document.getElementById('survival-list').innerHTML = (survival.ranked_foods || []).slice(0, 5).map((item, idx) =>
+          renderListItem(`${idx + 1}. ${item.food}`, `${item.protein_per_rupee}g/Rs`, `${item.affordable_servings} servings affordable`)
+        ).join('');
+      } catch (e) {
+        console.error('Hostel assistant failed:', e);
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
-      loadMenu().finally(hideAppLoading);
+      loadMenu().then(loadAssistant).finally(hideAppLoading);
       feather.replace();
     });
   </script>
