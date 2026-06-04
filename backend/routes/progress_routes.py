@@ -4,6 +4,7 @@ from datetime import date, datetime, timedelta
 from utils.ai_engine import (
     calculate_health_score,
     fetch_user_context,
+    hostel_mess_quality,
     logged_weight_points,
     recommended_goal_weight,
     score_ratio,
@@ -469,6 +470,16 @@ def analytics():
             ORDER BY entry_date ASC
         """, (user_id, start))
         progress_rows = cursor.fetchall()
+        hostel_rows = []
+        if context["user"].get("uses_hostel"):
+            cursor.execute("""
+                SELECT entry_date, SUM(calories) AS calories, SUM(protein_g) AS protein_g
+                FROM hostel_consumption
+                WHERE user_id = %s AND entry_date >= %s
+                GROUP BY entry_date
+                ORDER BY entry_date ASC
+            """, (user_id, start))
+            hostel_rows = cursor.fetchall()
         cursor.close()
 
         metric_lookup = {date_key(row["entry_date"]): row for row in metric_rows}
@@ -499,6 +510,13 @@ def analytics():
         workouts = [1 if (progress_lookup.get(label) or {}).get("workout_completed") else 0 for label in labels]
         diet = [1 if (progress_lookup.get(label) or {}).get("diet_completed") else 0 for label in labels]
         tracked_mask = [label in metric_lookup or label in progress_lookup for label in labels]
+        hostel_lookup = {date_key(row["entry_date"]): row for row in hostel_rows}
+        hostel_calories = [metric_value(hostel_lookup.get(label), "calories") for label in labels]
+        hostel_protein = [metric_value(hostel_lookup.get(label), "protein_g") for label in labels]
+        monthly_budget = float(user.get("budget") or 0)
+        budget_daily = round(monthly_budget / 30, 1) if monthly_budget else 0
+        budget_consumption = [budget_daily if (hostel_lookup.get(label) or metric_lookup.get(label)) else None for label in labels]
+        mess_quality = hostel_mess_quality(context) if user.get("uses_hostel") else {"score": None, "label": None}
         tracked_days = sum(1 for item in tracked_mask if item)
         calorie_avg_7 = moving_average(calories, 7)
         calorie_avg_30 = moving_average(calories, 30)
@@ -627,6 +645,10 @@ def analytics():
                 "workout_missed": [0 if value else 1 for value in workouts],
                 "diet_completion": diet,
                 "health_score": health_scores,
+                "hostel_calories": hostel_calories,
+                "hostel_protein": hostel_protein,
+                "budget_consumption": budget_consumption,
+                "budget_target": [budget_daily for _ in labels],
             },
             "analytics": {
                 "tracked_days": tracked_days,
@@ -674,6 +696,15 @@ def analytics():
                     "last_7_days": average(health_scores[-7:]),
                     "last_30_days": average(health_scores[-30:]),
                     "last_90_days": average(health_scores[-90:]),
+                },
+                "hostel": {
+                    "mess_quality_score": mess_quality.get("score"),
+                    "mess_quality_label": mess_quality.get("label"),
+                    "avg_hostel_calories": average(hostel_calories),
+                    "avg_hostel_protein_g": average(hostel_protein),
+                    "monthly_budget": monthly_budget,
+                    "daily_budget": budget_daily,
+                    "budget_usage_percent": score_ratio(average(budget_consumption), budget_daily) if budget_daily else 0,
                 },
                 "radar": radar,
                 "goal_rings": goal_rings,

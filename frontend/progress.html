@@ -168,6 +168,20 @@
           <div class="h-72"><canvas id="workoutChart"></canvas></div>
         </article>
 
+        <article class="analytics-panel">
+          <div class="panel-head">
+            <div>
+              <h3>Hostel Budget & Mess</h3>
+              <p>Mess protein, calories, and budget usage from consumed meals</p>
+            </div>
+            <div class="text-right text-xs">
+              <p id="hostel-quality" class="font-black text-primary-500">--</p>
+              <p id="hostel-budget" class="text-gray-500 dark:text-gray-400">--</p>
+            </div>
+          </div>
+          <div class="h-72"><canvas id="hostelChart"></canvas></div>
+        </article>
+
         <article class="analytics-panel 2xl:col-span-2">
           <div class="panel-head">
             <div>
@@ -359,6 +373,9 @@
       document.getElementById('sleep-consistency').textContent = a.sleep.consistency_percent === null ? '--' : `${a.sleep.consistency_percent}% consistency`;
       document.getElementById('workout-week').textContent = `Weekly ${a.workout.weekly_performance}%`;
       document.getElementById('workout-month').textContent = `Monthly ${a.workout.monthly_performance}%`;
+      const hostel = a.hostel || {};
+      document.getElementById('hostel-quality').textContent = hostel.mess_quality_label ? `${hostel.mess_quality_label} (${hostel.mess_quality_score})` : 'Hostel off';
+      document.getElementById('hostel-budget').textContent = hostel.daily_budget ? `Daily budget Rs ${hostel.daily_budget}` : '--';
       document.getElementById('health-windows').innerHTML = [
         ['7d', a.health_score.last_7_days],
         ['30d', a.health_score.last_30_days],
@@ -407,6 +424,11 @@
         { label: 'Completed Workouts', data: s.workout_completion, backgroundColor: 'rgba(101,163,13,0.78)', borderRadius: 5 },
         { label: 'Missed Workouts', data: s.workout_missed, backgroundColor: 'rgba(220,38,38,0.62)', borderRadius: 5 }
       ], { beginAtZero: true, stacked: true });
+      renderChart('hostelChart', 'bar', labels, [
+        { label: 'Mess Protein', data: s.hostel_protein || [], backgroundColor: 'rgba(37,99,235,0.72)', borderRadius: 5 },
+        { label: 'Budget Used', data: s.budget_consumption || [], type: 'line', borderColor: green, pointRadius: 0, borderWidth: 2, tension: 0.35 },
+        { label: 'Budget Target', data: s.budget_target || [], type: 'line', borderColor: orange, borderDash: [4, 4], pointRadius: 0, borderWidth: 2 }
+      ], { beginAtZero: true });
       renderChart('healthChart', 'line', labels, [
         { label: 'Daily Health Score', data: s.health_score, borderColor: orange, backgroundColor: 'rgba(234,88,12,0.15)', fill: true, tension: 0.35, borderWidth: 3 }
       ], { beginAtZero: true });

@@ -633,7 +633,9 @@
         document.getElementById('metric-cal').textContent = data.metrics.daily_calories;
         document.getElementById('metric-cal').classList.remove('skeleton', 'w-20', 'h-8');
         document.getElementById('cal-unit').classList.remove('hidden');
-        const exerciseCount = data.workout_recommendation && data.workout_recommendation.exercises
+        const exerciseCount = data.today_exercise_count !== undefined
+          ? data.today_exercise_count
+          : data.workout_recommendation && data.workout_recommendation.exercises
           ? data.workout_recommendation.exercises.length
           : 0;
         document.getElementById('metric-time').textContent = exerciseCount || '--';

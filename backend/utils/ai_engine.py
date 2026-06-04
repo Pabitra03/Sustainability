@@ -1,7 +1,7 @@
 from datetime import date, datetime, timedelta
 
 from models.recommender import recommender
-from utils.nutrition import estimate_menu_food
+from utils.nutrition import estimate_food_cost, estimate_menu_food, food_catalog
 from utils.schema import ensure_app_schema
 from utils.plans import get_diet_plan_details, get_weekly_plan, get_workout_plan_details
 
@@ -15,8 +15,69 @@ ACTIVITY_MULTIPLIERS = {
 }
 
 
+def hostel_menu_totals(context):
+    menu = context.get("hostel_menu") or {}
+    totals = {"calories": 0, "protein_g": 0, "carbs_g": 0, "fat_g": 0, "fiber_g": 0}
+    meals = {}
+    for meal in ["breakfast", "lunch", "dinner"]:
+        text = menu.get(meal) or ""
+        meal_totals, matches = estimate_menu_food(text)
+        meals[meal] = {"menu": text, "macros": meal_totals, "matched_foods": matches}
+        for key in totals:
+            totals[key] += meal_totals[key]
+    return totals, meals
+
+
+def budget_food_suggestions(user, max_items=4):
+    catalog = food_catalog(user.get("diet_type"))
+    budget = float(user.get("budget") or 0)
+    daily_budget = budget / 30 if budget else None
+    suggestions = []
+    for item in catalog:
+        if daily_budget and item["cost"] > max(15, daily_budget):
+            continue
+        suggestions.append(item)
+        if len(suggestions) >= max_items:
+            break
+    return suggestions or catalog[:max_items]
+
+
+def protein_gap_summary(context):
+    core = context["core"]
+    nutrients = nutrient_analysis(context)
+    suggestions = budget_food_suggestions(context["user"], 5)
+    return {
+        "target_protein_g": core["protein_g"],
+        "consumed_protein_g": nutrients["protein"]["actual"],
+        "remaining_protein_g": nutrients["protein"]["needed"],
+        "budget_foods": suggestions,
+    }
+
+
+def hostel_mess_quality(context):
+    totals, meals = hostel_menu_totals(context)
+    core = context["core"]
+    if not any(item["menu"] for item in meals.values()):
+        return {"score": 0, "label": "No menu", "totals": totals, "meals": meals}
+    score = 100
+    if totals["protein_g"] < core["protein_g"] * 0.45:
+        score -= 25
+    if totals["fiber_g"] < core["fiber_g"] * 0.45:
+        score -= 15
+    if totals["calories"] > core["daily_calories"] * 1.15:
+        score -= 20
+    if totals["fat_g"] > 70:
+        score -= 10
+    score = max(0, min(100, round(score)))
+    label = "Excellent" if score >= 90 else "Good" if score >= 75 else "Average" if score >= 60 else "Poor"
+    return {"score": score, "label": label, "totals": totals, "meals": meals}
+
+
 def ensure_ai_tables(conn):
-    ensure_app_schema(conn)
+    # Keep read-heavy endpoints fast. Write routes and explicit schema-repair
+    # paths run migrations; context reads should not do DDL checks on every
+    # serverless cold start.
+    return
 
 
 def fetch_user_context(conn, user_id):
@@ -365,12 +426,20 @@ def notifications(context):
 def action_center(context):
     score = calculate_health_score(context)
     nutrients = nutrient_analysis(context)
+    user = context["user"]
     actions = []
     if nutrients["water"]["needed"] > 0:
         actions.append({"action": "Drink 500ml water", "reason": "Water is the quickest score improvement."})
     if nutrients["protein"]["needed"] > 0:
-        food = nutrients["protein"]["foods"][0]
+        food = budget_food_suggestions(user, 1)[0]["food"] if user.get("uses_hostel") else nutrients["protein"]["foods"][0]
         actions.append({"action": f"Add {food} to your next meal", "reason": f"{nutrients['protein']['needed']}g protein still needed."})
+    if user.get("uses_hostel"):
+        mess_quality = hostel_mess_quality(context)
+        if mess_quality["score"] and mess_quality["score"] < 70:
+            actions.append({"action": "Balance today's mess plate", "reason": f"Mess quality is {mess_quality['label']} with {round(mess_quality['totals']['protein_g'])}g protein."})
+        if user.get("budget"):
+            budget_food = budget_food_suggestions(user, 1)[0]
+            actions.append({"action": f"Use {budget_food['food']} for low-cost protein", "reason": f"{budget_food['protein_per_rupee']}g protein per rupee."})
     if not context["today_progress"].get("workout_completed"):
         actions.append({"action": "Complete today's workout", "reason": "Workout carries 20% of your health score."})
     if score["components"]["sleep"]["score"] < 75:
@@ -409,10 +478,23 @@ def daily_briefing(context):
 
     warnings = [item["message"] for item in notifications(context)["items"] if item["type"] == "warning"]
     hostel_recommendations = []
+    hostel_menu_analysis = None
     if user.get("uses_hostel"):
+        mess_quality = hostel_mess_quality(context)
+        gap = protein_gap_summary(context)
+        budget_foods = gap["budget_foods"][:2]
+        hostel_menu_analysis = {
+            "quality_score": mess_quality["score"],
+            "quality_label": mess_quality["label"],
+            "calories": round(mess_quality["totals"]["calories"]),
+            "protein_g": round(mess_quality["totals"]["protein_g"], 1),
+            "carbs_g": round(mess_quality["totals"]["carbs_g"], 1),
+            "fat_g": round(mess_quality["totals"]["fat_g"], 1),
+            "protein_gap_g": gap["remaining_protein_g"],
+        }
         hostel_recommendations = [
-            f"Choose {diet_day['lunch']['item']} for lunch.",
-            f"Add {', '.join(nutrients['protein']['foods'][:2])} if protein is short.",
+            f"Today's mess is {mess_quality['label']} with about {round(mess_quality['totals']['protein_g'])}g protein.",
+            f"Add {', '.join(item['food'] for item in budget_foods)} if protein is short.",
         ]
 
     return {
@@ -426,6 +508,7 @@ def daily_briefing(context):
             "sleep_hours": core["sleep_hours"],
         },
         "hostel_recommendations": hostel_recommendations,
+        "hostel_menu_analysis": hostel_menu_analysis,
         "today_warnings": warnings,
         "weight_forecast": forecast,
         "health_score": today_score,
@@ -678,7 +761,33 @@ def coach_reply(context, message):
     score = calculate_health_score(context)
     nutrients = nutrient_analysis(context)
     actions = action_center(context)["actions"]
+    user = context["user"]
     lower = message.lower()
+    hostel_enabled = bool(user.get("uses_hostel"))
+
+    if hostel_enabled and any(word in lower for word in ["mess", "hostel", "today", "eat"]):
+        mess_quality = hostel_mess_quality(context)
+        gap = protein_gap_summary(context)
+        foods = ", ".join(item["food"] for item in gap["budget_foods"][:3])
+        menu_note = (
+            f"Today's mess estimate is {round(mess_quality['totals']['calories'])} kcal and "
+            f"{round(mess_quality['totals']['protein_g'], 1)}g protein."
+        ) if mess_quality["score"] else "Today's mess menu is not logged yet."
+        return (
+            f"{menu_note} Your goal is {user['goal']} with a {core['daily_calories']} kcal target and "
+            f"{core['protein_g']}g protein target. Remaining protein is {gap['remaining_protein_g']}g. "
+            f"Best budget-fit add-ons: {foods}. Avoid foods you dislike: {user.get('disliked_foods') or 'none logged'}."
+        )
+
+    if hostel_enabled and ("budget" in lower or "₹" in lower or "rs" in lower or "rupee" in lower):
+        budget = float(user.get("budget") or 0)
+        foods = budget_food_suggestions(user, 5)
+        ranked = ", ".join(f"{item['food']} ({item['protein_per_rupee']}g/Rs)" for item in foods[:4])
+        return (
+            f"Your monthly food budget is {round(budget)}. Daily working budget is about "
+            f"{round(budget / 30) if budget else 0}. Best protein-per-rupee options: {ranked}. "
+            "Use these around the mess menu instead of replacing the whole meal."
+        )
 
     if "water" in lower:
         return (
@@ -687,7 +796,7 @@ def coach_reply(context, message):
             "Drink 500ml now, then split the rest across the day."
         )
     if "protein" in lower:
-        foods = ", ".join(nutrients["protein"]["foods"][:3])
+        foods = ", ".join(item["food"] for item in budget_food_suggestions(user, 3)) if hostel_enabled else ", ".join(nutrients["protein"]["foods"][:3])
         return (
             f"You need {core['protein_g']}g protein today. "
             f"Logged protein is {nutrients['protein']['actual']}g, leaving {nutrients['protein']['needed']}g. "

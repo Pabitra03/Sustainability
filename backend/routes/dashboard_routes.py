@@ -7,6 +7,7 @@ from utils.ai_engine import (
     calculate_health_score,
     daily_briefing,
     diet_recommendation,
+    exercise_library,
     fetch_user_context,
     motivation_message,
     notifications,
@@ -50,6 +51,7 @@ def load_context_response(user_id):
 @dashboard_bp.route('/', methods=['GET'])
 def get_dashboard():
     user_id = request.args.get('user_id')
+    include_ai = request.args.get('include_ai') == 'true'
 
     context, error = load_context_response(user_id)
     if error:
@@ -57,6 +59,11 @@ def get_dashboard():
 
     try:
         core = context["core"]
+        weekday = datetime.now().strftime("%A").lower()
+        today_workout = context["workout_plan"].get(weekday, context["workout_plan"]["monday"])
+        health = calculate_health_score(context)
+        nutrients = nutrient_analysis(context)
+        forecast = weight_forecast(context)
         response_data = {
             "name": context["user"]['user_name'],
             "today_date": datetime.now().strftime("%A, %B %d"),
@@ -76,18 +83,22 @@ def get_dashboard():
             "diet": context["diet_plan"],
             "workout": context["workout_plan"],
             "weekly_plan": context["weekly_plan"],
-            "health_score": calculate_health_score(context),
+            "health_score": health,
             "action_center": action_center(context),
-            "nutrient_analysis": nutrient_analysis(context),
+            "nutrient_analysis": nutrients,
             "notifications": notifications(context),
             "daily_briefing": daily_briefing(context),
-            "diet_recommendation": diet_recommendation(context),
-            "workout_recommendation": workout_recommendation(context),
-            "weekly_recommendation": weekly_recommendation(context),
+            "today_exercise_count": len(exercise_library(today_workout, context)),
             "today_metrics": context["today_metrics"],
-            "weight_forecast": weight_forecast(context),
-            "motivation": motivation_message(context)
+            "weight_forecast": forecast,
         }
+        if include_ai:
+            response_data.update({
+                "diet_recommendation": diet_recommendation(context),
+                "workout_recommendation": workout_recommendation(context),
+                "weekly_recommendation": weekly_recommendation(context),
+                "motivation": motivation_message(context)
+            })
         return jsonify(response_data), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500

@@ -99,6 +99,17 @@
         </div>
       </div>
 
+      <div id="hostel-report-section" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm print-card">
+          <h3 class="font-black text-gray-900 dark:text-white mb-4">Budget Analysis</h3>
+          <div id="budget-grid" class="grid grid-cols-2 gap-3 text-sm"></div>
+        </div>
+        <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm print-card">
+          <h3 class="font-black text-gray-900 dark:text-white mb-4">Mess Analysis</h3>
+          <div id="mess-grid" class="grid grid-cols-2 gap-3 text-sm"></div>
+        </div>
+      </div>
+
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm print-card">
           <h3 class="font-black text-gray-900 dark:text-white mb-4">Achievements</h3>
@@ -155,6 +166,26 @@
       document.getElementById('diet-rate').textContent = `${data.completion.diet}%`;
       document.getElementById('workout-bar').style.width = `${data.completion.workout}%`;
       document.getElementById('diet-bar').style.width = `${data.completion.diet}%`;
+
+      if (data.user.uses_hostel) {
+        document.getElementById('hostel-report-section').classList.remove('hidden');
+        const budget = data.budget_analysis || {};
+        const mess = data.mess_analysis || {};
+        const estimate = mess.today_menu_estimate || {};
+        const logged = mess.logged_mess_totals || {};
+        document.getElementById('budget-grid').innerHTML = [
+          stat('Monthly Budget', `Rs ${budget.monthly_budget || 0}`),
+          stat('Daily Budget', `Rs ${budget.daily_budget || 0}`),
+          stat('Recommended Weekly', `Rs ${budget.recommended_weekly_cost || 0}`),
+          stat('Recommended Monthly', `Rs ${budget.recommended_monthly_cost || 0}`)
+        ].join('');
+        document.getElementById('mess-grid').innerHTML = [
+          stat('Menu Calories', `${estimate.calories || 0} kcal`),
+          stat('Menu Protein', `${estimate.protein_g || 0} g`),
+          stat('Logged Calories', `${logged.calories || 0} kcal`),
+          stat('Logged Protein', `${logged.protein_g || 0} g`)
+        ].join('');
+      }
 
       document.getElementById('achievements').innerHTML = (data.achievements || []).length
         ? data.achievements.map(item => `<span class="px-3 py-1 rounded-full bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300 text-xs font-black">${item}</span>`).join('')

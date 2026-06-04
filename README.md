@@ -1,19 +1,21 @@
-# 🌿 Sustainability — AI Diet & Fitness System
+# 🌿 Sustainability — AI-Powered Hostel Fitness Assistant
 
-An intelligent health optimization web app that analyzes your biological metrics to build personalized diet plans, workout routines, and tracks your progress over time.
+An intelligent health, nutrition, and budget assistant for college students living in hostels. The app uses profile metrics, hostel mess menus, daily progress, budget, food preferences, and logged meals to generate personalized diet, workout, mess, grocery, protein, and forecast recommendations.
 
 ---
 
 ## ✨ Features
 
 - **🔐 Auth System** — Secure user registration & login with bcrypt password hashing
-- **📋 Smart Onboarding** — Collects age, gender, weight, height, activity level, and goal to personalize everything
+- **📋 Smart Onboarding & Profile Memory** — Collects biometrics, goal weight, diet preference, hostel details, budget, preferred foods, disliked foods, and allergies
 - **🥗 Personalized Diet Plans** — AI-generated meal plans (breakfast, lunch, dinner) with exact macro breakdowns tailored to your caloric goal
 - **💪 Workout Plans** — Metabolic routines built to burn fat or build muscle based on your profile
-- **📊 Production Analytics** — Chart.js dashboards for weight, calories, protein, water, sleep, workouts, health score trends, radar scoring, progress rings, and predictions
+- **📊 Production Analytics** — Chart.js dashboards for weight, calories, protein, water, sleep, workouts, hostel protein, budget usage, health score trends, radar scoring, progress rings, and predictions
 - **📈 Predictive Insights** — Data-driven weight and health score forecasts with confidence indicators from logged user history
-- **🏠 Optional Hostel Mode** — Hostel mess tracking is fully opt-in and hidden from navigation, dashboard, profile details, and reports when skipped
-- **📄 PDF Reports** — Print-ready health reports with polished cards, completion metrics, forecasts, and recommendations
+- **🏠 AI Hostel Mode** — Mess plate builder, daily menu saving, macro analysis, nutrition quality score, protein gap detection, grocery planning, survival mode, and budget diet planning
+- **📉 Hostel Insights** — Dedicated hostel insights page with mess nutrition trends, protein trends, budget analysis, recent mess foods, and AI insights
+- **📄 PDF Reports** — Print-ready health reports with profile, BMI, BMR, TDEE, progress, budget analysis, mess analysis, health score, forecasts, and recommendations
+- **🤖 AI Hostel Coach** — Answers hostel-specific questions using budget, mess menu, goal, protein target, workout history, preferences, and allergies
 - **🧮 Health Insights** — Auto-calculates BMI, BMR, and TDEE from your profile data
 - **🌙 Dark Mode** — Fully themed light/dark UI with smooth transitions
 - **☁️ Cloud Database** — Powered by TiDB Cloud Serverless (MySQL-compatible) with SSL and auto-retry on wake-up
@@ -44,7 +46,8 @@ Sustainability/
 │   ├── diet.html       # Diet plan page
 │   ├── workout.html    # Workout plan page
 │   ├── progress.html   # Advanced analytics dashboard with real logged data
-│   ├── hostel.html     # Hostel mess menu tracking and analysis
+│   ├── hostel.html     # Mess plate builder, budget planner, grocery planner, survival mode
+│   ├── hostel-insights.html # Hostel nutrition, budget, and mess analytics
 │   ├── ai-coach.html   # AI coaching chat
 │   ├── reports.html    # Professional report and PDF export view
 │   ├── profile.html    # Profile settings
@@ -63,7 +66,7 @@ Sustainability/
     │   ├── reports_routes.py
     │   └── ai_routes.py
     ├── models/         # AI/ML recommendation models
-    ├── utils/          # Plan generation, AI engine, schema helpers
+    ├── utils/          # Plan generation, AI engine, nutrition, schema helpers
     ├── setup_db.py     # DB initializer script
     ├── isrgrootx1.pem  # TiDB SSL certificate
     └── requirements.txt
@@ -118,6 +121,9 @@ The app also runs a safe schema check from live API routes. A fresh database is 
 - `user_progress`
 - `user_daily_metrics`
 - `ai_chat_messages`
+- `hostels`
+- `mess_menus`
+- `mess_food_items`
 - `hostel_menus`
 - `hostel_consumption`
 
@@ -183,7 +189,14 @@ Then open your browser and go to: **[http://localhost:3000](http://localhost:300
 | GET | `/api/progress/forecast?user_id=` | Get 7/30/90 day weight forecast with confidence |
 | GET | `/api/hostel/menu?user_id=` | Get today's hostel menu |
 | POST | `/api/hostel/menu` | Save breakfast/lunch/dinner mess menu |
-| POST | `/api/hostel/analyze-menu` | Analyze hostel meal macros and suggestions |
+| POST | `/api/hostel/analyze-menu` | Analyze hostel meal macros, nutrition quality, recommendations, and optionally mark consumed |
+| GET | `/api/hostel/assistant?user_id=` | Get combined mess analysis, budget plan, protein gap, grocery plan, survival mode, hostel health score, and insights |
+| GET | `/api/hostel/budget-plan?user_id=` | Get affordable diet plan with daily, weekly, and monthly cost |
+| GET | `/api/hostel/protein-gap?user_id=` | Get target protein, consumed protein, remaining protein, and budget-fit foods |
+| GET | `/api/hostel/grocery-plan?user_id=` | Get weekly grocery list with estimated weekly and monthly cost |
+| GET | `/api/hostel/survival?user_id=&budget_remaining=` | Rank low-cost protein sources by protein per rupee |
+| GET | `/api/hostel/health-score?user_id=` | Get hostel health score using habits, budget discipline, and mess quality |
+| GET | `/api/hostel/insights?user_id=` | Get hostel trends, mess logs, budget plan, and AI insights |
 | GET | `/api/ai/diet-recommendation?user_id=` | Get personalized daily AI diet plan |
 | GET | `/api/ai/workout-recommendation?user_id=` | Get personalized daily AI workout plan |
 | GET | `/api/ai/weekly-recommendation?user_id=` | Get weekly AI health recommendations |
@@ -195,8 +208,10 @@ Then open your browser and go to: **[http://localhost:3000](http://localhost:300
 
 ## 💡 Notes
 
-- **No sample chart data**: Analytics charts use `user_daily_metrics`, `user_progress`, and optional `hostel_consumption` rows. Empty ranges render as empty states instead of dummy values.
+- **No sample chart data**: Analytics charts use `user_daily_metrics`, `user_progress`, `hostel_consumption`, and real profile/menu rows. Empty ranges render as empty states instead of dummy values.
 - **Goal weight**: Users can save an optional `goal_weight_kg`; if they skip it, the app derives a safe target from their profile metrics.
 - **Hostel opt-out**: `uses_hostel` controls whether hostel pages, recommendations, API data, and report lines appear.
+- **Schema self-healing**: Live API routes run safe schema checks so older TiDB tables receive missing hostel, metric, and budget columns without data loss.
+- **Budget estimates**: Hostel grocery and survival mode use the shared nutrition/cost catalog in `backend/utils/nutrition.py` and combine it with saved user budget, diet type, and logged nutrition data.
 - **TiDB Auto-Pause**: TiDB Serverless free clusters may auto-pause after inactivity. The backend automatically retries connection up to 3 times, and the frontend shows a friendly `"Database is waking up..."` message during retry. To disable auto-pause permanently, go to your TiDB Cloud Console → Cluster Settings → Auto Pause → Disable.
 - **SSL**: The `isrgrootx1.pem` certificate file must be present in the `backend/` directory for secure connection to TiDB Cloud.

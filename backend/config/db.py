@@ -1,10 +1,59 @@
 import pymysql
 import os
 import time
+from threading import Lock
 from dotenv import load_dotenv
 from utils.schema import ensure_app_schema
 
 load_dotenv(override=True)
+
+_pool = []
+_pool_lock = Lock()
+
+
+class PooledConnection:
+    def __init__(self, conn):
+        self._conn = conn
+        self._returned = False
+
+    def __getattr__(self, name):
+        return getattr(self._conn, name)
+
+    def close(self):
+        if self._returned:
+            return
+        self._returned = True
+        max_size = int(os.getenv('DB_POOL_SIZE', 4))
+        try:
+            self._conn.ping(reconnect=False)
+        except Exception:
+            try:
+                self._conn.close()
+            except Exception:
+                pass
+            return
+        with _pool_lock:
+            if len(_pool) < max_size:
+                _pool.append(self._conn)
+                return
+        self._conn.close()
+
+
+def _pooled_connection():
+    with _pool_lock:
+        conn = _pool.pop() if _pool else None
+    if not conn:
+        return None
+    try:
+        conn.ping(reconnect=True)
+        return PooledConnection(conn)
+    except Exception:
+        try:
+            conn.close()
+        except Exception:
+            pass
+        return None
+
 
 def get_db_connection(with_db=True, retries=3, retry_delay=2):
     """
@@ -13,15 +62,20 @@ def get_db_connection(with_db=True, retries=3, retry_delay=2):
     a few seconds to wake up. This retry mechanism handles that
     transparently so users never see a failed connection.
     """
+    if with_db and os.getenv('DB_DISABLE_POOL', 'false').lower() != 'true':
+        pooled = _pooled_connection()
+        if pooled:
+            return pooled
+
     config = {
         'host': os.getenv('DB_HOST', '127.0.0.1'),
         'user': os.getenv('DB_USER', 'root'),
         'password': os.getenv('DB_PASSWORD', ''),
         'port': int(os.getenv('DB_PORT', 3306)),
         'charset': 'utf8mb4',
-        'connect_timeout': 15,
-        'read_timeout': 15,
-        'write_timeout': 15,
+        'connect_timeout': int(os.getenv('DB_CONNECT_TIMEOUT', 10)),
+        'read_timeout': int(os.getenv('DB_READ_TIMEOUT', 12)),
+        'write_timeout': int(os.getenv('DB_WRITE_TIMEOUT', 12)),
         'autocommit': True
     }
 
@@ -44,6 +98,8 @@ def get_db_connection(with_db=True, retries=3, retry_delay=2):
             conn = pymysql.connect(**config)
             if attempt > 1:
                 print(f"DB connected on attempt {attempt}")
+            if with_db and os.getenv('DB_DISABLE_POOL', 'false').lower() != 'true':
+                return PooledConnection(conn)
             return conn
         except Exception as e:
             last_error = e
