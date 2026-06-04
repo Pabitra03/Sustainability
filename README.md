@@ -46,8 +46,7 @@ Sustainability/
 │   ├── diet.html       # Diet plan page
 │   ├── workout.html    # Workout plan page
 │   ├── progress.html   # Advanced analytics dashboard with real logged data
-│   ├── hostel.html     # Mess plate builder, budget planner, grocery planner, survival mode
-│   ├── hostel-insights.html # Hostel nutrition, budget, and mess analytics
+│   ├── hostel.html     # Mess plate builder
 │   ├── ai-coach.html   # AI coaching chat
 │   ├── reports.html    # Professional report and PDF export view
 │   ├── profile.html    # Profile settings
