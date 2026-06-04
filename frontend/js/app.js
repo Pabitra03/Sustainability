@@ -101,7 +101,6 @@ function renderAppShell(activePath) {
         { path: 'workout.html', icon: 'activity', label: 'Workout Plan' },
         { path: 'progress.html', icon: 'trending-up', label: 'Progress' },
         { path: 'hostel.html', icon: 'home', label: 'Hostel Mode', requiresHostel: true },
-        { path: 'hostel-insights.html', icon: 'bar-chart-2', label: 'Hostel Insights', requiresHostel: true },
         { path: 'ai-coach.html', icon: 'message-circle', label: 'AI Coach' },
         { path: 'reports.html', icon: 'file-text', label: 'Reports' },
         { path: 'profile.html', icon: 'user', label: 'Profile' }
