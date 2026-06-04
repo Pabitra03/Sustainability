@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from config.db import get_db_connection
 from datetime import datetime
+from utils.schema import ensure_app_schema
 from utils.ai_engine import (
     action_center,
     calculate_health_score,
@@ -20,16 +21,28 @@ dashboard_bp = Blueprint('dashboard', __name__)
 def load_context_response(user_id):
     if not user_id:
         return None, (jsonify({"error": "User ID is required"}), 400)
+    if not str(user_id).isdigit() or int(user_id) <= 0:
+        return None, (jsonify({"error": "Invalid user session. Please log in again."}), 400)
 
     conn = get_db_connection()
     if not conn:
         return None, (jsonify({"error": "Database connection failed"}), 500)
 
     try:
-        context = fetch_user_context(conn, user_id)
+        try:
+            context = fetch_user_context(conn, user_id)
+        except Exception as e:
+            if "Unknown column" not in str(e):
+                raise
+            ensure_app_schema(conn)
+            context = fetch_user_context(conn, user_id)
         if not context:
             return None, (jsonify({"error": "Profile not found"}), 404)
         return context, None
+    except ValueError as e:
+        return None, (jsonify({"error": str(e), "code": "PROFILE_INVALID"}), 400)
+    except Exception as e:
+        return None, (jsonify({"error": "Dashboard data failed to load", "message": str(e)}), 500)
     finally:
         conn.close()
 

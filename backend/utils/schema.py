@@ -128,11 +128,27 @@ def ensure_app_schema(conn):
 
     metric_columns = {
         "weight_kg": "FLOAT DEFAULT NULL",
+        "calories": "INT DEFAULT NULL",
+        "protein_g": "FLOAT DEFAULT NULL",
+        "fiber_g": "FLOAT DEFAULT NULL",
+        "water_ml": "INT DEFAULT NULL",
+        "sleep_hours": "FLOAT DEFAULT NULL",
+        "steps": "INT DEFAULT NULL",
+        "created_at": "TIMESTAMP DEFAULT CURRENT_TIMESTAMP",
+        "updated_at": "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",
     }
     for column_name, definition in metric_columns.items():
         ensure_column(cursor, "user_daily_metrics", column_name, definition)
 
+    hostel_consumption_columns = {
+        "calories": "INT DEFAULT 0",
+        "protein_g": "FLOAT DEFAULT 0",
+        "carbs_g": "FLOAT DEFAULT 0",
+        "fat_g": "FLOAT DEFAULT 0",
+    }
+    for column_name, definition in hostel_consumption_columns.items():
+        ensure_column(cursor, "hostel_consumption", column_name, definition)
+
     conn.commit()
     cursor.close()
     schema_verified = True
-

@@ -62,7 +62,6 @@ def get_profile():
         
     cursor = conn.cursor()
     try:
-        ensure_app_schema(conn)
         cursor.execute("SELECT * FROM profiles WHERE user_id = %s", (user_id,))
         profile = cursor.fetchone()
         if profile:
