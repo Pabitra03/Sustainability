@@ -609,7 +609,15 @@
       try {
         showAppLoading('Loading your dashboard...');
         const res = await fetch(`${API_BASE_URL}/dashboard?user_id=${userId}`);
-        if (!res.ok) throw new Error('Need onboarding');
+        if (!res.ok) {
+          let errorData = {};
+          try { errorData = await res.json(); } catch (e) { errorData = {}; }
+          if (res.status === 404 && errorData.error === 'Profile not found') {
+            window.location.href = 'profile.html';
+            return;
+          }
+          throw new Error(errorData.error || 'Unable to load dashboard data');
+        }
         const data = await res.json();
         dashboardData = data;
         
@@ -666,11 +674,7 @@
 
       } catch (err) {
         console.error("Dashboard Init Error:", err);
-        if (err.message === 'Need onboarding') {
-          window.location.href = 'profile.html';
-        }
-        // If it's a JS error (like the one we just fixed), we stay on the page 
-        // but log the error so we can see it in console.
+        alert(err.message || 'Unable to load dashboard data. Please try again.');
       } finally {
         hideAppLoading();
       }

@@ -179,44 +179,62 @@
       document.getElementById('hostel-fields').classList.toggle('hidden', !enabled);
     }
 
+    function setProfileFormLoading(isLoading) {
+      document.querySelectorAll('#profile-form input, #profile-form select, #profile-form button').forEach(el => {
+        el.disabled = isLoading;
+      });
+    }
+
+    function fillProfileForm(data) {
+      document.getElementById('age').value = data.age || '';
+      document.getElementById('gender').value = data.gender || 'male';
+      document.getElementById('weight').value = data.weight || '';
+      document.getElementById('goal_weight_kg').value = data.goal_weight_kg || '';
+      document.getElementById('height').value = data.height || '';
+      document.getElementById('activity_level').value = data.activity_level || 'sedentary';
+      document.getElementById('goal').value = data.goal || 'loss';
+      document.getElementById('diet_type').value = data.diet_type || 'non_vegetarian';
+      document.getElementById('uses_hostel').checked = Boolean(data.uses_hostel);
+      document.getElementById('budget').value = data.budget || '';
+      document.getElementById('hostel_name').value = data.hostel_name || '';
+      document.getElementById('hostel_type').value = data.hostel_type || '';
+      document.getElementById('mess_type').value = data.mess_type || '';
+      document.getElementById('favorite_foods_memory').value = data.favorite_foods || '';
+      document.getElementById('disliked_foods_memory').value = data.disliked_foods || '';
+      document.getElementById('food_allergies_memory').value = data.food_allergies || '';
+      syncHostelFields();
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
       const userId = getUserId();
       if (!userId) { window.location.href = 'auth.html'; return; }
       document.getElementById('uses_hostel').addEventListener('change', syncHostelFields);
 
-      
+      showAppLoading('Loading your profile...');
+      setProfileFormLoading(true);
       try {
-        const res = await fetch(`${API_BASE_URL}/user/profile?user_id=${getUserId()}`);
-        if (res.status === 404) {
+        const res = await fetch(`${API_BASE_URL}/user/profile?user_id=${userId}`);
+        if (res.ok) {
           const data = await res.json();
-          if (data.error === "User not found") {
+          fillProfileForm(data);
+        } else {
+          let data = {};
+          try { data = await res.json(); } catch (e) { data = {}; }
+          if (res.status === 404 && data.error === "User not found") {
             alert("Your account was not found. Please register again.");
             logout();
             return;
           }
-        }
-        if (res.ok) {
-          const data = await res.json();
-          document.getElementById('age').value = data.age;
-          document.getElementById('gender').value = data.gender;
-          document.getElementById('weight').value = data.weight;
-          document.getElementById('goal_weight_kg').value = data.goal_weight_kg || '';
-          document.getElementById('height').value = data.height;
-          document.getElementById('activity_level').value = data.activity_level;
-          document.getElementById('goal').value = data.goal;
-          document.getElementById('diet_type').value = data.diet_type || 'non_vegetarian';
-          document.getElementById('uses_hostel').checked = Boolean(data.uses_hostel);
-          document.getElementById('budget').value = data.budget || '';
-          document.getElementById('hostel_name').value = data.hostel_name || '';
-          document.getElementById('hostel_type').value = data.hostel_type || '';
-          document.getElementById('mess_type').value = data.mess_type || '';
-          document.getElementById('favorite_foods_memory').value = data.favorite_foods || '';
-          document.getElementById('disliked_foods_memory').value = data.disliked_foods || '';
-          document.getElementById('food_allergies_memory').value = data.food_allergies || '';
-          syncHostelFields();
+          if (!(res.status === 404 && data.error === "Profile not found")) {
+            throw new Error(data.error || 'Unable to load profile');
+          }
         }
       } catch (err) {
-        console.log("No existing profile found. User must fill it out.");
+        alert(err.message || 'Unable to load profile. Please try again.');
+      } finally {
+        setProfileFormLoading(false);
+        hideAppLoading();
+        syncHostelFields();
       }
 
       document.getElementById('profile-form').addEventListener('submit', async (e) => {
