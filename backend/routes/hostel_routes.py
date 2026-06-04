@@ -4,84 +4,44 @@ from flask import Blueprint, jsonify, request
 
 from config.db import get_db_connection
 from utils.ai_engine import fetch_user_context, nutrient_analysis
+from utils.nutrition import estimate_menu_food
 from utils.schema import ensure_app_schema
 
 hostel_bp = Blueprint("hostel", __name__)
 
-FOOD_FACTS = {
-    "egg": {"calories": 78, "protein_g": 6, "carbs_g": 1, "fat_g": 5, "fiber_g": 0},
-    "chicken": {"calories": 220, "protein_g": 28, "carbs_g": 0, "fat_g": 9, "fiber_g": 0},
-    "fish": {"calories": 180, "protein_g": 24, "carbs_g": 0, "fat_g": 8, "fiber_g": 0},
-    "paneer": {"calories": 265, "protein_g": 18, "carbs_g": 6, "fat_g": 20, "fiber_g": 0},
-    "soya": {"calories": 170, "protein_g": 26, "carbs_g": 15, "fat_g": 1, "fiber_g": 6},
-    "dal": {"calories": 180, "protein_g": 12, "carbs_g": 28, "fat_g": 3, "fiber_g": 8},
-    "rajma": {"calories": 220, "protein_g": 13, "carbs_g": 36, "fat_g": 2, "fiber_g": 10},
-    "chana": {"calories": 230, "protein_g": 12, "carbs_g": 38, "fat_g": 4, "fiber_g": 10},
-    "rice": {"calories": 210, "protein_g": 4, "carbs_g": 45, "fat_g": 1, "fiber_g": 1},
-    "roti": {"calories": 110, "protein_g": 3, "carbs_g": 22, "fat_g": 1, "fiber_g": 3},
-    "curd": {"calories": 100, "protein_g": 5, "carbs_g": 7, "fat_g": 5, "fiber_g": 0},
-    "milk": {"calories": 150, "protein_g": 8, "carbs_g": 12, "fat_g": 8, "fiber_g": 0},
-    "sprout": {"calories": 80, "protein_g": 6, "carbs_g": 13, "fat_g": 1, "fiber_g": 4},
-    "salad": {"calories": 40, "protein_g": 2, "carbs_g": 8, "fat_g": 0, "fiber_g": 3},
-    "poha": {"calories": 250, "protein_g": 6, "carbs_g": 45, "fat_g": 6, "fiber_g": 3},
-    "idli": {"calories": 120, "protein_g": 4, "carbs_g": 24, "fat_g": 1, "fiber_g": 1},
-    "fried": {"calories": 300, "protein_g": 5, "carbs_g": 35, "fat_g": 15, "fiber_g": 1},
-    "biryani": {"calories": 420, "protein_g": 18, "carbs_g": 55, "fat_g": 14, "fiber_g": 3},
-}
-
-
-def estimate_food(items_text):
-    text = (items_text or "").lower()
-    totals = {"calories": 0, "protein_g": 0, "carbs_g": 0, "fat_g": 0, "fiber_g": 0}
-    matches = []
-
-    for key, facts in FOOD_FACTS.items():
-        if key in text:
-            matches.append(key)
-            for metric, value in facts.items():
-                totals[metric] += value
-
-    if not matches and text.strip():
-        words = [word for word in text.replace(",", " ").split() if len(word) > 2]
-        portions = max(1, min(3, len(words) // 2 or 1))
-        totals = {
-            "calories": 180 * portions,
-            "protein_g": 6 * portions,
-            "carbs_g": 28 * portions,
-            "fat_g": 5 * portions,
-            "fiber_g": 3 * portions,
-        }
-
-    return totals, matches
-
 
 def recommendation_text(context, totals, items_text):
     nutrients = nutrient_analysis(context)
+    core = context["core"]
     text = (items_text or "").lower()
     avoid = []
     choose = []
 
-    if "fried" in text or "biryani" in text:
-        avoid.append("fried rice or oily biryani portions")
+    if any(word in text for word in ["fried", "biryani", "pakora", "samosa", "puri", "poori", "maggi"]):
+        avoid.append("large oily or fried portions")
     if totals["protein_g"] < 15:
         choose.extend(nutrients["protein"]["foods"][:2])
     if totals["fiber_g"] < 5:
         choose.extend(nutrients["fiber"]["foods"][:2])
+    if totals["calories"] > core["daily_calories"] * 0.4:
+        choose.append("smaller rice or paratha portion")
     if not choose:
         choose.append("the current plate with extra salad")
 
     protein_level = "Good" if totals["protein_g"] >= 20 else "Low"
-    calorie_level = "High" if totals["calories"] > context["core"]["daily_calories"] * 0.35 else "Balanced"
+    calorie_level = "High" if totals["calories"] > core["daily_calories"] * 0.4 else "Balanced"
+    meal_share = round((totals["calories"] / core["daily_calories"]) * 100) if core["daily_calories"] else 0
 
     return {
         "protein_level": protein_level,
         "calorie_level": calorie_level,
+        "meal_share_percent": meal_share,
         "avoid": avoid,
-        "choose": choose,
+        "choose": list(dict.fromkeys(choose)),
         "suggestion": (
             f"This meal has about {round(totals['protein_g'])}g protein and "
-            f"{round(totals['calories'])} kcal. Choose {', '.join(choose[:2])} "
-            "to keep your hostel meal aligned with today's goal."
+            f"{round(totals['calories'])} kcal, around {meal_share}% of today's calories. "
+            f"Choose {', '.join(list(dict.fromkeys(choose))[:2])} to keep the plate aligned."
         ),
     }
 
@@ -186,7 +146,7 @@ def analyze_menu():
         if not context:
             return jsonify({"error": "Profile not found"}), 404
 
-        totals, matches = estimate_food(items)
+        totals, matches = estimate_menu_food(items)
         analysis = recommendation_text(context, totals, items)
 
         if should_store:

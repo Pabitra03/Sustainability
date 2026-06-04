@@ -21,8 +21,8 @@
   <div id="app-shell" class="w-full h-full">
     <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Hostel Mode</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400">Track mess meals and convert hostel food into usable nutrition data.</p>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Mess Plate Builder</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400">Estimate mess plates by portions, calories, protein, and better swaps.</p>
       </div>
       <button onclick="saveMenu()" class="bg-primary-500 hover:bg-primary-600 text-black px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 self-start sm:self-auto">
         <i data-feather="save" class="w-4 h-4"></i>
@@ -32,11 +32,11 @@
 
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
       <div class="xl:col-span-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm">
-        <h2 class="text-lg font-black text-gray-900 dark:text-white mb-4">Today's Mess Menu</h2>
+        <h2 class="text-lg font-black text-gray-900 dark:text-white mb-4">Today's Mess Plates</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label class="block text-xs text-gray-400 uppercase font-black tracking-wider mb-2">Breakfast</label>
-            <textarea id="breakfast" rows="5" placeholder="Poha, eggs, tea..." class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"></textarea>
+            <textarea id="breakfast" rows="5" placeholder="1 plate poha, 2 eggs, tea" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"></textarea>
             <div class="flex gap-2 mt-2">
               <button onclick="analyzeMeal('breakfast', false)" class="flex-1 bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300 rounded-lg py-2 text-xs font-bold">Analyze</button>
               <button onclick="analyzeMeal('breakfast', true)" class="flex-1 bg-primary-500 text-black rounded-lg py-2 text-xs font-bold">Consumed</button>
@@ -44,7 +44,7 @@
           </div>
           <div>
             <label class="block text-xs text-gray-400 uppercase font-black tracking-wider mb-2">Lunch</label>
-            <textarea id="lunch" rows="5" placeholder="Rice, dal, chicken..." class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"></textarea>
+            <textarea id="lunch" rows="5" placeholder="1 plate rice, 1 bowl dal, 2 roti" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"></textarea>
             <div class="flex gap-2 mt-2">
               <button onclick="analyzeMeal('lunch', false)" class="flex-1 bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300 rounded-lg py-2 text-xs font-bold">Analyze</button>
               <button onclick="analyzeMeal('lunch', true)" class="flex-1 bg-primary-500 text-black rounded-lg py-2 text-xs font-bold">Consumed</button>
@@ -52,7 +52,7 @@
           </div>
           <div>
             <label class="block text-xs text-gray-400 uppercase font-black tracking-wider mb-2">Dinner</label>
-            <textarea id="dinner" rows="5" placeholder="Roti, paneer, salad..." class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"></textarea>
+            <textarea id="dinner" rows="5" placeholder="2 chapati, paneer 100g, salad" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500"></textarea>
             <div class="flex gap-2 mt-2">
               <button onclick="analyzeMeal('dinner', false)" class="flex-1 bg-gray-100 dark:bg-gray-900 text-gray-700 dark:text-gray-300 rounded-lg py-2 text-xs font-bold">Analyze</button>
               <button onclick="analyzeMeal('dinner', true)" class="flex-1 bg-primary-500 text-black rounded-lg py-2 text-xs font-bold">Consumed</button>
@@ -62,8 +62,8 @@
       </div>
 
       <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm">
-        <h2 class="text-lg font-black text-gray-900 dark:text-white mb-4">AI Analysis</h2>
-        <div id="analysis-empty" class="text-sm text-gray-500 dark:text-gray-400">Analyze a meal to see calories, protein, and better hostel choices.</div>
+        <h2 class="text-lg font-black text-gray-900 dark:text-white mb-4">Plate Analysis</h2>
+        <div id="analysis-empty" class="text-sm text-gray-500 dark:text-gray-400">Analyze a plate to see calories, protein, and better mess choices.</div>
         <div id="analysis-card" class="hidden space-y-4">
           <div class="grid grid-cols-2 gap-3">
             <div class="bg-primary-50 dark:bg-primary-900/20 rounded-lg p-3">
@@ -169,7 +169,8 @@
       document.getElementById('macro-protein').textContent = `${data.macros.protein_g}g`;
       document.getElementById('macro-carbs').textContent = `${data.macros.carbs_g}g`;
       document.getElementById('macro-fat').textContent = `${data.macros.fat_g}g`;
-      document.getElementById('analysis-levels').textContent = `Protein: ${data.analysis.protein_level} | Calories: ${data.analysis.calorie_level}`;
+      const mealShare = data.analysis.meal_share_percent !== undefined ? ` | Day Share: ${data.analysis.meal_share_percent}%` : '';
+      document.getElementById('analysis-levels').textContent = `Protein: ${data.analysis.protein_level} | Calories: ${data.analysis.calorie_level}${mealShare}`;
       document.getElementById('analysis-suggestion').textContent = data.analysis.suggestion;
       document.getElementById('choose-list').innerHTML = (data.analysis.choose || []).map(item => pill(item, 'bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300')).join('');
       document.getElementById('avoid-list').innerHTML = (data.analysis.avoid || []).length

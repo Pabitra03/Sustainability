@@ -1,3 +1,5 @@
+schema_verified = False
+
 def ensure_column(cursor, table_name, column_name, column_definition):
     cursor.execute(f"SHOW COLUMNS FROM {table_name} LIKE %s", (column_name,))
     if not cursor.fetchone():
@@ -5,6 +7,9 @@ def ensure_column(cursor, table_name, column_name, column_definition):
 
 
 def ensure_app_schema(conn):
+    global schema_verified
+    if schema_verified:
+        return
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -129,3 +134,5 @@ def ensure_app_schema(conn):
 
     conn.commit()
     cursor.close()
+    schema_verified = True
+

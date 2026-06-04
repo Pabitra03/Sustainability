@@ -3,11 +3,16 @@
 
 <head>
 
-  <script>if(localStorage.theme==="dark"||(!localStorage.theme&&window.matchMedia("(prefers-color-scheme: dark)").matches)){document.documentElement.classList.add("dark")}</script>
-    <style>
-        html { background-color: #050505 !important; }
-        html:not(.dark) { background-color: #fafafa !important; }
-    </style>
+  <script>if (localStorage.theme === "dark" || (!localStorage.theme && window.matchMedia("(prefers-color-scheme: dark)").matches)) { document.documentElement.classList.add("dark") }</script>
+  <style>
+    html {
+      background-color: #050505 !important;
+    }
+
+    html:not(.dark) {
+      background-color: #fafafa !important;
+    }
+  </style>
 
 
 
@@ -24,7 +29,8 @@
       theme: { extend: { colors: { primary: { 50: '#f7fee7', 100: '#ecfccb', 500: '#84cc16', 600: '#65a30d', 900: '#365314' }, secondary: { 500: '#3b82f6' } }, fontFamily: { sans: ['Outfit', 'system-ui', 'sans-serif'] } } }
     }
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <script src="https://unpkg.com/feather-icons"></script>
 </head>

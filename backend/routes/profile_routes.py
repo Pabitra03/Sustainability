@@ -16,6 +16,40 @@ PROFILE_MEMORY_FIELDS = [
     'goal_weight_kg',
 ]
 
+
+def clean_text(value):
+    if value is None:
+        return None
+    value = str(value).strip()
+    return value or None
+
+
+def clean_number(value, field_name, required=False):
+    if value in [None, ""]:
+        if required:
+            raise ValueError(f"{field_name} is required")
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        raise ValueError(f"{field_name} must be a number")
+
+
+def clean_int(value, field_name, required=False):
+    number = clean_number(value, field_name, required)
+    return int(number) if number is not None else None
+
+
+def clean_bool(value):
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return bool(value)
+    if isinstance(value, str):
+        return value.strip().lower() in ["1", "true", "yes", "on"]
+    return False
+
+
 @profile_bp.route('/profile', methods=['GET'])
 def get_profile():
     user_id = request.args.get('user_id')
@@ -33,8 +67,12 @@ def get_profile():
         profile = cursor.fetchone()
         if profile:
             return jsonify(profile), 200
-        else:
-            return jsonify({"error": "Profile not found"}), 404
+
+        cursor.execute("SELECT id FROM users WHERE id = %s", (user_id,))
+        user = cursor.fetchone()
+        if not user:
+            return jsonify({"error": "User not found"}), 404
+        return jsonify({"error": "Profile not found"}), 404
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     finally:
@@ -43,7 +81,7 @@ def get_profile():
 
 @profile_bp.route('/profile', methods=['POST'])
 def save_profile():
-    data = request.json
+    data = request.get_json(silent=True) or {}
     user_id = data.get('user_id')
     
     if not user_id:
@@ -56,10 +94,20 @@ def save_profile():
     cursor = conn.cursor()
     try:
         ensure_app_schema(conn)
-        uses_hostel = bool(data.get('uses_hostel'))
-        hostel_name = data.get('hostel_name') if uses_hostel else None
-        hostel_type = data.get('hostel_type') if uses_hostel else None
-        mess_type = data.get('mess_type') if uses_hostel else None
+        cursor.execute("SELECT id FROM users WHERE id = %s", (user_id,))
+        if not cursor.fetchone():
+            return jsonify({"error": "User not found. Please sign in again."}), 404
+
+        age = clean_int(data.get('age'), 'Age', required=True)
+        weight = clean_number(data.get('weight'), 'Weight', required=True)
+        height = clean_number(data.get('height'), 'Height', required=True)
+        if age <= 0 or weight <= 0 or height <= 0:
+            return jsonify({"error": "Age, weight, and height must be greater than zero"}), 400
+
+        uses_hostel = clean_bool(data.get('uses_hostel'))
+        hostel_name = clean_text(data.get('hostel_name')) if uses_hostel else None
+        hostel_type = clean_text(data.get('hostel_type')) if uses_hostel else None
+        mess_type = clean_text(data.get('mess_type')) if uses_hostel else None
 
         cursor.execute("""
             INSERT INTO profiles (
@@ -77,14 +125,19 @@ def save_profile():
             hostel_type=VALUES(hostel_type), mess_type=VALUES(mess_type),
             uses_hostel=VALUES(uses_hostel), goal_weight_kg=VALUES(goal_weight_kg)
         """, (
-            user_id, data.get('age'), data.get('gender'), data.get('weight'), 
-            data.get('height'), data.get('activity_level'), data.get('goal'),
-            data.get('diet_type'), data.get('favorite_foods'), data.get('disliked_foods'),
-            data.get('food_allergies'), data.get('budget') or None, hostel_name,
-            hostel_type, mess_type, uses_hostel, data.get('goal_weight_kg') or None
+            user_id, age, clean_text(data.get('gender')) or 'male', weight,
+            height, clean_text(data.get('activity_level')) or 'sedentary',
+            clean_text(data.get('goal')) or 'maintain',
+            clean_text(data.get('diet_type')) or 'non_vegetarian',
+            clean_text(data.get('favorite_foods')), clean_text(data.get('disliked_foods')),
+            clean_text(data.get('food_allergies')), clean_number(data.get('budget'), 'Budget'),
+            hostel_name, hostel_type, mess_type, uses_hostel,
+            clean_number(data.get('goal_weight_kg'), 'Goal weight')
         ))
         conn.commit()
-        return jsonify({"message": "Profile saved successfully"}), 200
+        return jsonify({"message": "Profile saved successfully", "uses_hostel": uses_hostel}), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     finally:

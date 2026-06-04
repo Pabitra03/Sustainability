@@ -1,6 +1,7 @@
 from datetime import date, datetime, timedelta
 
 from models.recommender import recommender
+from utils.nutrition import estimate_menu_food
 from utils.schema import ensure_app_schema
 from utils.plans import get_diet_plan_details, get_weekly_plan, get_workout_plan_details
 
@@ -670,35 +671,6 @@ def motivation_message(context):
     if score["score"] >= 75:
         return f"{name}, today's foundation is solid. One more logged habit can push the score higher."
     return f"{name}, start with water or protein now. Small logged actions move the whole day in the right direction."
-
-
-def estimate_menu_food(items_text):
-    food_facts = {
-        "egg": {"calories": 78, "protein_g": 6, "carbs_g": 1, "fat_g": 5, "fiber_g": 0},
-        "chicken": {"calories": 220, "protein_g": 28, "carbs_g": 0, "fat_g": 9, "fiber_g": 0},
-        "fish": {"calories": 180, "protein_g": 24, "carbs_g": 0, "fat_g": 8, "fiber_g": 0},
-        "paneer": {"calories": 265, "protein_g": 18, "carbs_g": 6, "fat_g": 20, "fiber_g": 0},
-        "soya": {"calories": 170, "protein_g": 26, "carbs_g": 15, "fat_g": 1, "fiber_g": 6},
-        "dal": {"calories": 180, "protein_g": 12, "carbs_g": 28, "fat_g": 3, "fiber_g": 8},
-        "rice": {"calories": 210, "protein_g": 4, "carbs_g": 45, "fat_g": 1, "fiber_g": 1},
-        "roti": {"calories": 110, "protein_g": 3, "carbs_g": 22, "fat_g": 1, "fiber_g": 3},
-        "curd": {"calories": 100, "protein_g": 5, "carbs_g": 7, "fat_g": 5, "fiber_g": 0},
-        "sprout": {"calories": 80, "protein_g": 6, "carbs_g": 13, "fat_g": 1, "fiber_g": 4},
-        "salad": {"calories": 40, "protein_g": 2, "carbs_g": 8, "fat_g": 0, "fiber_g": 3},
-        "poha": {"calories": 250, "protein_g": 6, "carbs_g": 45, "fat_g": 6, "fiber_g": 3},
-    }
-    text = (items_text or "").lower()
-    totals = {"calories": 0, "protein_g": 0, "carbs_g": 0, "fat_g": 0, "fiber_g": 0}
-    matches = []
-    for key, facts in food_facts.items():
-        if key in text:
-            matches.append(key)
-            for metric, value in facts.items():
-                totals[metric] += value
-    if not matches and text.strip():
-        portions = max(1, min(3, len(text.replace(",", " ").split()) // 2 or 1))
-        totals = {"calories": 180 * portions, "protein_g": 6 * portions, "carbs_g": 28 * portions, "fat_g": 5 * portions, "fiber_g": 3 * portions}
-    return totals, matches
 
 
 def coach_reply(context, message):

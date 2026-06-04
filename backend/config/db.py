@@ -30,6 +30,9 @@ def get_db_connection(with_db=True, retries=3, retry_delay=2):
 
     ssl_ca = os.getenv('DB_SSL_CA')
     if ssl_ca:
+        if not os.path.isabs(ssl_ca):
+            backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            ssl_ca = os.path.join(backend_dir, ssl_ca)
         config['ssl'] = {'ca': ssl_ca}
 
     if with_db:

@@ -33,6 +33,7 @@ def load_context_response(user_id):
     finally:
         conn.close()
 
+@dashboard_bp.route('', methods=['GET'])
 @dashboard_bp.route('/', methods=['GET'])
 def get_dashboard():
     user_id = request.args.get('user_id')

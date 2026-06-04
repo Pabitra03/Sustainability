@@ -612,12 +612,6 @@
         if (!res.ok) throw new Error('Need onboarding');
         const data = await res.json();
         dashboardData = data;
-        try {
-          const briefingRes = await fetch(`${API_BASE_URL}/dashboard/daily-briefing?user_id=${userId}`);
-          if (briefingRes.ok) data.daily_briefing = await briefingRes.json();
-        } catch (e) {
-          console.error("Daily briefing unavailable:", e);
-        }
         
         document.getElementById('display-name').textContent = data.name;
         document.getElementById('display-name').classList.remove('skeleton', 'text-transparent');

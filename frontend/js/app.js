@@ -62,18 +62,29 @@ function hideAppLoading() {
 async function updateHostelModeVisibility(activePath) {
     const userId = getUserId();
     if (!userId) return;
-    try {
-        const res = await fetch(`${API_BASE_URL}/user/profile?user_id=${userId}`);
-        if (!res.ok) return;
-        const profile = await res.json();
-        const usesHostel = Boolean(profile.uses_hostel);
-        localStorage.setItem('uses_hostel', usesHostel ? 'true' : 'false');
+
+    const applyVisibility = (usesHostel) => {
         document.querySelectorAll('[data-hostel-nav="true"]').forEach(link => {
             link.classList.toggle('hidden', !usesHostel);
         });
         if (!usesHostel && activePath === 'hostel.html') {
             window.location.href = 'dashboard.html';
         }
+    };
+
+    const cachedHostel = localStorage.getItem('uses_hostel');
+    if (cachedHostel !== null) {
+        applyVisibility(cachedHostel === 'true');
+        if (!['hostel.html', 'profile.html'].includes(activePath)) return;
+    }
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/user/profile?user_id=${userId}`);
+        if (!res.ok) return;
+        const profile = await res.json();
+        const usesHostel = Boolean(profile.uses_hostel);
+        localStorage.setItem('uses_hostel', usesHostel ? 'true' : 'false');
+        applyVisibility(usesHostel);
     } catch (e) {
         // Keep navigation usable if the profile fetch is unavailable.
     }
