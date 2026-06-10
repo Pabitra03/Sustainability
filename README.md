@@ -12,10 +12,9 @@ An intelligent health, nutrition, and budget assistant for college students livi
 - **💪 Workout Plans** — Metabolic routines built to burn fat or build muscle based on your profile
 - **📊 Production Analytics** — Chart.js dashboards for weight, calories, protein, water, sleep, workouts, hostel protein, budget usage, health score trends, radar scoring, progress rings, and predictions
 - **📈 Predictive Insights** — Data-driven weight and health score forecasts with confidence indicators from logged user history
-- **🏠 AI Hostel Mode** — Mess plate builder, daily menu saving, macro analysis, nutrition quality score, protein gap detection, grocery planning, survival mode, and budget diet planning
-- **📉 Hostel Insights** — Dedicated hostel insights page with mess nutrition trends, protein trends, budget analysis, recent mess foods, and AI insights
+- **🏠 AI Hostel Mode & Assistant** — Unified hostel dashboard featuring a mess plate builder, daily menu logs, macro analysis, nutrition quality score, protein gap detection, weekly grocery lists, survival mode ranking, and a hostel health score tracker
 - **📄 PDF Reports** — Print-ready health reports with profile, BMI, BMR, TDEE, progress, budget analysis, mess analysis, health score, forecasts, and recommendations
-- **🤖 AI Hostel Coach** — Answers hostel-specific questions using budget, mess menu, goal, protein target, workout history, preferences, and allergies
+- **🤖 AI Coach** — Multi-functional coaching chat that answers both general fitness queries (water, protein, weight forecasts, health scores) and hostel-specific questions (mess menu adjustments, budget-fit food suggestions, allergies, and dislikes)
 - **🧮 Health Insights** — Auto-calculates BMI, BMR, and TDEE from your profile data
 - **🌙 Dark Mode** — Fully themed light/dark UI with smooth transitions
 - **☁️ Cloud Database** — Powered by TiDB Cloud Serverless (MySQL-compatible) with SSL and auto-retry on wake-up
@@ -46,8 +45,8 @@ Sustainability/
 │   ├── diet.html       # Diet plan page
 │   ├── workout.html    # Workout plan page
 │   ├── progress.html   # Advanced analytics dashboard with real logged data
-│   ├── hostel.html     # Mess plate builder
-│   ├── ai-coach.html   # AI coaching chat
+│   ├── hostel.html     # Mess plate builder & Hostel Assistant dashboard
+│   ├── coach.html      # AI coaching chat
 │   ├── reports.html    # Professional report and PDF export view
 │   ├── profile.html    # Profile settings
 │   ├── css/            # Stylesheets
@@ -63,9 +62,9 @@ Sustainability/
     │   ├── progress_routes.py
     │   ├── hostel_routes.py
     │   ├── reports_routes.py
-    │   └── ai_routes.py
+    │   └── coach_routes.py
     ├── models/         # AI/ML recommendation models
-    ├── utils/          # Plan generation, AI engine, nutrition, schema helpers
+    ├── utils/          # Plan generation, coach engine, nutrition, schema helpers
     ├── setup_db.py     # DB initializer script
     ├── isrgrootx1.pem  # TiDB SSL certificate
     └── requirements.txt
@@ -119,7 +118,7 @@ The app also runs a safe schema check from live API routes. A fresh database is 
 - `profiles` with goal weight, hostel opt-in, and AI memory fields
 - `user_progress`
 - `user_daily_metrics`
-- `ai_chat_messages`
+- `coach_chat_messages`
 - `hostels`
 - `mess_menus`
 - `mess_food_items`
@@ -196,11 +195,13 @@ Then open your browser and go to: **[http://localhost:3000](http://localhost:300
 | GET | `/api/hostel/survival?user_id=&budget_remaining=` | Rank low-cost protein sources by protein per rupee |
 | GET | `/api/hostel/health-score?user_id=` | Get hostel health score using habits, budget discipline, and mess quality |
 | GET | `/api/hostel/insights?user_id=` | Get hostel trends, mess logs, budget plan, and AI insights |
-| GET | `/api/ai/diet-recommendation?user_id=` | Get personalized daily AI diet plan |
-| GET | `/api/ai/workout-recommendation?user_id=` | Get personalized daily AI workout plan |
-| GET | `/api/ai/weekly-recommendation?user_id=` | Get weekly AI health recommendations |
-| POST | `/api/ai/chat` | Chat with AI coach |
-| GET | `/api/ai/history?user_id=` | Get last AI coach messages |
+| GET | `/api/coach/diet-recommendation?user_id=` | Get personalized daily AI diet plan |
+| GET | `/api/coach/workout-recommendation?user_id=` | Get personalized daily AI workout plan |
+| GET | `/api/coach/weekly-recommendation?user_id=` | Get weekly AI health recommendations |
+| POST | `/api/coach/chat` | Chat with AI coach |
+| GET | `/api/coach/history?user_id=` | Get last AI coach messages |
+| POST | `/api/wellness/coach` | Chat with wellness coach |
+| GET | `/api/wellness/coach/history?user_id=` | Get wellness coach chat history |
 | GET | `/api/reports/summary?user_id=` | Get professional report data |
 
 ---
