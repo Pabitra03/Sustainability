@@ -86,11 +86,10 @@ def summary():
         return jsonify({"error": "Database connection failed"}), 500
 
     try:
+        ensure_app_schema(conn)
         context = fetch_user_context(conn, user_id)
         if not context:
             return jsonify({"error": "Profile not found"}), 404
-
-        ensure_app_schema(conn)
         cursor = conn.cursor()
         start = (date.today() - timedelta(days=29)).isoformat()
         cursor.execute("""

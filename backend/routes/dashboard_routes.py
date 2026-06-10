@@ -30,13 +30,8 @@ def load_context_response(user_id):
         return None, (jsonify({"error": "Database connection failed"}), 500)
 
     try:
-        try:
-            context = fetch_user_context(conn, user_id)
-        except Exception as e:
-            if "Unknown column" not in str(e):
-                raise
-            ensure_app_schema(conn)
-            context = fetch_user_context(conn, user_id)
+        ensure_app_schema(conn)
+        context = fetch_user_context(conn, user_id)
         if not context:
             return None, (jsonify({"error": "Profile not found"}), 404)
         return context, None

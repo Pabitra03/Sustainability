@@ -191,6 +191,7 @@ def ensure_app_schema(conn):
         ensure_column(cursor, "user_daily_metrics", column_name, definition)
 
     hostel_consumption_columns = {
+        "meal_type": "VARCHAR(30) NOT NULL DEFAULT 'meal'",
         "calories": "INT DEFAULT 0",
         "protein_g": "FLOAT DEFAULT 0",
         "carbs_g": "FLOAT DEFAULT 0",

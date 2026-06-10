@@ -9,6 +9,7 @@ from utils.coach_engine import (
     weekly_recommendation,
     workout_recommendation,
 )
+from utils.schema import ensure_app_schema
 
 coach_bp = Blueprint("coach", __name__)
 wellness_bp = Blueprint("wellness", __name__)
@@ -33,6 +34,7 @@ def build_chat_response(user_id, message):
         return jsonify({"error": "Database connection failed"}), 500
 
     try:
+        ensure_app_schema(conn)
         context = fetch_user_context(conn, user_id)
         if not context:
             return jsonify({"error": "Profile not found"}), 404
@@ -102,6 +104,7 @@ def recommendation_response(user_id, builder):
         return jsonify({"error": "Database connection failed"}), 500
 
     try:
+        ensure_app_schema(conn)
         context = fetch_user_context(conn, user_id)
         if not context:
             return jsonify({"error": "Profile not found"}), 404
