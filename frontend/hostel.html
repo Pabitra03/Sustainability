@@ -339,9 +339,54 @@
       }
     }
 
+    // ── Clear all skeleton placeholders ───────────────────────────────────────
+    // Called regardless of success/failure so widgets never stay in skeleton state.
+    function clearSkeletons() {
+      // Health score
+      const scoreLoading = document.getElementById('score-loading');
+      const scoreEl      = document.getElementById('hostel-health-score');
+      if (scoreLoading) scoreLoading.classList.add('hidden');
+      if (scoreEl)      scoreEl.classList.remove('hidden');
+
+      // Protein suggestions
+      const proteinSug = document.getElementById('protein-suggestions');
+      if (proteinSug) proteinSug.innerHTML = '';
+
+      // Grocery list
+      const groceryList = document.getElementById('grocery-list');
+      if (groceryList) groceryList.innerHTML = '';
+
+      // Survival list
+      const survivalList = document.getElementById('survival-list');
+      if (survivalList) survivalList.innerHTML = '';
+
+      // Health components
+      const healthComp = document.getElementById('hostel-health-components');
+      if (healthComp) healthComp.innerHTML = '';
+    }
+
+    // ── Show fallback when assistant data is unavailable ──────────────────────
+    function showAssistantError(message) {
+      clearSkeletons();
+      const scoreEl = document.getElementById('hostel-health-score');
+      if (scoreEl) scoreEl.textContent = '--';
+      document.getElementById('hostel-health-label').textContent   = 'Unavailable';
+      document.getElementById('hostel-health-components').innerHTML = `<p class="text-xs text-gray-400">${message}</p>`;
+      document.getElementById('protein-target').textContent   = '--';
+      document.getElementById('protein-consumed').textContent = '--';
+      document.getElementById('protein-left').textContent     = '--';
+      document.getElementById('protein-suggestions').innerHTML = pill('Complete your profile to activate', 'bg-gray-100 text-gray-600 dark:bg-gray-900 dark:text-gray-300');
+      document.getElementById('budget-daily').textContent   = '--';
+      document.getElementById('budget-weekly').textContent  = '--';
+      document.getElementById('budget-monthly').textContent = '--';
+      document.getElementById('budget-status').textContent  = 'Profile required';
+      document.getElementById('grocery-weekly-cost').textContent = '--';
+      document.getElementById('grocery-list').innerHTML     = `<p class="text-sm text-gray-400 dark:text-gray-500 py-2">${message}</p>`;
+      document.getElementById('survival-budget').textContent = '--';
+      document.getElementById('survival-list').innerHTML    = `<p class="text-sm text-gray-400 dark:text-gray-500 py-2">${message}</p>`;
+    }
+
     // ── Page load ─────────────────────────────────────────────────────────────
-    // NOTE: showAppLoading / hideAppLoading are managed by the init() caller
-    // so the overlay stays up until BOTH menu AND assistant data are ready.
     async function loadMenu() {
       if (!userId) { window.location.href = 'auth.html'; return; }
       try {
@@ -353,6 +398,7 @@
             window.location.href = 'dashboard.html';
             return;
           }
+          localStorage.setItem('uses_hostel', 'true');
         }
         const res = await fetch(`${API_BASE_URL}/hostel/menu?user_id=${userId}`);
         if (!res.ok) {
@@ -378,17 +424,22 @@
         lunch:     document.getElementById('lunch').value,
         dinner:    document.getElementById('dinner').value
       };
-      const res = await fetch(`${API_BASE_URL}/hostel/menu`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      if (!res.ok) { alert(data.error || 'Failed to save menu'); }
-      if (btn) {
-        btn.disabled = false;
-        btn.innerHTML = '<i data-feather="save" class="w-4 h-4 inline-block mr-1"></i> Save Menu';
-        feather.replace();
+      try {
+        const res = await fetch(`${API_BASE_URL}/hostel/menu`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!res.ok) { console.warn('Save menu failed:', data.error); }
+      } catch (e) {
+        console.error('saveMenu failed:', e);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<i data-feather="save" class="w-4 h-4 inline-block mr-1"></i> Save Menu';
+          feather.replace();
+        }
       }
     }
 
@@ -397,7 +448,6 @@
       const items = document.getElementById(mealType).value.trim();
       if (!items) { alert(`Please enter your ${mealType} items first.`); return; }
 
-      // Show loading on button and analysis panel
       setBtn(mealType, true);
       document.getElementById('analysis-empty').classList.add('hidden');
       document.getElementById('analysis-card').classList.add('hidden');
@@ -412,11 +462,10 @@
         const data = await res.json();
         if (!res.ok) { alert(data.error || 'Analysis failed'); return; }
 
-        // Show results
         document.getElementById('analysis-loading').classList.add('hidden');
         renderAnalysis(data);
 
-        // Save menu text + refresh assistant
+        // Save menu text and refresh the assistant widgets
         await saveMenu();
         await loadAssistant();
       } catch (e) {
@@ -450,65 +499,104 @@
 
     // ── Load hostel assistant metrics ─────────────────────────────────────────
     async function loadAssistant() {
-      if (!userId) return;
+      if (!userId) {
+        showAssistantError('Please log in to view your hostel dashboard.');
+        return;
+      }
 
-      // Show assistant spinner
       document.getElementById('assistant-spinner').classList.remove('hidden');
 
       try {
         const res = await fetch(`${API_BASE_URL}/hostel/assistant?user_id=${userId}`);
-        if (!res.ok) return;
+
+        // Always clear skeletons first — whether success or failure
+        clearSkeletons();
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          const msg = res.status === 403
+            ? 'Enable Hostel Mode in your Profile to activate this dashboard.'
+            : (errData.error || 'Could not load hostel data. Complete your profile and try again.');
+          showAssistantError(msg);
+          return;
+        }
+
         const data = await res.json();
 
-        // Health score
+        // ── Health Score ───────────────────────────────────────────────────────
         const health = data.hostel_health_score || {};
         const scoreEl = document.getElementById('hostel-health-score');
-        const scoreLoading = document.getElementById('score-loading');
-        scoreLoading.classList.add('hidden');
-        scoreEl.classList.remove('hidden');
-        scoreEl.textContent = health.score ?? '--';
-        document.getElementById('hostel-health-label').textContent = health.label || 'Not ready';
+        scoreEl.textContent = health.score != null ? health.score : '--';
+        document.getElementById('hostel-health-label').textContent = health.label || '--';
+
+        // Color the label badge based on score
+        const labelEl = document.getElementById('hostel-health-label');
+        labelEl.className = 'px-2 py-0.5 rounded-md text-[10px] uppercase tracking-wider font-black';
+        const score = health.score || 0;
+        if (score >= 75)      labelEl.classList.add('bg-green-100', 'text-green-700', 'dark:bg-green-900/30', 'dark:text-green-300');
+        else if (score >= 60) labelEl.classList.add('bg-amber-100', 'text-amber-700', 'dark:bg-amber-900/30', 'dark:text-amber-300');
+        else                  labelEl.classList.add('bg-red-100', 'text-red-700', 'dark:bg-red-900/30', 'dark:text-red-300');
+
         document.getElementById('hostel-health-components').innerHTML =
           Object.entries(health.components || {}).map(([key, value]) =>
             renderListItem(key.replaceAll('_', ' '), `${value}/100`)
           ).join('') || '<p class="text-xs text-gray-400">No components available yet.</p>';
 
-        // Protein gap
+        // ── Protein Gap ────────────────────────────────────────────────────────
         const gap = data.protein_gap || {};
-        document.getElementById('protein-target').textContent   = gap.target_protein_g   ? `${gap.target_protein_g}g`   : '--';
-        document.getElementById('protein-consumed').textContent = `${gap.consumed_protein_g || 0}g`;
-        document.getElementById('protein-left').textContent     = `${gap.remaining_protein_g || 0}g`;
+        document.getElementById('protein-target').textContent   = gap.target_protein_g   != null ? `${gap.target_protein_g}g`   : '--';
+        document.getElementById('protein-consumed').textContent = gap.consumed_protein_g != null ? `${gap.consumed_protein_g}g` : '0g';
+        document.getElementById('protein-left').textContent     = gap.remaining_protein_g != null ? `${gap.remaining_protein_g}g` : '--';
         document.getElementById('protein-suggestions').innerHTML =
-          (gap.suggestions || []).map(item =>
-            pill(`${item.servings}× ${item.food} (${item.total_protein_g}g)`, 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300')
-          ).join('') || pill('Log meals for suggestions', 'bg-gray-100 text-gray-600 dark:bg-gray-900 dark:text-gray-300');
+          (gap.suggestions || []).length
+            ? gap.suggestions.map(item =>
+                pill(`${item.servings}× ${item.food} (${item.total_protein_g}g)`, 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300')
+              ).join('')
+            : pill('Log a plate to get supplement suggestions', 'bg-gray-100 text-gray-600 dark:bg-gray-900 dark:text-gray-300');
 
-        // Budget
+        // ── Budget ─────────────────────────────────────────────────────────────
         const budget = data.budget_plan || {};
-        document.getElementById('budget-daily').textContent   = budget.daily_cost   !== undefined ? `₹${budget.daily_cost}`   : '--';
-        document.getElementById('budget-weekly').textContent  = budget.weekly_cost  !== undefined ? `₹${budget.weekly_cost}`  : '--';
-        document.getElementById('budget-monthly').textContent = budget.monthly_cost !== undefined ? `₹${budget.monthly_cost}` : '--';
+        document.getElementById('budget-daily').textContent   = budget.daily_cost   != null ? `₹${budget.daily_cost}`   : '--';
+        document.getElementById('budget-weekly').textContent  = budget.weekly_cost  != null ? `₹${budget.weekly_cost}`  : '--';
+        document.getElementById('budget-monthly').textContent = budget.monthly_cost != null ? `₹${budget.monthly_cost}` : '--';
         document.getElementById('budget-status').textContent  = budget.budget_status || '--';
 
-        // Grocery plan
+        // Color budget status badge
+        const budgetStatusEl = document.getElementById('budget-status');
+        budgetStatusEl.className = 'px-2 py-0.5 rounded text-[10px] font-black';
+        if (budget.budget_status === 'Within budget') {
+          budgetStatusEl.classList.add('bg-green-100', 'text-green-700', 'dark:bg-green-900/30', 'dark:text-green-300');
+        } else if (budget.budget_status === 'Above daily budget') {
+          budgetStatusEl.classList.add('bg-red-100', 'text-red-700', 'dark:bg-red-900/30', 'dark:text-red-300');
+        } else {
+          budgetStatusEl.classList.add('bg-gray-100', 'text-gray-500', 'dark:bg-gray-900', 'dark:text-gray-400');
+        }
+
+        // ── Grocery Plan ───────────────────────────────────────────────────────
         const grocery = data.grocery_plan || {};
         document.getElementById('grocery-weekly-cost').textContent =
-          grocery.estimated_weekly_cost !== undefined ? `₹${grocery.estimated_weekly_cost} est.` : '--';
+          grocery.estimated_weekly_cost != null ? `₹${grocery.estimated_weekly_cost} est.` : '--';
         document.getElementById('grocery-list').innerHTML =
-          (grocery.items || []).map(item =>
-            renderListItem(`${item.food} × ${item.quantity}`, `₹${item.estimated_cost}`, `${item.protein_g}g protein · ${item.unit}`)
-          ).join('') || '<p class="text-sm text-gray-400 dark:text-gray-500 py-2">Set your hostel budget in Profile to generate grocery recommendations.</p>';
+          (grocery.items || []).length
+            ? grocery.items.map(item =>
+                renderListItem(`${item.food} × ${item.quantity}`, `₹${item.estimated_cost}`, `${item.protein_g}g protein · ${item.unit}`)
+              ).join('')
+            : '<p class="text-sm text-gray-400 dark:text-gray-500 py-2">Set your hostel budget in Profile to generate grocery recommendations.</p>';
 
-        // Survival mode
+        // ── Survival Mode ──────────────────────────────────────────────────────
         const survival = data.survival_mode || {};
         document.getElementById('survival-budget').textContent =
-          survival.budget_remaining !== undefined ? `Basis: ₹${survival.budget_remaining}` : '--';
+          survival.budget_remaining != null ? `Basis: ₹${survival.budget_remaining}` : '--';
         document.getElementById('survival-list').innerHTML =
-          (survival.ranked_foods || []).slice(0, 6).map((item, idx) =>
-            renderListItem(`${idx + 1}. ${item.food}`, `${item.protein_per_rupee}g/₹`, `${item.affordable_servings} servings affordable`)
-          ).join('') || '<p class="text-sm text-gray-400 dark:text-gray-500 py-2">No data yet — add a budget in Profile.</p>';
+          (survival.ranked_foods || []).length
+            ? survival.ranked_foods.slice(0, 6).map((item, idx) =>
+                renderListItem(`${idx + 1}. ${item.food}`, `${item.protein_per_rupee}g/₹`, `${item.affordable_servings} servings affordable`)
+              ).join('')
+            : '<p class="text-sm text-gray-400 dark:text-gray-500 py-2">No data yet — add a budget in Profile.</p>';
 
       } catch (e) {
+        clearSkeletons();
+        showAssistantError('Could not connect to server. Is the backend running?');
         console.error('Hostel assistant failed:', e);
       } finally {
         document.getElementById('assistant-spinner').classList.add('hidden');
@@ -516,8 +604,9 @@
     }
 
     // ── Init ──────────────────────────────────────────────────────────────────
-    // Run menu + assistant fetches in PARALLEL so the overlay stays visible
-    // until both complete — user sees a fully populated page at once.
+    // app.js DOMContentLoaded fires renderAppShell (which injects #app-loading-overlay)
+    // THEN our DOMContentLoaded fires. Both are queued on the same event so app.js
+    // runs first because it is loaded first (script order). This is safe.
     document.addEventListener('DOMContentLoaded', async () => {
       feather.replace();
       showAppLoading('Loading Hostel Mode…');
