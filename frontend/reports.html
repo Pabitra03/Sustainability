@@ -116,7 +116,7 @@
           <div id="achievements" class="flex flex-wrap gap-2"></div>
         </div>
         <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm print-card">
-          <h3 class="font-black text-gray-900 dark:text-white mb-4">AI Recommendations</h3>
+          <h3 class="font-black text-gray-900 dark:text-white mb-4">Recommendations</h3>
           <ul id="recommendations" class="space-y-2 text-sm text-gray-700 dark:text-gray-300"></ul>
         </div>
       </div>
@@ -191,7 +191,7 @@
         ? data.achievements.map(item => `<span class="px-3 py-1 rounded-full bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300 text-xs font-black">${item}</span>`).join('')
         : '<p class="text-sm text-gray-500 dark:text-gray-400">No achievements yet. Complete diet and workout tasks to unlock badges.</p>';
 
-      document.getElementById('recommendations').innerHTML = (data.ai_recommendations || []).map(item => `
+      document.getElementById('recommendations').innerHTML = (data.recommendations || []).map(item => `
         <li class="flex gap-2"><i data-feather="check-circle" class="w-4 h-4 text-primary-500 shrink-0 mt-0.5"></i><span>${item}</span></li>
       `).join('');
 

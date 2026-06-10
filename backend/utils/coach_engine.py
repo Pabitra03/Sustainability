@@ -73,7 +73,7 @@ def hostel_mess_quality(context):
     return {"score": score, "label": label, "totals": totals, "meals": meals}
 
 
-def ensure_ai_tables(conn):
+def ensure_coach_tables(conn):
     # Keep read-heavy endpoints fast. Write routes and explicit schema-repair
     # paths run migrations; context reads should not do DDL checks on every
     # serverless cold start.
@@ -81,7 +81,7 @@ def ensure_ai_tables(conn):
 
 
 def fetch_user_context(conn, user_id):
-    ensure_ai_tables(conn)
+    ensure_coach_tables(conn)
     cursor = conn.cursor()
     today = date.today()
     yesterday = today - timedelta(days=1)

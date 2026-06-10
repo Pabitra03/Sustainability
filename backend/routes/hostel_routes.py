@@ -3,7 +3,7 @@ from datetime import date, timedelta
 from flask import Blueprint, jsonify, request
 
 from config.db import get_db_connection
-from utils.ai_engine import calculate_health_score, fetch_user_context, nutrient_analysis
+from utils.coach_engine import calculate_health_score, fetch_user_context, nutrient_analysis
 from utils.nutrition import estimate_food_cost, estimate_menu_food, food_catalog
 from utils.schema import ensure_app_schema
 
@@ -270,7 +270,7 @@ def hostel_insights(conn, context):
         "budget_plan": budget_plan(context),
         "protein_gap": protein_gap(context),
         "hostel_health_score": hostel_health_score(context),
-        "ai_insights": insights,
+        "hostel_insights": insights,
     }
 
 

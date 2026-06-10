@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from config.db import get_db_connection
 from datetime import date, datetime, timedelta
-from utils.ai_engine import (
+from utils.coach_engine import (
     calculate_health_score,
     fetch_user_context,
     hostel_mess_quality,

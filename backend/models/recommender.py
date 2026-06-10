@@ -1,7 +1,7 @@
 class RecommendationModel:
     def predict(self, age, weight, height, activity_level_str, goal_str):
-        # Simplified rule-based engine to replace heavy ML dependencies on Vercel
-        # This gives similar results without needing pandas/sklearn
+        # Rule-based recommendation engine — lightweight, no external dependencies
+        # Produces plan IDs based on user profile inputs
         
         # Default fallback
         diet_plan_id = 2 # Balanced

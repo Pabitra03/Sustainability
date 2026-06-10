@@ -5,7 +5,7 @@
   <style>html { background-color: #050505 !important; } html:not(.dark) { background-color: #fafafa !important; }</style>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sustainability | AI Coach</title>
+  <title>Sustainability | Coach</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -21,7 +21,7 @@
   <div id="app-shell" class="w-full h-full">
     <div class="max-w-5xl mx-auto h-[calc(100vh-7rem)] flex flex-col">
       <div class="mb-5">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">AI Coach</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Coach</h1>
         <p class="text-sm text-gray-500 dark:text-gray-400">Personal coaching from BMI, BMR, TDEE, goal, progress, and diet preference.</p>
       </div>
 
@@ -77,19 +77,19 @@
       const userId = getUserId();
       if (!userId) { window.location.href = 'auth.html'; return; }
 
-      const lastUser = localStorage.getItem('ai_coach_last_user_id');
+      const lastUser = localStorage.getItem('coach_last_user_id');
       if (!lastUser || lastUser !== String(userId)) {
         document.getElementById('coach-messages').innerHTML = "";
-        localStorage.removeItem('ai_coach_messages');
+        localStorage.removeItem('coach_messages');
       }
-      localStorage.setItem('ai_coach_last_user_id', String(userId));
+      localStorage.setItem('coach_last_user_id', String(userId));
 
       try {
-        const res = await fetch(`${API_BASE_URL}/ai/history?user_id=${userId}`);
+        const res = await fetch(`${API_BASE_URL}/coach/history?user_id=${userId}`);
         if (!res.ok) return;
         const data = await res.json();
         const msgs = data.messages || [];
-        localStorage.setItem('ai_coach_messages', JSON.stringify(msgs));
+        localStorage.setItem('coach_messages', JSON.stringify(msgs));
 
         document.getElementById('coach-messages').innerHTML = `<div class="max-w-[85%] bg-gray-100 dark:bg-gray-900 rounded-xl p-4 text-sm text-gray-700 dark:text-gray-300">Ask me about today's food choices, protein, calories, water, or weight prediction.</div>`;
         msgs.forEach(item => addMessage(item.role, item.message));
@@ -117,7 +117,7 @@
         const last = document.querySelector('#coach-messages').lastElementChild;
 
         try {
-          const res = await fetch(`${API_BASE_URL}/ai/chat`, {
+          const res = await fetch(`${API_BASE_URL}/coach/chat`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ user_id: getUserId(), message })

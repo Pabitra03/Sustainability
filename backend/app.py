@@ -13,7 +13,7 @@ from routes.auth_routes import auth_bp
 from routes.profile_routes import profile_bp
 from routes.progress_routes import progress_routes
 from routes.dashboard_routes import dashboard_bp
-from routes.ai_routes import ai_bp, wellness_bp
+from routes.coach_routes import coach_bp, wellness_bp
 from routes.hostel_routes import hostel_bp
 from routes.reports_routes import reports_bp
 from dotenv import load_dotenv
@@ -28,7 +28,7 @@ app.register_blueprint(auth_bp, url_prefix='/api/auth')
 app.register_blueprint(profile_bp, url_prefix='/api/user')
 app.register_blueprint(dashboard_bp, url_prefix='/api/dashboard')
 app.register_blueprint(progress_routes, url_prefix='/api/progress')
-app.register_blueprint(ai_bp, url_prefix='/api/ai')
+app.register_blueprint(coach_bp, url_prefix='/api/coach')
 app.register_blueprint(wellness_bp, url_prefix='/api/wellness')
 app.register_blueprint(hostel_bp, url_prefix='/api/hostel')
 app.register_blueprint(reports_bp, url_prefix='/api/reports')

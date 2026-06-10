@@ -3,7 +3,7 @@ from datetime import date, datetime, timedelta
 from flask import Blueprint, jsonify, request
 
 from config.db import get_db_connection
-from utils.ai_engine import calculate_health_score, fetch_user_context, notifications, weight_forecast
+from utils.coach_engine import calculate_health_score, fetch_user_context, notifications, weight_forecast
 from utils.nutrition import estimate_food_cost, estimate_menu_food, food_catalog
 from utils.schema import ensure_app_schema
 
@@ -144,7 +144,7 @@ def summary():
             },
             "weight_forecast": forecast,
             "achievements": achievements(context),
-            "ai_recommendations": [item["message"] for item in notes] or [
+            "recommendations": [item["message"] for item in notes] or [
                 "Stay consistent with today's calories, protein, water, and workout targets."
             ],
             "metrics_history": metrics_history,

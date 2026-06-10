@@ -32,9 +32,9 @@ function logout() {
     localStorage.removeItem('user_id');
     localStorage.removeItem('user_name');
 
-    // Clear AI Coach chat data (frontend-only cache)
-    localStorage.removeItem('ai_coach_messages');
-    localStorage.removeItem('ai_coach_last_user_id');
+    // Clear Coach chat data (frontend-only cache)
+    localStorage.removeItem('coach_messages');
+    localStorage.removeItem('coach_last_user_id');
 
     try {
         const coachMessagesEl = document.getElementById('coach-messages');
@@ -101,7 +101,7 @@ function renderAppShell(activePath) {
         { path: 'workout.html', icon: 'activity', label: 'Workout Plan' },
         { path: 'progress.html', icon: 'trending-up', label: 'Progress' },
         { path: 'hostel.html', icon: 'home', label: 'Hostel Mode', requiresHostel: true },
-        { path: 'ai-coach.html', icon: 'message-circle', label: 'AI Coach' },
+        { path: 'coach.html', icon: 'message-circle', label: 'Coach' },
         { path: 'reports.html', icon: 'file-text', label: 'Reports' },
         { path: 'profile.html', icon: 'user', label: 'Profile' }
     ];

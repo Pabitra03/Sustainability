@@ -69,13 +69,13 @@ def ensure_app_schema(conn):
     """)
 
     cursor.execute("""
-    CREATE TABLE IF NOT EXISTS ai_chat_messages (
+    CREATE TABLE IF NOT EXISTS coach_chat_messages (
         id INT AUTO_INCREMENT PRIMARY KEY,
         user_id INT NOT NULL,
         role VARCHAR(20) NOT NULL,
         message TEXT NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        INDEX idx_ai_chat_user_created (user_id, created_at),
+        INDEX idx_coach_chat_user_created (user_id, created_at),
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )
     """)

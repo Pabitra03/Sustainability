@@ -133,14 +133,14 @@
       // Check if plan is the new object structure or old string structure
       const getMealName = (m) => typeof m === 'object' ? m.item : m;
       const getMealImg = (m, type) => (typeof m === 'object' && m.image) ? m.image : MEAL_IMAGES[type];
-      const aiSnack = allData && allData.diet_recommendation && allData.diet_recommendation.today
+      const coachSnack = allData && allData.diet_recommendation && allData.diet_recommendation.today
         ? allData.diet_recommendation.today.snack
         : null;
 
       const meals = [
         { type: 'Breakfast', icon: 'sun', content: getMealName(plan.breakfast), img: getMealImg(plan.breakfast, 'Breakfast') },
         { type: 'Lunch', icon: 'cpu', content: getMealName(plan.lunch), img: getMealImg(plan.lunch, 'Lunch') },
-        { type: 'Snacks', icon: 'coffee', content: aiSnack ? aiSnack.item : 'Protein add-on from your recommendation', img: aiSnack && aiSnack.image ? aiSnack.image : MEAL_IMAGES.Snacks },
+        { type: 'Snacks', icon: 'coffee', content: coachSnack ? coachSnack.item : 'Protein add-on from your recommendation', img: coachSnack && coachSnack.image ? coachSnack.image : MEAL_IMAGES.Snacks },
         { type: 'Dinner', icon: 'moon', content: getMealName(plan.dinner), img: getMealImg(plan.dinner, 'Dinner') }
       ];
       const container = document.getElementById('meals-container');
@@ -224,7 +224,7 @@
       feather.replace();
 
       try {
-        const recRes = await fetch(`${API_BASE_URL}/ai/diet-recommendation?user_id=${getUserId()}`);
+        const recRes = await fetch(`${API_BASE_URL}/coach/diet-recommendation?user_id=${getUserId()}`);
         if (recRes.ok) allData.diet_recommendation = await recRes.json();
         const idx = getTodayIndex();
         const tdee = allData.metrics.daily_calories;
@@ -257,7 +257,7 @@
         const data = await res.json();
         allData = data;
         try {
-          const recRes = await fetch(`${API_BASE_URL}/ai/diet-recommendation?user_id=${userId}`);
+          const recRes = await fetch(`${API_BASE_URL}/coach/diet-recommendation?user_id=${userId}`);
           if (recRes.ok) allData.diet_recommendation = await recRes.json();
         } catch (e) {
           console.error("Diet recommendation unavailable:", e);
