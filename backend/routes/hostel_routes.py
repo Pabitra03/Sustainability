@@ -656,3 +656,26 @@ def get_insights():
         return jsonify(hostel_insights(conn, context)), 200
     finally:
         conn.close()
+
+
+@hostel_bp.route("/debug", methods=["GET"])
+def debug():
+    import os
+    conn = get_db_connection()
+    if not conn:
+        return jsonify({"error": "Database connection failed"}), 500
+    try:
+        cursor = conn.cursor()
+        cursor.execute("DESCRIBE hostel_consumption")
+        columns = cursor.fetchall()
+        cursor.close()
+        return jsonify({
+            "version": "v1.0.3-debug",
+            "db_host": os.getenv("DB_HOST"),
+            "db_name": os.getenv("DB_NAME"),
+            "columns": columns
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e), "db_host": os.getenv("DB_HOST"), "db_name": os.getenv("DB_NAME")}), 500
+    finally:
+        conn.close()
