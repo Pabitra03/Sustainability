@@ -192,6 +192,7 @@ def ensure_app_schema(conn):
 
     hostel_consumption_columns = {
         "meal_type": "VARCHAR(30) NOT NULL DEFAULT 'meal'",
+        "items": "TEXT NOT NULL",
         "calories": "INT DEFAULT 0",
         "protein_g": "FLOAT DEFAULT 0",
         "carbs_g": "FLOAT DEFAULT 0",
