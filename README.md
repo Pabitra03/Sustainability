@@ -1,4 +1,4 @@
-# 🌿 Sustainability — AI-Powered Hostel Fitness Assistant
+# 🌿 Sustainability
 
 An intelligent health, nutrition, and budget assistant for college students living in hostels. The app uses profile metrics, hostel mess menus, daily progress, budget, food preferences, and logged meals to generate personalized diet, workout, mess, grocery, protein, and forecast recommendations.
 
